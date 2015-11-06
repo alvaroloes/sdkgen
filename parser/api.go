@@ -91,6 +91,7 @@ type Resource struct {
 }
 
 func NewApi(spec []byte) (*Api, error) {
+	var api Api
 	endpointMatches := endpointRegexp.FindAllSubmatchIndex(spec, -1);
 	for i, match := range endpointMatches {
 		endpoint := Endpoint {
@@ -112,10 +113,10 @@ func NewApi(spec []byte) (*Api, error) {
 		if err := endpoint.extractBodies(spec[match[endpointFullIndex + 1]:endpointDataFinalIndex]); err != nil {
 			return nil, err
 		}
-
+		api.Endpoints = append(api.Endpoints, endpoint)
 		fmt.Printf("%+v\n",endpoint)
 	}
-	return nil, nil
+	return &api, nil
 }
 
 // findJSONObject returns a byte slice containing the first JSON object or array
