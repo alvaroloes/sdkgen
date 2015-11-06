@@ -107,7 +107,7 @@ func NewApi(spec []byte) (*Api, error) {
 		if i < len(endpointMatches) - 1 {
 			endpointDataFinalIndex = endpointMatches[i + 1][endpointFullIndex]
 		} else {
-			endpointDataFinalIndex = len(spec) - 1
+			endpointDataFinalIndex = len(spec)
 		}
 
 		if err := endpoint.extractBodies(spec[match[endpointFullIndex + 1]:endpointDataFinalIndex]); err != nil {
