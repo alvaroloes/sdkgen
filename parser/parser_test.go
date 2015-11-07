@@ -154,6 +154,109 @@ var testCases = []TestCase {
 			},
 		},
 		expectedErr: nil,
+	},{
+		name: "Complex. Response array",
+		spec: []byte(`GET https://www.alvarloes.com/posts
+			<- [
+				{
+					"id":"1234",
+					"author":{
+						"name":"John",
+						"age":20
+					},
+					"title":"We really need a client SDK generator",
+					"body":"(...) we to make the machine work for us, thus we should write generators to make the computer write the non-creative part of the code for us",
+					"comments":[
+						{
+							"id":"4567",
+							"title":"I like it",
+							"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+						},{
+							"id":"4567",
+							"title":"I like it too",
+							"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator"
+						}
+					]
+				},{
+					"id":"12345",
+					"author":{
+						"name":"John",
+						"age":20
+					},
+					"title":"We really need a client SDK generator",
+					"body":"(...) we to make the machine work for us, thus we should write generators to make the computer write the non-creative part of the code for us",
+					"comments":[
+						{
+							"id":"4567",
+							"title":"I like it",
+							"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+						},{
+							"id":"4567",
+							"title":"I like it too",
+							"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator"
+						}
+					]
+				}
+			]`),
+		expectedApi: &Api {
+			Endpoints:[]Endpoint {
+				{
+					Method: "GET",
+					FullURL: "https://www.alvarloes.com/posts",
+					Resources: []Resource{
+						{
+							Name:"posts",
+							Parameters:nil,
+						},
+					},
+					RequestBody:nil,
+					ResponseBody:[]interface{} {
+						map[string]interface{} {
+							"id":"1234",
+							"author":map[string]interface{} {
+								"name":"John",
+								"age":float64(20),
+							},
+							"title":"We really need a client SDK generator",
+							"body":"(...) we to make the machine work for us, thus we should write generators to make the computer write the non-creative part of the code for us",
+							"comments": []interface{} {
+								map[string]interface{} {
+									"id":"4567",
+									"title":"I like it",
+									"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target",
+								},
+								map[string]interface{} {
+									"id":"4567",
+									"title":"I like it too",
+									"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator",
+								},
+							},
+						},map[string]interface{} {
+							"id":"12345",
+							"author":map[string]interface{} {
+								"name":"John",
+								"age":float64(20),
+							},
+							"title":"We really need a client SDK generator",
+							"body":"(...) we to make the machine work for us, thus we should write generators to make the computer write the non-creative part of the code for us",
+							"comments": []interface{} {
+								map[string]interface{} {
+									"id":"4567",
+									"title":"I like it",
+									"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target",
+								},
+								map[string]interface{} {
+									"id":"4567",
+									"title":"I like it too",
+									"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		expectedErr: nil,
 	},
 }
 
