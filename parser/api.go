@@ -2,7 +2,6 @@ package parser
 
 import (
 	"regexp"
-	"fmt"
 	"net/url"
 	"strings"
 	"encoding/json"
@@ -114,7 +113,6 @@ func NewApi(spec []byte) (*Api, error) {
 			return nil, err
 		}
 		api.Endpoints = append(api.Endpoints, endpoint)
-		fmt.Printf("%+v\n",endpoint)
 	}
 	return &api, nil
 }
