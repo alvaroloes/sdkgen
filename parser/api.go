@@ -5,10 +5,11 @@ import (
 	"net/url"
 	"strings"
 	"encoding/json"
+	"github.com/juju/errors"
 )
 
 var (
-	ErrNoRootResource = NewError(ErrorCodeNoRootResource, "root REST resource not found")
+	ErrNoRootResource = errors.New("root REST resource not found")
 )
 
 const supportedMethods = "GET|POST|PUT|DELETE"
@@ -31,26 +32,28 @@ type Api struct {
 }
 
 type Endpoint struct {
-	Method string
-	FullURL string
-	Resources []Resource
-	RequestBody interface{}
+	Method       string
+	URLString    string
+	URL 		 *url.URL
+	Resources    []Resource
+	RequestBody  interface{}
 	ResponseBody interface{}
 }
 
-func (ep *Endpoint) extractResources() (err error) {
-	parsedUrl, err := url.Parse(ep.FullURL)
+func (ep *Endpoint) extractResources() error {
+	var err error
+	ep.URL, err = url.Parse(ep.URLString)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
-	for _,segment := range strings.Split(parsedUrl.Path,"/")[1:] {
+	for _,segment := range strings.Split(ep.URL.Path,"/")[1:] {
 		segment = strings.TrimSpace(segment)
 		if segment == "" {
 			continue
 		}
 		if strings.HasPrefix(segment, segmentParameterPrefix) {
 			if len(ep.Resources) == 0 {
-				return ErrNoRootResource
+				return errors.Annotate(ErrNoRootResource, "in URL " + ep.URLString)
 			}
 			lastResource := &ep.Resources[len(ep.Resources)-1]
 			parameterName := segment[len(segmentParameterPrefix):]
@@ -70,14 +73,14 @@ func (ep *Endpoint) extractBodies(endpointData []byte) error {
 	if match != nil {
 		requestBody := findJSONObject(endpointData[match[1]:])
 		if err := json.Unmarshal(requestBody, &ep.RequestBody); err != nil {
-			return err
+			return errors.Annotate(err, "while parsing JSON request body of " + ep.URLString)
 		}
 	}
 	match = responseBodyMarkRegexp.FindIndex(endpointData);
 	if match != nil {
 		responseBody := findJSONObject(endpointData[match[1]:])
 		if err := json.Unmarshal(responseBody, &ep.ResponseBody); err != nil {
-			return err
+			return errors.Annotate(err, "while parsing JSON response body of " + ep.URLString)
 		}
 	}
 	return nil
@@ -95,11 +98,11 @@ func NewApi(spec []byte) (*Api, error) {
 	for i, match := range endpointMatches {
 		endpoint := Endpoint {
 			Method: string(spec[match[methodIndex]:match[methodIndex + 1]]),
-			FullURL: string(spec[match[urlIndex]:match[urlIndex + 1]]),
+			URLString: string(spec[match[urlIndex]:match[urlIndex + 1]]),
 		}
 
 		if err := endpoint.extractResources(); err != nil {
-			return nil, err
+			return nil, errors.Annotate(err, "while extracting resources of " + endpoint.URLString)
 		}
 
 		var endpointDataFinalIndex int
@@ -110,7 +113,7 @@ func NewApi(spec []byte) (*Api, error) {
 		}
 
 		if err := endpoint.extractBodies(spec[match[endpointFullIndex + 1]:endpointDataFinalIndex]); err != nil {
-			return nil, err
+			return nil, errors.Annotate(err, "while extracting bodies of " + endpoint.URLString)
 		}
 		api.Endpoints = append(api.Endpoints, endpoint)
 	}

@@ -2,6 +2,7 @@ package parser
 import (
 	"testing"
 	"reflect"
+	"net/url"
 )
 
 const (
@@ -29,7 +30,8 @@ var testCases = []TestCase {
 			Endpoints:[]Endpoint {
 				{
 					Method: "GET",
-					FullURL: "https://www.alvarloes.com/posts/:id/comments/:id",
+					URLString: "https://www.alvarloes.com/posts/:id/comments/:id",
+					URL: mustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
 					Resources: []Resource{
 						{
 							Name:"posts",
@@ -65,7 +67,8 @@ var testCases = []TestCase {
 			Endpoints:[]Endpoint {
 				{
 					Method: "POST",
-					FullURL: "https://www.alvarloes.com/posts/:id/comments",
+					URLString: "https://www.alvarloes.com/posts/:id/comments",
+					URL: mustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
 						{
 							Name:"posts",
@@ -106,7 +109,8 @@ var testCases = []TestCase {
 			Endpoints:[]Endpoint {
 				{
 					Method: "GET",
-					FullURL: "https://www.alvarloes.com/posts/:id/comments",
+					URLString: "https://www.alvarloes.com/posts/:id/comments",
+					URL: mustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
 						{
 							Name:"posts",
@@ -141,7 +145,8 @@ var testCases = []TestCase {
 			Endpoints:[]Endpoint {
 				{
 					Method: "DELETE",
-					FullURL: "https://www.alvarloes.com/posts/:id",
+					URLString: "https://www.alvarloes.com/posts/:id",
+					URL: mustParseURL("https://www.alvarloes.com/posts/:id"),
 					Resources: []Resource{
 						{
 							Name:"posts",
@@ -202,7 +207,8 @@ var testCases = []TestCase {
 			Endpoints:[]Endpoint {
 				{
 					Method: "GET",
-					FullURL: "https://www.alvarloes.com/posts",
+					URLString: "https://www.alvarloes.com/posts",
+					URL: mustParseURL("https://www.alvarloes.com/posts"),
 					Resources: []Resource{
 						{
 							Name:"posts",
@@ -271,4 +277,15 @@ func TestApi(t *testing.T) {
 			t.Errorf(failApiFormat, testCase.name, testCase.expectedApi, api)
 		}
 	}
+}
+
+
+// Some utils
+
+func mustParseURL(urlString string) *url.URL {
+	url, err := url.Parse(urlString)
+	if err != nil {
+		panic(err)
+	}
+	return url
 }
