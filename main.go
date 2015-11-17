@@ -1,4 +1,5 @@
 package main
+
 import (
 	"io/ioutil"
 	"log"
@@ -6,6 +7,7 @@ import (
 	"fmt"
 	"github.com/juju/errors"
 	"os"
+	"github.com/alvaroloes/sdkgen/gen"
 )
 
 func main() {
@@ -20,4 +22,8 @@ func main() {
 	}
 
 	fmt.Println(api)
+
+	gen, err := gen.New(gen.ObjC)
+
+	fmt.Println(gen, err)
 }
