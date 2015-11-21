@@ -1,8 +1,8 @@
 package gen
 
 import (
-	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/alvaroloes/sdkgen/gen/objc"
+	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/juju/errors"
 )
 
@@ -13,6 +13,7 @@ var (
 )
 
 type Language int
+
 const (
 	Android Language = iota
 	ObjC
@@ -25,11 +26,11 @@ type Generator interface {
 
 func New(language Language) (Generator, error) {
 	var gen Generator
-	switch (language) {
+	switch language {
 	case ObjC:
 		gen = &objc.ObjCGen{}
-//	case Android:
-//	case Swift:
+		//	case Android:
+		//	case Swift:
 	default:
 		return nil, errors.Annotate(ErrLangNotSupported, language.String())
 	}

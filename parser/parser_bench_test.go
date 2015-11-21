@@ -1,6 +1,6 @@
 package parser
-import "testing"
 
+import "testing"
 
 func BenchmarkSmallApi(b *testing.B) {
 	for i := 0; i < b.N; i++ {
@@ -13,7 +13,6 @@ func BenchmarkLargeApi(b *testing.B) {
 		NewApi(apiSpecLarge)
 	}
 }
-
 
 var apiSpecSmall = []byte(`
 GET https://www.alvarloes.com/posts

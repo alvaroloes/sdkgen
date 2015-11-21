@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
-	"github.com/alvaroloes/sdkgen/parser"
-	"fmt"
-	"github.com/juju/errors"
 	"os"
+
 	"github.com/alvaroloes/sdkgen/gen"
+	"github.com/alvaroloes/sdkgen/parser"
+	"github.com/juju/errors"
 )
 
 func main() {

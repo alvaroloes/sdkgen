@@ -1,10 +1,11 @@
 package parser
 
 import (
-	"regexp"
-	"net/url"
-	"strings"
 	"encoding/json"
+	"net/url"
+	"regexp"
+	"strings"
+
 	"github.com/juju/errors"
 )
 
@@ -13,7 +14,9 @@ var (
 )
 
 const supportedMethods = "GET|POST|PUT|DELETE"
+
 var endpointRegexp = regexp.MustCompile(`(?m)^\s*(` + supportedMethods + `)\s*(.*)$`)
+
 const (
 	endpointFullIndex = 2 * iota
 	methodIndex
@@ -21,8 +24,8 @@ const (
 )
 
 var (
-//	queryMarkRegexp = regexp.MustCompile(`(?m)^\s*-?`) // TODO
-	requestBodyMarkRegexp = regexp.MustCompile(`(?m)^\s*\-\>`)
+	//	queryMarkRegexp = regexp.MustCompile(`(?m)^\s*-?`) // TODO
+	requestBodyMarkRegexp  = regexp.MustCompile(`(?m)^\s*\-\>`)
 	responseBodyMarkRegexp = regexp.MustCompile(`(?m)^\s*\<\-`)
 )
 
@@ -35,7 +38,7 @@ type Api struct {
 type Endpoint struct {
 	Method       string
 	URLString    string
-	URL 		 *url.URL
+	URL          *url.URL
 	Resources    []Resource
 	RequestBody  interface{}
 	ResponseBody interface{}
@@ -47,14 +50,14 @@ func (ep *Endpoint) extractResources() error {
 	if err != nil {
 		return errors.Trace(err)
 	}
-	for _,segment := range strings.Split(ep.URL.Path,"/")[1:] {
+	for _, segment := range strings.Split(ep.URL.Path, "/")[1:] {
 		segment = strings.TrimSpace(segment)
 		if segment == "" {
 			continue
 		}
 		if strings.HasPrefix(segment, segmentParameterPrefix) {
 			if len(ep.Resources) == 0 {
-				return errors.Annotate(ErrNoRootResource, "in URL " + ep.URLString)
+				return errors.Annotate(ErrNoRootResource, "in URL "+ep.URLString)
 			}
 			lastResource := &ep.Resources[len(ep.Resources)-1]
 			parameterName := segment[len(segmentParameterPrefix):]
@@ -70,51 +73,50 @@ func (ep *Endpoint) extractResources() error {
 }
 
 func (ep *Endpoint) extractBodies(endpointData []byte) error {
-	match := requestBodyMarkRegexp.FindIndex(endpointData);
+	match := requestBodyMarkRegexp.FindIndex(endpointData)
 	if match != nil {
 		requestBody := findJSONObject(endpointData[match[1]:])
 		if err := json.Unmarshal(requestBody, &ep.RequestBody); err != nil {
-			return errors.Annotate(err, "while parsing JSON request body of " + ep.URLString)
+			return errors.Annotate(err, "while parsing JSON request body of "+ep.URLString)
 		}
 	}
-	match = responseBodyMarkRegexp.FindIndex(endpointData);
+	match = responseBodyMarkRegexp.FindIndex(endpointData)
 	if match != nil {
 		responseBody := findJSONObject(endpointData[match[1]:])
 		if err := json.Unmarshal(responseBody, &ep.ResponseBody); err != nil {
-			return errors.Annotate(err, "while parsing JSON response body of " + ep.URLString)
+			return errors.Annotate(err, "while parsing JSON response body of "+ep.URLString)
 		}
 	}
 	return nil
 }
 
-
 type Resource struct {
-	Name string
+	Name       string
 	Parameters []string
 }
 
 func NewApi(spec []byte) (*Api, error) {
 	var api Api
-	endpointMatches := endpointRegexp.FindAllSubmatchIndex(spec, -1);
+	endpointMatches := endpointRegexp.FindAllSubmatchIndex(spec, -1)
 	for i, match := range endpointMatches {
-		endpoint := Endpoint {
-			Method: string(spec[match[methodIndex]:match[methodIndex + 1]]),
-			URLString: string(spec[match[urlIndex]:match[urlIndex + 1]]),
+		endpoint := Endpoint{
+			Method:    string(spec[match[methodIndex]:match[methodIndex+1]]),
+			URLString: string(spec[match[urlIndex]:match[urlIndex+1]]),
 		}
 
 		if err := endpoint.extractResources(); err != nil {
-			return nil, errors.Annotate(err, "while extracting resources of " + endpoint.URLString)
+			return nil, errors.Annotate(err, "while extracting resources of "+endpoint.URLString)
 		}
 
 		var endpointDataFinalIndex int
-		if i < len(endpointMatches) - 1 {
-			endpointDataFinalIndex = endpointMatches[i + 1][endpointFullIndex]
+		if i < len(endpointMatches)-1 {
+			endpointDataFinalIndex = endpointMatches[i+1][endpointFullIndex]
 		} else {
 			endpointDataFinalIndex = len(spec)
 		}
 
-		if err := endpoint.extractBodies(spec[match[endpointFullIndex + 1]:endpointDataFinalIndex]); err != nil {
-			return nil, errors.Annotate(err, "while extracting bodies of " + endpoint.URLString)
+		if err := endpoint.extractBodies(spec[match[endpointFullIndex+1]:endpointDataFinalIndex]); err != nil {
+			return nil, errors.Annotate(err, "while extracting bodies of "+endpoint.URLString)
 		}
 		api.Endpoints = append(api.Endpoints, endpoint)
 	}
@@ -141,7 +143,7 @@ func findJSONObject(bytes []byte) []byte {
 	}
 
 	level := 1
-	for i, b := range bytes[from + 1:] {
+	for i, b := range bytes[from+1:] {
 		if b == opening {
 			level++
 		} else if b == closing {
@@ -149,8 +151,8 @@ func findJSONObject(bytes []byte) []byte {
 		}
 		if level <= 0 {
 			to = from + 1 + i
-			break;
+			break
 		}
 	}
-	return bytes[from:to+1]
+	return bytes[from : to+1]
 }
