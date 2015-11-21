@@ -1,10 +1,14 @@
 package gen
 
 import (
+	"path"
+	"strings"
+
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/juju/errors"
 )
 
+//go:generate go-bindata -o templates_bindata.go -pkg $GOPACKAGE ../templates/...
 //go:generate stringer -type=Language
 
 var (
@@ -19,6 +23,11 @@ const (
 	Swift
 )
 
+const (
+	templateDir  = "./templates"
+	modelTplPath = "model"
+)
+
 type Config struct {
 	OutputDir     string
 	ModelsRelPath string
@@ -26,18 +35,23 @@ type Config struct {
 }
 
 type Generator interface {
+	setTemplateDir(dir string)
 	Generate(api *parser.Api, config Config) error
 }
 
 func New(language Language) (Generator, error) {
 	var gen Generator
+	var tplDir string
+
 	switch language {
 	case ObjC:
 		gen = &ObjCGen{}
+		tplDir = path.Join(templateDir, strings.ToLower(language.String()))
 		//	case Android:
 		//	case Swift:
 	default:
 		return nil, errors.Annotate(ErrLangNotSupported, language.String())
 	}
+	gen.setTemplateDir(tplDir)
 	return gen, nil
 }
