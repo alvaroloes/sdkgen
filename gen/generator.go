@@ -1,7 +1,6 @@
 package gen
 
 import (
-	"github.com/alvaroloes/sdkgen/gen/objc"
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/juju/errors"
 )
@@ -20,15 +19,21 @@ const (
 	Swift
 )
 
+type Config struct {
+	OutputDir     string
+	ModelsRelPath string
+	ApiName       string
+}
+
 type Generator interface {
-	Generate(api *parser.Api) error
+	Generate(api *parser.Api, config Config) error
 }
 
 func New(language Language) (Generator, error) {
 	var gen Generator
 	switch language {
 	case ObjC:
-		gen = &objc.ObjCGen{}
+		gen = &ObjCGen{}
 		//	case Android:
 		//	case Swift:
 	default:
