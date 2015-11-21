@@ -7,35 +7,20 @@
 package gen
 
 import (
-	"bytes"
-	"compress/gzip"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
-func bindataRead(data []byte, name string) ([]byte, error) {
-	gz, err := gzip.NewReader(bytes.NewBuffer(data))
+// bindataRead reads the given file from disk. It returns an error on failure.
+func bindataRead(path, name string) ([]byte, error) {
+	buf, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("Read %q: %v", name, err)
+		err = fmt.Errorf("Error reading asset %s at %s: %v", name, path, err)
 	}
-
-	var buf bytes.Buffer
-	_, err = io.Copy(&buf, gz)
-	clErr := gz.Close()
-
-	if err != nil {
-		return nil, fmt.Errorf("Read %q: %v", name, err)
-	}
-	if clErr != nil {
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
+	return buf, err
 }
 
 type asset struct {
@@ -43,70 +28,40 @@ type asset struct {
 	info  os.FileInfo
 }
 
-type bindataFileInfo struct {
-	name    string
-	size    int64
-	mode    os.FileMode
-	modTime time.Time
-}
-
-func (fi bindataFileInfo) Name() string {
-	return fi.name
-}
-func (fi bindataFileInfo) Size() int64 {
-	return fi.size
-}
-func (fi bindataFileInfo) Mode() os.FileMode {
-	return fi.mode
-}
-func (fi bindataFileInfo) ModTime() time.Time {
-	return fi.modTime
-}
-func (fi bindataFileInfo) IsDir() bool {
-	return false
-}
-func (fi bindataFileInfo) Sys() interface{} {
-	return nil
-}
-
-var _TemplatesObjcModelModelHTpl = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x72\xc8\xcc\x2b\x49\x2d\x4a\x4b\x4c\x4e\x55\xa8\xae\xd6\xf3\x4b\xcc\x4d\xad\xad\x55\xb0\x52\xf0\x0b\xf6\x4f\xca\x4a\x4d\x2e\xe1\xe2\x72\x48\xcd\x4b\x01\x04\x00\x00\xff\xff\xcd\xa4\xa2\xc6\x25\x00\x00\x00")
-
-func TemplatesObjcModelModelHTplBytes() ([]byte, error) {
-	return bindataRead(
-		_TemplatesObjcModelModelHTpl,
-		"../templates/objc/model/model.h.tpl",
-	)
-}
-
+// TemplatesObjcModelModelHTpl reads file data from disk. It returns an error on failure.
 func TemplatesObjcModelModelHTpl() (*asset, error) {
-	bytes, err := TemplatesObjcModelModelHTplBytes()
+	path := "/media/Datos/Datos/projects/go/src/github.com/alvaroloes/sdkgen/templates/objc/model/model.h.tpl"
+	name := "../templates/objc/model/model.h.tpl"
+	bytes, err := bindataRead(path, name)
 	if err != nil {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "../templates/objc/model/model.h.tpl", size: 37, mode: os.FileMode(504), modTime: time.Unix(1447794360, 0)}
-	a := &asset{bytes: bytes, info: info}
-	return a, nil
+	fi, err := os.Stat(path)
+	if err != nil {
+		err = fmt.Errorf("Error reading asset info %s at %s: %v", name, path, err)
+	}
+
+	a := &asset{bytes: bytes, info: fi}
+	return a, err
 }
 
-var _TemplatesObjcModelModelMTpl = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x01\x00\x00\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00")
-
-func TemplatesObjcModelModelMTplBytes() ([]byte, error) {
-	return bindataRead(
-		_TemplatesObjcModelModelMTpl,
-		"../templates/objc/model/model.m.tpl",
-	)
-}
-
+// TemplatesObjcModelModelMTpl reads file data from disk. It returns an error on failure.
 func TemplatesObjcModelModelMTpl() (*asset, error) {
-	bytes, err := TemplatesObjcModelModelMTplBytes()
+	path := "/media/Datos/Datos/projects/go/src/github.com/alvaroloes/sdkgen/templates/objc/model/model.m.tpl"
+	name := "../templates/objc/model/model.m.tpl"
+	bytes, err := bindataRead(path, name)
 	if err != nil {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "../templates/objc/model/model.m.tpl", size: 0, mode: os.FileMode(504), modTime: time.Unix(1447800680, 0)}
-	a := &asset{bytes: bytes, info: info}
-	return a, nil
+	fi, err := os.Stat(path)
+	if err != nil {
+		err = fmt.Errorf("Error reading asset info %s at %s: %v", name, path, err)
+	}
+
+	a := &asset{bytes: bytes, info: fi}
+	return a, err
 }
 
 // Asset loads and returns the asset for the given name.

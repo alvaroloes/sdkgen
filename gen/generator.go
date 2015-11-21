@@ -8,7 +8,7 @@ import (
 	"github.com/juju/errors"
 )
 
-//go:generate go-bindata -o templates_bindata.go -pkg $GOPACKAGE ../templates/...
+//go:generate go-bindata -o templates_bindata.go -debug=$DEBUG -pkg $GOPACKAGE ../templates/...
 //go:generate stringer -type=Language
 
 var (
