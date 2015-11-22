@@ -1,3 +1,0 @@
-@interface {{.Name}} : NSObject
-
-@end
