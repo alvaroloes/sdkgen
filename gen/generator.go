@@ -24,14 +24,16 @@ const (
 )
 
 const (
-	templateDir  = "./templates"
-	modelTplPath = "model"
+	templateDir       = "./templates"
+	templateExt       = ".tpl"
+	modelTemplatePath = "model"
 )
 
 type Config struct {
 	OutputDir     string
 	ModelsRelPath string
 	ApiName       string
+	ApiPrefix     string
 }
 
 type Generator interface {

@@ -1,3 +1,3 @@
-@interface {{.Name}} : NSObject
+@interface {{.ApiName}} : NSObject
 
 @end
