@@ -36,13 +36,28 @@ type Config struct {
 	ApiPrefix     string
 }
 
-type Generator interface {
+type specificGenerator interface {
 	setTemplateDir(dir string)
-	Generate(api *parser.Api, config Config) error
+	generate(config Config, api *parser.Api, modelsInfo []modelInfo) error
 }
 
-func New(language Language) (Generator, error) {
-	var gen Generator
+type Generator struct {
+	gen        specificGenerator
+	api        *parser.Api
+	modelsInfo []modelInfo
+	config     Config
+}
+
+func (g *Generator) Generate() error {
+	return g.gen.generate(g.config, g.api, g.modelsInfo)
+}
+
+func (g *Generator) extractModelsInfo() error {
+	return nil
+}
+
+func New(language Language, api *parser.Api, config Config) (Generator, error) {
+	var gen specificGenerator
 	var tplDir string
 
 	switch language {
@@ -52,8 +67,15 @@ func New(language Language) (Generator, error) {
 		//	case Android:
 		//	case Swift:
 	default:
-		return nil, errors.Annotate(ErrLangNotSupported, language.String())
+		return Generator{}, errors.Annotate(ErrLangNotSupported, language.String())
 	}
 	gen.setTemplateDir(tplDir)
-	return gen, nil
+
+	generator := Generator{
+		gen:    gen,
+		api:    api,
+		config: config,
+	}
+
+	return generator, nil
 }

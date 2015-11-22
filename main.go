@@ -2,9 +2,8 @@ package main
 
 import (
 	"io/ioutil"
-	"os"
-
 	"log"
+	"os"
 
 	"github.com/alvaroloes/sdkgen/gen"
 	"github.com/alvaroloes/sdkgen/parser"
@@ -17,6 +16,7 @@ func main() {
 	// This will be extracted from command line flags
 	config := gen.Config{
 		ApiName:       "Test",
+		ApiPrefix:     "TT",
 		ModelsRelPath: "Models",
 		OutputDir:     "./",
 	}
@@ -31,12 +31,12 @@ func main() {
 		logger.Fatal(errors.ErrorStack(err))
 	}
 
-	gen, err := gen.New(gen.ObjC)
+	gen, err := gen.New(gen.ObjC, api, config)
 	if err != nil {
 		logger.Fatal(errors.ErrorStack(err))
 	}
 
-	if err := gen.Generate(api, config); err != nil {
+	if err := gen.Generate(); err != nil {
 		logger.Fatal(errors.ErrorStack(err))
 	}
 }

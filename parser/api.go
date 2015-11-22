@@ -32,6 +32,7 @@ var (
 const segmentParameterPrefix = ":"
 
 type Api struct {
+	//	Version   string //TODO
 	Endpoints []Endpoint
 }
 
