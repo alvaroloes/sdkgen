@@ -1,6 +1,12 @@
 package gen
 
-import "net/url"
+type ResponseType int
+
+const (
+	ObjectResponse ResponseType = iota
+	ArrayResponse
+	EmptyResponse
+)
 
 type modelInfo struct {
 	Name          string
@@ -14,7 +20,12 @@ type property struct {
 }
 
 type endpointInfo struct {
-	URL           url.URL
+	Method        string
+	URLPath       string
 	SegmentParams []string
-	EmptyResponse bool
+	ResponseType  ResponseType
+}
+
+func (mi *modelInfo) mergePropertiesFromBody(body interface{}) {
+	// TODO
 }

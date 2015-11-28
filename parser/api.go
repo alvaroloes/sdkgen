@@ -38,7 +38,7 @@ type Api struct {
 
 type Endpoint struct {
 	Method       string
-	URLString    string
+	URLString    string //TODO: Remove this. It's redundant
 	URL          *url.URL
 	Resources    []Resource
 	RequestBody  interface{}

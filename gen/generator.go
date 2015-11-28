@@ -1,7 +1,9 @@
 package gen
 
 import (
+	"net/url"
 	"path"
+	"reflect"
 	"strings"
 
 	"github.com/alvaroloes/sdkgen/parser"
@@ -53,9 +55,61 @@ func (g *Generator) Generate() error {
 }
 
 func (g *Generator) extractModelsInfo() error {
+	modelsMap := map[string]*modelInfo{}
+	for _, endpoint := range g.api.Endpoints {
+		//Extract the resource whose information is contained in this endpoint
+		mainResource := endpoint.Resources[len(endpoint.Resources)-1]
+		//Get or create the model info for this model name
+		mInfo, modelExists := modelsMap[mainResource.Name]
+		if !modelExists {
+			mInfo = &modelInfo{
+				Name: mainResource.Name,
+			}
+		}
+		// Add this new endpoint to the model info with all the data needed
+		mInfo.EndpointsInfo = append(mInfo.EndpointsInfo, endpointInfo{
+			Method:        endpoint.Method,
+			URLPath:       g.getURLPathForModels(endpoint.URL),
+			SegmentParams: extractSegmentParamsRenamingDups(endpoint.Resources),
+			ResponseType:  getResponseType(endpoint.ResponseBody),
+		})
+		// Merge the properties from request
+		// TODO: Take into account that maybe I need to pass here the modelsMap to register nested models under the corresponding name
+		mInfo.mergePropertiesFromBody(endpoint.RequestBody)
+		mInfo.mergePropertiesFromBody(endpoint.ResponseBody)
+	}
 	return nil
 }
 
+func (g *Generator) getURLPathForModels(url *url.URL) string {
+	//TODO: Strip version path when versioning is supported
+	return url.Path
+}
+
+func getResponseType(body interface{}) ResponseType {
+	if body == nil {
+		return EmptyResponse
+	}
+	switch reflect.TypeOf(body).Kind() {
+	case reflect.Map:
+		return ObjectResponse
+	case reflect.Array:
+		return ArrayResponse
+	default:
+		return EmptyResponse
+	}
+}
+
+func extractSegmentParamsRenamingDups(resources []parser.Resource) []string {
+	segmentParams := []string{}
+	for _, r := range resources {
+		//TODO: use r.Name to avoid duplicates
+		segmentParams = append(segmentParams, r.Parameters...)
+	}
+	return segmentParams
+}
+
+// New creates a new Generator for the API and configured for the language passed.
 func New(language Language, api *parser.Api, config Config) (Generator, error) {
 	var gen specificGenerator
 	var tplDir string
