@@ -73,6 +73,11 @@ func (g *Generator) extractModelsInfo() error {
 			SegmentParams: extractSegmentParamsRenamingDups(endpoint.Resources),
 			ResponseType:  getResponseType(endpoint.ResponseBody),
 		})
+		// Extract simple and complex properties properties
+
+		// TODO: call extractProper...
+		// Think of the recursive call
+
 		// Merge the properties from request
 		// TODO: Take into account that maybe I need to pass here the modelsMap to register nested models under the corresponding name
 		mInfo.mergePropertiesFromBody(endpoint.RequestBody)
@@ -84,6 +89,13 @@ func (g *Generator) extractModelsInfo() error {
 func (g *Generator) getURLPathForModels(url *url.URL) string {
 	//TODO: Strip version path when versioning is supported
 	return url.Path
+}
+
+func (g *Generator) extractPropertiesAndNestedBodies(body interface{}) ([]property, map[string]interface{}) {
+	// TODO: Extract simple properties
+	// TODO: Those that are objects or arrays -> insert them in the map
+	// TODO: This or the caller function should be recursive to allow nested models.
+	return nil, nil
 }
 
 func getResponseType(body interface{}) ResponseType {
