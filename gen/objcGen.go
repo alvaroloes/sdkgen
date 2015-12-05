@@ -19,7 +19,7 @@ func (gen *ObjCGen) setTemplateDir(tplDir string) {
 	gen.tplDir = tplDir
 }
 
-func (gen *ObjCGen) generate(config Config, api *parser.Api, modelsInfo []modelInfo) error {
+func (gen *ObjCGen) generate(config Config, api *parser.Api, modelsInfo map[string]*modelInfo) error {
 	modelTplDir := path.Join(gen.tplDir, modelTemplatePath)
 
 	modelTpls, err := template.ParseGlob(path.Join(modelTplDir, "*"+templateExt))

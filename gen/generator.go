@@ -38,16 +38,16 @@ type Config struct {
 	ApiPrefix     string
 }
 
-type specificGenerator interface {
-	setTemplateDir(dir string)
-	generate(config Config, api *parser.Api, modelsInfo []modelInfo) error
-}
-
 type Generator struct {
 	gen        specificGenerator
 	api        *parser.Api
-	modelsInfo []modelInfo
+	modelsInfo map[string]*modelInfo
 	config     Config
+}
+
+type specificGenerator interface {
+	setTemplateDir(dir string)
+	generate(config Config, api *parser.Api, modelsInfo map[string]*modelInfo) error
 }
 
 func (g *Generator) Generate() error {
@@ -55,33 +55,19 @@ func (g *Generator) Generate() error {
 }
 
 func (g *Generator) extractModelsInfo() error {
-	modelsMap := map[string]*modelInfo{}
+	g.modelsInfo = map[string]*modelInfo{}
 	for _, endpoint := range g.api.Endpoints {
-		//Extract the resource whose information is contained in this endpoint
+		// Extract the resource whose information is contained in this endpoint
 		mainResource := endpoint.Resources[len(endpoint.Resources)-1]
-		//Get or create the model info for this model name
-		mInfo, modelExists := modelsMap[mainResource.Name]
-		if !modelExists {
-			mInfo = &modelInfo{
-				Name: mainResource.Name,
-			}
-		}
-		// Add this new endpoint to the model info with all the data needed
-		mInfo.EndpointsInfo = append(mInfo.EndpointsInfo, endpointInfo{
-			Method:        endpoint.Method,
-			URLPath:       g.getURLPathForModels(endpoint.URL),
-			SegmentParams: extractSegmentParamsRenamingDups(endpoint.Resources),
-			ResponseType:  getResponseType(endpoint.ResponseBody),
-		})
-		// Extract simple and complex properties properties
+		modelName := mainResource.Name
 
-		// TODO: call extractProper...
-		// Think of the recursive call
+		// Extract the endpoint info and set it to the corresponding model
+		g.setEndpointInfo(modelName, endpoint)
 
-		// Merge the properties from request
-		// TODO: Take into account that maybe I need to pass here the modelsMap to register nested models under the corresponding name
-		mInfo.mergePropertiesFromBody(endpoint.RequestBody)
-		mInfo.mergePropertiesFromBody(endpoint.ResponseBody)
+		// Merge the properties form the request and response bodies into
+		// the corresponding model
+		g.mergeModelProperties(modelName, endpoint.RequestBody)
+		g.mergeModelProperties(modelName, endpoint.ResponseBody)
 	}
 	return nil
 }
@@ -91,11 +77,96 @@ func (g *Generator) getURLPathForModels(url *url.URL) string {
 	return url.Path
 }
 
-func (g *Generator) extractPropertiesAndNestedBodies(body interface{}) ([]property, map[string]interface{}) {
-	// TODO: Extract simple properties
-	// TODO: Those that are objects or arrays -> insert them in the map
-	// TODO: This or the caller function should be recursive to allow nested models.
-	return nil, nil
+func (g *Generator) mergeModelProperties(modelName string, body interface{}) {
+	if body == nil {
+		return
+	}
+
+	mInfo := g.getModelOrCreate(modelName)
+
+	switch reflect.TypeOf(body).Kind() {
+	case reflect.Map:
+		props := body.(map[string]interface{})
+		for propSpec, val := range props {
+			g.mergeModelProperty(mInfo, propSpec, val)
+		}
+	case reflect.Array:
+		// Get the first object of the array and start again
+		arrayVal := reflect.ValueOf(body)
+		if arrayVal.Len() == 0 {
+			return
+		}
+		g.mergeModelProperties(modelName, arrayVal.Index(0).Interface())
+	default:
+		// This means either an empty response or a non resource response. Ignore it
+		return
+	}
+}
+
+func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVal interface{}) {
+	prop := property{
+		Name: g.getPropName(propSpec),
+		Type: g.getPropType(propSpec, propVal),
+	}
+
+	_, found := mInfo.getProperty(prop.Name)
+	if found {
+		// TODO: What to do now?. Either the old or the new one must have preference
+		// We could check if prop.Type's are equal. If not -> log a warning
+		// Right now old one has preference
+
+	} else {
+		mInfo.Properties = append(mInfo.Properties, prop)
+	}
+
+	valKind := reflect.TypeOf(propVal).Kind()
+	if valKind == reflect.Map || valKind == reflect.Array {
+		g.mergeModelProperties(mInfo.Name, propVal)
+	}
+}
+
+func (g *Generator) getPropName(nameSpec string) string {
+	// TODO: Allow overriding the property name when nameSpec: "prop1: name=desiredName". This would have preference
+	return nameSpec
+}
+
+func (g *Generator) getPropType(nameSpec string, propVal interface{}) string {
+	// TODO: Allow overriding the property type when nameSpec: "prop1: type=desiredType". This would have preference
+	value := reflect.TypeOf(propVal)
+	switch value.Kind() {
+	case reflect.Map:
+		// The value is an object, the type name is the property name
+		return nameSpec
+	case reflect.Array:
+		arrayVal := reflect.ValueOf(propVal)
+		if arrayVal.Len() == 0 {
+			return ""
+		}
+		return g.getPropType(nameSpec, arrayVal.Index(0).Interface())
+	default:
+		return value.String()
+	}
+}
+
+func (g *Generator) setEndpointInfo(modelName string, endpoint parser.Endpoint) {
+	mInfo := g.getModelOrCreate(modelName)
+	mInfo.EndpointsInfo = append(mInfo.EndpointsInfo, endpointInfo{
+		Method:        endpoint.Method,
+		URLPath:       g.getURLPathForModels(endpoint.URL),
+		SegmentParams: extractSegmentParamsRenamingDups(endpoint.Resources),
+		ResponseType:  getResponseType(endpoint.ResponseBody),
+	})
+}
+
+func (g *Generator) getModelOrCreate(modelName string) *modelInfo {
+	mInfo, modelExists := g.modelsInfo[modelName]
+	if !modelExists {
+		mInfo = &modelInfo{
+			Name: modelName,
+		}
+		g.modelsInfo[modelName] = mInfo
+	}
+	return mInfo
 }
 
 func getResponseType(body interface{}) ResponseType {

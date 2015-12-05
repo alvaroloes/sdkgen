@@ -14,6 +14,15 @@ type modelInfo struct {
 	EndpointsInfo []endpointInfo
 }
 
+func (mi *modelInfo) getProperty(name string) (property, bool) {
+	for _, prop := range mi.Properties {
+		if prop.Name == name {
+			return prop, true
+		}
+	}
+	return property{}, false
+}
+
 type property struct {
 	Name string
 	Type string
@@ -24,8 +33,4 @@ type endpointInfo struct {
 	URLPath       string
 	SegmentParams []string
 	ResponseType  ResponseType
-}
-
-func (mi *modelInfo) mergePropertiesFromBody(body interface{}) {
-	// TODO
 }
