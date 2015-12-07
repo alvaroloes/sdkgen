@@ -1,6 +1,8 @@
 package gen
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/url"
 	"path"
 	"reflect"
@@ -31,6 +33,7 @@ const (
 	modelTemplatePath = "model"
 )
 
+// Config contains the needed configuration for the generator
 type Config struct {
 	OutputDir     string
 	ModelsRelPath string
@@ -38,20 +41,31 @@ type Config struct {
 	ApiPrefix     string
 }
 
+// Generator contains all the information needed to generate the SDK in a specific language
 type Generator struct {
-	gen        specificGenerator
+	gen        specificGenerator // The language specific generator
 	api        *parser.Api
-	modelsInfo map[string]*modelInfo
+	modelsInfo map[string]*modelInfo // Contains processed information to generate the models
 	config     Config
 }
 
+// The language specific generator interface
 type specificGenerator interface {
 	setTemplateDir(dir string)
 	generate(config Config, api *parser.Api, modelsInfo map[string]*modelInfo) error
 }
 
 func (g *Generator) Generate() error {
-	return g.gen.generate(g.config, g.api, g.modelsInfo)
+	// Extract the models info
+	g.extractModelsInfo()
+
+	// TODO: Temporal
+	s, _ := json.MarshalIndent(g.modelsInfo, "", "   ")
+	fmt.Println(string(s))
+
+	return nil
+	// Then call the language specific generator
+	//	return g.gen.generate(g.config, g.api, g.modelsInfo)
 }
 
 func (g *Generator) extractModelsInfo() error {
@@ -90,7 +104,7 @@ func (g *Generator) mergeModelProperties(modelName string, body interface{}) {
 		for propSpec, val := range props {
 			g.mergeModelProperty(mInfo, propSpec, val)
 		}
-	case reflect.Array:
+	case reflect.Array, reflect.Slice:
 		// Get the first object of the array and start again
 		arrayVal := reflect.ValueOf(body)
 		if arrayVal.Len() == 0 {
@@ -104,10 +118,7 @@ func (g *Generator) mergeModelProperties(modelName string, body interface{}) {
 }
 
 func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVal interface{}) {
-	prop := property{
-		Name: g.getPropName(propSpec),
-		Type: g.getPropType(propSpec, propVal),
-	}
+	prop := newProperty(propSpec, propVal)
 
 	_, found := mInfo.getProperty(prop.Name)
 	if found {
@@ -120,31 +131,8 @@ func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVa
 	}
 
 	valKind := reflect.TypeOf(propVal).Kind()
-	if valKind == reflect.Map || valKind == reflect.Array {
-		g.mergeModelProperties(mInfo.Name, propVal)
-	}
-}
-
-func (g *Generator) getPropName(nameSpec string) string {
-	// TODO: Allow overriding the property name when nameSpec: "prop1: name=desiredName". This would have preference
-	return nameSpec
-}
-
-func (g *Generator) getPropType(nameSpec string, propVal interface{}) string {
-	// TODO: Allow overriding the property type when nameSpec: "prop1: type=desiredType". This would have preference
-	value := reflect.TypeOf(propVal)
-	switch value.Kind() {
-	case reflect.Map:
-		// The value is an object, the type name is the property name
-		return nameSpec
-	case reflect.Array:
-		arrayVal := reflect.ValueOf(propVal)
-		if arrayVal.Len() == 0 {
-			return ""
-		}
-		return g.getPropType(nameSpec, arrayVal.Index(0).Interface())
-	default:
-		return value.String()
+	if valKind == reflect.Map || valKind == reflect.Array || valKind == reflect.Slice {
+		g.mergeModelProperties(prop.Name, propVal)
 	}
 }
 
@@ -176,7 +164,7 @@ func getResponseType(body interface{}) ResponseType {
 	switch reflect.TypeOf(body).Kind() {
 	case reflect.Map:
 		return ObjectResponse
-	case reflect.Array:
+	case reflect.Array, reflect.Slice:
 		return ArrayResponse
 	default:
 		return EmptyResponse
