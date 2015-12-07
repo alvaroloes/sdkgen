@@ -157,5 +157,5 @@ PUT https://www.alvarloes.com/posts/:id/comments/:id
 	"title":"I really like it",
 	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
 }
-DELETE https://www.alvarloes.com/posts/:id
+DELETE https://www.alvarloes.com/posts/:id/comments/:id
 
