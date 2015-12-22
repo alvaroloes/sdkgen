@@ -1,9 +1,10 @@
 package parser
 
 import (
-	"net/url"
 	"reflect"
 	"testing"
+
+	"github.com/alvaroloes/sdkgen/tests"
 )
 
 const (
@@ -11,14 +12,14 @@ const (
 	failApiFormat   = `Test "%v": Expected api '%v', got: '%v'\n`
 )
 
-type TestCase struct {
+type testCase struct {
 	name        string
 	spec        []byte
 	expectedApi *Api
 	expectedErr error
 }
 
-var testCases = []TestCase{
+var testCases = []testCase{
 	{
 		name: "Simple. Only response object",
 		spec: []byte(`GET https://www.alvarloes.com/posts/:id/comments/:id
@@ -32,7 +33,7 @@ var testCases = []TestCase{
 				{
 					Method:    "GET",
 					URLString: "https://www.alvarloes.com/posts/:id/comments/:id",
-					URL:       mustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
+					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
 					Resources: []Resource{
 						{
 							Name:       "posts",
@@ -69,7 +70,7 @@ var testCases = []TestCase{
 				{
 					Method:    "POST",
 					URLString: "https://www.alvarloes.com/posts/:id/comments",
-					URL:       mustParseURL("https://www.alvarloes.com/posts/:id/comments"),
+					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
 						{
 							Name:       "posts",
@@ -111,7 +112,7 @@ var testCases = []TestCase{
 				{
 					Method:    "GET",
 					URLString: "https://www.alvarloes.com/posts/:id/comments",
-					URL:       mustParseURL("https://www.alvarloes.com/posts/:id/comments"),
+					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
 						{
 							Name:       "posts",
@@ -146,7 +147,7 @@ var testCases = []TestCase{
 				{
 					Method:    "DELETE",
 					URLString: "https://www.alvarloes.com/posts/:id",
-					URL:       mustParseURL("https://www.alvarloes.com/posts/:id"),
+					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id"),
 					Resources: []Resource{
 						{
 							Name:       "posts",
@@ -208,7 +209,7 @@ var testCases = []TestCase{
 				{
 					Method:    "GET",
 					URLString: "https://www.alvarloes.com/posts",
-					URL:       mustParseURL("https://www.alvarloes.com/posts"),
+					URL:       tests.MustParseURL("https://www.alvarloes.com/posts"),
 					Resources: []Resource{
 						{
 							Name:       "posts",
@@ -277,14 +278,4 @@ func TestApi(t *testing.T) {
 			t.Errorf(failApiFormat, testCase.name, testCase.expectedApi, api)
 		}
 	}
-}
-
-// Some utils
-
-func mustParseURL(urlString string) *url.URL {
-	url, err := url.Parse(urlString)
-	if err != nil {
-		panic(err)
-	}
-	return url
 }
