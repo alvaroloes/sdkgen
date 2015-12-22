@@ -1,14 +1,16 @@
 package gen
 
 import (
+	"fmt"
 	"net/url"
+	"os"
 	"path"
 	"reflect"
 	"strings"
+	"text/template"
 
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/juju/errors"
-	"github.com/kr/pretty"
 )
 
 //go:generate go-bindata -o templates_bindata.go -debug=$DEBUG -pkg $GOPACKAGE ../templates/...
@@ -30,6 +32,7 @@ const (
 	templateDir       = "./templates"
 	templateExt       = ".tpl"
 	modelTemplatePath = "model"
+	dirPermissions    = 0777
 )
 
 // Config contains the needed configuration for the generator
@@ -40,30 +43,84 @@ type Config struct {
 	ApiPrefix     string
 }
 
+type templateData struct {
+	Config           Config
+	Api              *parser.Api
+	CurrentModelInfo *modelInfo
+	AllModelsInfo    map[string]*modelInfo
+}
+
 // Generator contains all the information needed to generate the SDK in a specific language
 type Generator struct {
 	gen        specificGenerator // The language specific generator
 	api        *parser.Api
 	modelsInfo map[string]*modelInfo // Contains processed information to generate the models
 	config     Config
+	tplDir     string
 }
 
 // The language specific generator interface
 type specificGenerator interface {
-	setTemplateDir(dir string)
-	generate(config Config, api *parser.Api, modelsInfo map[string]*modelInfo) error
+	getFuncMap() template.FuncMap
 }
 
 func (g *Generator) Generate() error {
 	// Extract the models info
 	g.extractModelsInfo()
 
-	// TODO: Temporal
-	pretty.Println(g.modelsInfo)
+	generalTpls, err := template.ParseGlob(path.Join(g.tplDir, "*"+templateExt))
+	if err != nil {
+		return errors.Annotate(err, "when reading templates at "+g.tplDir)
+	}
+
+	modelTplDir := path.Join(g.tplDir, modelTemplatePath)
+	modelTpls, err := template.ParseGlob(path.Join(modelTplDir, "*"+templateExt))
+	if err != nil {
+		return errors.Annotate(err, "when reading model templates at "+modelTplDir)
+	}
+
+	apiDir := path.Join(g.config.OutputDir, g.config.ApiName)
+	modelsDir := path.Join(apiDir, g.config.ModelsRelPath)
+
+	for _, tpl := range modelTpls.Templates() {
+		for _, modelInfo := range g.modelsInfo {
+			// Create the model file name
+			modelFileName := modelInfo.Name
+			tplFileName := tpl.Name()
+			from := strings.Index(tplFileName, ".")
+			to := strings.LastIndex(tplFileName, ".")
+			if from > 0 && to > 0 {
+				modelFileName += tplFileName[from:to]
+			}
+
+			// Create the full path and the file
+			if err := os.MkdirAll(modelsDir, dirPermissions); err != nil {
+				return errors.Annotatef(err, "when creating model %q", modelInfo.Name)
+			}
+
+			file, err := os.Create(path.Join(modelsDir, modelFileName))
+			if err != nil {
+				return errors.Annotatef(err, "when creating model %q", modelInfo.Name)
+			}
+
+			// Write the template to the file
+			err = tpl.Funcs(funcMap).Execute(file, templateData{
+				Config:           g.config,
+				Api:              g.api,
+				CurrentModelInfo: modelInfo,
+				AllModelsInfo:    g.modelsInfo,
+			})
+
+			if err != nil {
+				return errors.Annotatef(err, "when creating model %q", modelInfo.Name)
+			}
+		}
+	}
+	for _, tpl := range generalTpls.Templates() {
+		fmt.Println(tpl.Name())
+	}
 
 	return nil
-	// Then call the language specific generator
-	//	return g.gen.generate(g.config, g.api, g.modelsInfo)
 }
 
 func (g *Generator) extractModelsInfo() {
@@ -182,19 +239,19 @@ func New(language Language, api *parser.Api, config Config) (Generator, error) {
 
 	switch language {
 	case ObjC:
-		gen = &ObjCGen{}
+		//		gen = &ObjCGen{}
 		tplDir = path.Join(templateDir, strings.ToLower(language.String()))
 		//	case Android:
 		//	case Swift:
 	default:
 		return Generator{}, errors.Annotate(ErrLangNotSupported, language.String())
 	}
-	gen.setTemplateDir(tplDir)
 
 	generator := Generator{
 		gen:    gen,
 		api:    api,
 		config: config,
+		tplDir: tplDir,
 	}
 
 	return generator, nil
