@@ -12,7 +12,7 @@ const (
 
 type modelInfo struct {
 	Name          string
-	Properties    []property
+	Properties    map[string]property
 	EndpointsInfo []endpointInfo
 }
 
@@ -23,6 +23,13 @@ func (mi *modelInfo) getProperty(name string) (property, bool) {
 		}
 	}
 	return property{}, false
+}
+
+func newModelInfo(name string) *modelInfo {
+	return &modelInfo{
+		Name:       name,
+		Properties: make(map[string]property),
+	}
 }
 
 type property struct {
