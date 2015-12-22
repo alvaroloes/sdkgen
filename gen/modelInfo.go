@@ -1,6 +1,10 @@
 package gen
 
-import "reflect"
+import (
+	"reflect"
+
+	"github.com/jinzhu/inflection"
+)
 
 type ResponseType int
 
@@ -16,18 +20,9 @@ type modelInfo struct {
 	EndpointsInfo []endpointInfo
 }
 
-func (mi *modelInfo) getProperty(name string) (property, bool) {
-	for _, prop := range mi.Properties {
-		if prop.Name == name {
-			return prop, true
-		}
-	}
-	return property{}, false
-}
-
 func newModelInfo(name string) *modelInfo {
 	return &modelInfo{
-		Name:       name,
+		Name:       inflection.Singular(name),
 		Properties: make(map[string]property),
 	}
 }
@@ -46,24 +41,21 @@ func newProperty(propertySpec string, val interface{}) property {
 	return p
 }
 
-func (p *property) extractType(propertySpec string, val interface{}) string {
+func (p *property) extractType(propertySpec string, val interface{}) {
 	// TODO: Allow overriding the property type when nameSpec: "prop1: type=desiredType". This would have preference
-	// TODO: Use an inflection to singularize the type (https://github.com/jinzhu/inflection)
-	// TODO: Camelize the type? -> Better in specific generators as it depend on the language
 	value := reflect.TypeOf(val)
 	switch value.Kind() {
 	case reflect.Map:
 		// The value is an object, the type name is the property name
-		return p.Name
+		p.Type = inflection.Singular(p.Name)
 	case reflect.Array, reflect.Slice:
 		p.IsArray = true
 		arrayVal := reflect.ValueOf(val)
-		if arrayVal.Len() == 0 {
-			return ""
+		if arrayVal.Len() > 0 {
+			p.extractType(propertySpec, arrayVal.Index(0).Interface())
 		}
-		return p.extractType(propertySpec, arrayVal.Index(0).Interface())
 	default:
-		return value.String()
+		p.Type = value.String()
 	}
 }
 

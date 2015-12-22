@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	log.SetLevel(log.DebugLevel)
 	// This will be extracted from command line flags
 	config := gen.Config{
 		ApiName:       "Test",
@@ -28,7 +29,7 @@ func main() {
 		log.Fatal(errors.ErrorStack(err))
 	}
 
-	gen, err := gen.New(gen.Android, api, config)
+	gen, err := gen.New(gen.ObjC, api, config)
 	if err != nil {
 		log.Fatal(errors.ErrorStack(err))
 	}
@@ -36,4 +37,8 @@ func main() {
 	if err := gen.Generate(); err != nil {
 		log.Fatal(errors.ErrorStack(err))
 	}
+
+	//TODO:
+	// - JSON arrays of arrays may not be properly handled
+
 }

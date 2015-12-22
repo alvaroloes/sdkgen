@@ -1,8 +1,6 @@
 package gen
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/url"
 	"path"
 	"reflect"
@@ -10,6 +8,7 @@ import (
 
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/juju/errors"
+	"github.com/kr/pretty"
 )
 
 //go:generate go-bindata -o templates_bindata.go -debug=$DEBUG -pkg $GOPACKAGE ../templates/...
@@ -60,8 +59,7 @@ func (g *Generator) Generate() error {
 	g.extractModelsInfo()
 
 	// TODO: Temporal
-	s, _ := json.MarshalIndent(g.modelsInfo, "", "   ")
-	fmt.Println(string(s))
+	pretty.Println(g.modelsInfo)
 
 	return nil
 	// Then call the language specific generator
@@ -119,7 +117,7 @@ func (g *Generator) mergeModelProperties(modelName string, body interface{}) {
 func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVal interface{}) {
 	prop := newProperty(propSpec, propVal)
 
-	_, found := mInfo.getProperty(prop.Name)
+	_, found := mInfo.Properties[prop.Name]
 	if found {
 		// TODO: What to do now?. Either the old or the new one must have preference
 		// We could check if prop.Type's are equal. If not -> log a warning
