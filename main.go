@@ -2,15 +2,12 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
-	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/alvaroloes/sdkgen/gen"
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/juju/errors"
 )
-
-var logger = log.New(os.Stderr, "", 0)
 
 func main() {
 	// This will be extracted from command line flags
@@ -23,20 +20,20 @@ func main() {
 
 	specBytes, err := ioutil.ReadFile("./testFiles/api.spec")
 	if err != nil {
-		logger.Fatal(errors.Annotate(err, "when reading API spec file"))
+		log.Fatal(errors.Annotate(err, "when reading API spec file"))
 	}
 
 	api, err := parser.NewApi(specBytes)
 	if err != nil {
-		logger.Fatal(errors.ErrorStack(err))
+		log.Fatal(errors.ErrorStack(err))
 	}
 
-	gen, err := gen.New(gen.ObjC, api, config)
+	gen, err := gen.New(gen.Android, api, config)
 	if err != nil {
-		logger.Fatal(errors.ErrorStack(err))
+		log.Fatal(errors.ErrorStack(err))
 	}
 
 	if err := gen.Generate(); err != nil {
-		logger.Fatal(errors.ErrorStack(err))
+		log.Fatal(errors.ErrorStack(err))
 	}
 }
