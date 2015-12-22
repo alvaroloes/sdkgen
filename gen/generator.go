@@ -68,7 +68,7 @@ func (g *Generator) Generate() error {
 	//	return g.gen.generate(g.config, g.api, g.modelsInfo)
 }
 
-func (g *Generator) extractModelsInfo() error {
+func (g *Generator) extractModelsInfo() {
 	g.modelsInfo = map[string]*modelInfo{}
 	for _, endpoint := range g.api.Endpoints {
 		// Extract the resource whose information is contained in this endpoint
@@ -83,7 +83,6 @@ func (g *Generator) extractModelsInfo() error {
 		g.mergeModelProperties(modelName, endpoint.RequestBody)
 		g.mergeModelProperties(modelName, endpoint.ResponseBody)
 	}
-	return nil
 }
 
 func (g *Generator) getURLPathForModels(url *url.URL) string {
@@ -127,7 +126,7 @@ func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVa
 		// Right now old one has preference
 
 	} else {
-		mInfo.Properties = append(mInfo.Properties, prop)
+		mInfo.Properties[prop.Name] = prop
 	}
 
 	valKind := reflect.TypeOf(propVal).Kind()
@@ -149,9 +148,7 @@ func (g *Generator) setEndpointInfo(modelName string, endpoint parser.Endpoint) 
 func (g *Generator) getModelOrCreate(modelName string) *modelInfo {
 	mInfo, modelExists := g.modelsInfo[modelName]
 	if !modelExists {
-		mInfo = &modelInfo{
-			Name: modelName,
-		}
+		mInfo = newModelInfo(modelName)
 		g.modelsInfo[modelName] = mInfo
 	}
 	return mInfo
