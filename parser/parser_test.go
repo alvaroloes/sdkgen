@@ -5,11 +5,12 @@ import (
 	"testing"
 
 	"github.com/alvaroloes/sdkgen/tests"
+	"github.com/kr/pretty"
 )
 
 const (
-	failErrorFormat = `Test "%v": Expected error '%v', got: '%v'\n`
-	failApiFormat   = `Test "%v": Expected api '%v', got: '%v'\n`
+	failErrorFormat = "Test %q: Expected error %q, got: %q"
+	failApiFormat   = "Test %q: Didn't get the expected API. Differences are:\n%v"
 )
 
 type testCase struct {
@@ -274,8 +275,9 @@ func TestApi(t *testing.T) {
 		if ok := reflect.DeepEqual(testCase.expectedErr, err); !ok {
 			t.Errorf(failErrorFormat, testCase.name, testCase.expectedErr, err)
 		}
-		if ok := reflect.DeepEqual(testCase.expectedApi, api); !ok {
-			t.Errorf(failApiFormat, testCase.name, testCase.expectedApi, api)
+
+		if diff := pretty.Diff(testCase.expectedApi, api); len(diff) > 0 {
+			t.Errorf(failApiFormat, testCase.name, tests.FormattedDiff(diff))
 		}
 	}
 }

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	failModelsInfoFormat = "Test %q: Got wrong models info. Differences are:\n%v"
+	failModelsInfoFormat = "Test %q: Didn't get the expected models info. Differences are:\n%v"
 )
 
 type modelsInfoTestCase struct {
