@@ -68,13 +68,13 @@ func (g *Generator) Generate() error {
 	// Extract the models info
 	g.extractModelsInfo()
 
-	generalTpls, err := template.ParseGlob(path.Join(g.tplDir, "*"+templateExt))
+	generalTpls, err := template.New("").Funcs(funcMap).ParseGlob(path.Join(g.tplDir, "*"+templateExt))
 	if err != nil {
 		return errors.Annotate(err, "when reading templates at "+g.tplDir)
 	}
 
 	modelTplDir := path.Join(g.tplDir, modelTemplatePath)
-	modelTpls, err := template.ParseGlob(path.Join(modelTplDir, "*"+templateExt))
+	modelTpls, err := template.New("").Funcs(funcMap).ParseGlob(path.Join(modelTplDir, "*"+templateExt))
 	if err != nil {
 		return errors.Annotate(err, "when reading model templates at "+modelTplDir)
 	}
@@ -82,42 +82,50 @@ func (g *Generator) Generate() error {
 	apiDir := path.Join(g.config.OutputDir, g.config.ApiName)
 	modelsDir := path.Join(apiDir, g.config.ModelsRelPath)
 
+	// Create the model directory
+	if err := os.MkdirAll(modelsDir, dirPermissions); err != nil {
+		return errors.Annotatef(err, "when creating model directory")
+	}
+
 	for _, tpl := range modelTpls.Templates() {
+		tplFileName := tpl.Name()
+		var ext string
+		from := strings.Index(tplFileName, ".")
+		to := strings.LastIndex(tplFileName, ".")
+		if from > 0 && to > 0 {
+			ext = tplFileName[from:to]
+		}
+
 		for _, modelInfo := range g.modelsInfo {
-			// Create the model file name
-			modelFileName := modelInfo.Name
-			tplFileName := tpl.Name()
-			from := strings.Index(tplFileName, ".")
-			to := strings.LastIndex(tplFileName, ".")
-			if from > 0 && to > 0 {
-				modelFileName += tplFileName[from:to]
-			}
-
-			// Create the full path and the file
-			if err := os.MkdirAll(modelsDir, dirPermissions); err != nil {
-				return errors.Annotatef(err, "when creating model %q", modelInfo.Name)
-			}
-
-			file, err := os.Create(path.Join(modelsDir, modelFileName))
-			if err != nil {
-				return errors.Annotatef(err, "when creating model %q", modelInfo.Name)
-			}
-
-			// Write the template to the file
-			err = tpl.Funcs(funcMap).Execute(file, templateData{
-				Config:           g.config,
-				Api:              g.api,
-				CurrentModelInfo: modelInfo,
-				AllModelsInfo:    g.modelsInfo,
-			})
-
-			if err != nil {
+			// TODO: Do this concurrently
+			if err := g.generateModel(modelInfo, path.Join(modelsDir, modelInfo.Name+ext), tpl); err != nil {
 				return errors.Annotatef(err, "when creating model %q", modelInfo.Name)
 			}
 		}
 	}
 	for _, tpl := range generalTpls.Templates() {
 		fmt.Println(tpl.Name())
+	}
+
+	return nil
+}
+
+func (g *Generator) generateModel(modelInfo *modelInfo, filePath string, template *template.Template) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	defer file.Close()
+
+	// Write the template to the file
+	err = template.Execute(file, templateData{
+		Config:           g.config,
+		Api:              g.api,
+		CurrentModelInfo: modelInfo,
+		AllModelsInfo:    g.modelsInfo,
+	})
+	if err != nil {
+		return errors.Trace(err)
 	}
 
 	return nil

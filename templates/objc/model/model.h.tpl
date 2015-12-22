@@ -1,3 +1,3 @@
-@interface {{.Config.ApiName}} : NSObject
+@interface {{.Config.ApiName | capitalize}} : NSObject
 
 @end
