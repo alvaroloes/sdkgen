@@ -47,21 +47,21 @@ var modelsInfoTestCases = []modelsInfoTestCase{
 		},
 		expectedModelsInfo: map[string]*modelInfo{
 			"comments": {
-				Name: "comments",
+				Name: "comment",
 				Properties: map[string]property{
 					"id": {
 						Name:    "id",
-						Type:    "",
+						Type:    "string",
 						IsArray: false,
 					},
 					"title": {
 						Name:    "title",
-						Type:    "",
+						Type:    "string",
 						IsArray: false,
 					},
 					"body": {
 						Name:    "body",
-						Type:    "",
+						Type:    "string",
 						IsArray: false,
 					},
 				},
