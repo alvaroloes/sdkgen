@@ -16,7 +16,7 @@ func main() {
 		ApiName:       "Test",
 		ApiPrefix:     "TT",
 		ModelsRelPath: "Models",
-		OutputDir:     "./",
+		OutputDir:     "./testFiles",
 	}
 
 	specBytes, err := ioutil.ReadFile("./testFiles/api.spec")
