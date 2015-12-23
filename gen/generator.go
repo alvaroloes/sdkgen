@@ -50,23 +50,24 @@ type templateData struct {
 	AllModelsInfo    map[string]*modelInfo
 }
 
+type languageSpecificGenerator interface {
+	adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parser.Api, config Config)
+}
+
 // Generator contains all the information needed to generate the SDK in a specific language
 type Generator struct {
-	gen        specificGenerator // The language specific generator
+	gen        languageSpecificGenerator
 	api        *parser.Api
 	modelsInfo map[string]*modelInfo // Contains processed information to generate the models
 	config     Config
 	tplDir     string
 }
 
-// The language specific generator interface
-type specificGenerator interface {
-	getFuncMap() template.FuncMap
-}
-
 func (g *Generator) Generate() error {
 	// Extract the models info
 	g.extractModelsInfo()
+	// Adapt them to the specific language
+	g.gen.adaptModelsInfo(g.modelsInfo, g.api, g.config)
 
 	generalTpls, err := template.New("").Funcs(funcMap).ParseGlob(path.Join(g.tplDir, "*"+templateExt))
 	if err != nil {
@@ -98,7 +99,8 @@ func (g *Generator) Generate() error {
 
 		for _, modelInfo := range g.modelsInfo {
 			// TODO: Do this concurrently
-			if err := g.generateModel(modelInfo, path.Join(modelsDir, modelInfo.Name+ext), tpl); err != nil {
+			g.generateModel(modelInfo, path.Join(modelsDir, modelInfo.Name+ext), tpl)
+			if err != nil {
 				return errors.Annotatef(err, "when creating model %q", modelInfo.Name)
 			}
 		}
@@ -242,12 +244,12 @@ func extractSegmentParamsRenamingDups(resources []parser.Resource) []string {
 
 // New creates a new Generator for the API and configured for the language passed.
 func New(language Language, api *parser.Api, config Config) (Generator, error) {
-	var gen specificGenerator
+	var gen languageSpecificGenerator
 	var tplDir string
 
 	switch language {
 	case ObjC:
-		//		gen = &ObjCGen{}
+		gen = &ObjCGen{}
 		tplDir = path.Join(templateDir, strings.ToLower(language.String()))
 		//	case Android:
 		//	case Swift:

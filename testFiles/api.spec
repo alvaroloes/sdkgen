@@ -3,6 +3,7 @@ GET https://www.alvarloes.com/posts
 	{
 		"id":"1234",
 		"author":{
+			"isAdmin":false,
 			"name":"John",
 			"age":20
 		},

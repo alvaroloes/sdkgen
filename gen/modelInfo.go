@@ -15,9 +15,10 @@ const (
 )
 
 type modelInfo struct {
-	Name          string
-	Properties    map[string]property
-	EndpointsInfo []endpointInfo
+	Name             string
+	Properties       map[string]property
+	EndpointsInfo    []endpointInfo
+	LangSpecificData map[string]interface{}
 }
 
 func newModelInfo(name string) *modelInfo {

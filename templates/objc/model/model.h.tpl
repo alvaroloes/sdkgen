@@ -3,8 +3,8 @@
  * the next time the auto-generation is run
  */
 
-@interface {{.CurrentModelInfo.Name | capitalize}} : NSObject
+@interface {{.CurrentModelInfo.Name}} : NSObject
 {{range .CurrentModelInfo.Properties -}}
-@property (nonatomic, copy) {{.Type}} *{{.Name}};
+@property (nonatomic, copy) {{.Type}}{{.Name}};
 {{end -}}
 @end
