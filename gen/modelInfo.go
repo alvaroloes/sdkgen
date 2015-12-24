@@ -66,3 +66,7 @@ type endpointInfo struct {
 	SegmentParams []string
 	ResponseType  ResponseType
 }
+
+func (ei *endpointInfo) methodFuncName() string {
+	return ""
+}

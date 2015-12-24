@@ -35,6 +35,7 @@ func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parse
 
 func objCType(prop property, config Config) string {
 	var res string
+
 	if prop.IsArray {
 		res = "NSArray<"
 	}

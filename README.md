@@ -7,3 +7,4 @@ Still in an early stage of development. Be patient ;-)
 - [ ] Right now, when a property value is a map, it is generated as a class. Allow it to be generated just as a map/dictionary
 - [ ] Allow the specification of query parameters per each endpoint
 - [ ] How to detect enum values from the API spec?
+- [ ] Allow model tuning in the same way than property tuning

@@ -13,7 +13,18 @@ var (
 	ErrNoRootResource = errors.New("root REST resource not found")
 )
 
-const supportedMethods = "GET|POST|PUT|DELETE"
+//go:generate stringer -type=HTTPMethod
+
+type HTTPMethod int
+
+const (
+	GET HTTPMethod = iota
+	POST
+	PUT
+	DELETE
+)
+
+var supportedMethods = GET.String() + "|" + POST.String() + "|" + PUT.String() + "|" + DELETE.String()
 
 var endpointRegexp = regexp.MustCompile(`(?m)^\s*(` + supportedMethods + `)\s*(.*)$`)
 
