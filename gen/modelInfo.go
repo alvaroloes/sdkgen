@@ -3,6 +3,7 @@ package gen
 import (
 	"reflect"
 
+	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/jinzhu/inflection"
 )
 
@@ -61,12 +62,8 @@ func (p *property) extractType(propertySpec string, val interface{}) {
 }
 
 type endpointInfo struct {
-	Method        string
+	Method        parser.HTTPMethod
 	URLPath       string
 	SegmentParams []string
 	ResponseType  ResponseType
-}
-
-func (ei *endpointInfo) methodFuncName() string {
-	return ""
 }

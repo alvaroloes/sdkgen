@@ -32,7 +32,7 @@ var testCases = []testCase{
 		expectedApi: &Api{
 			Endpoints: []Endpoint{
 				{
-					Method:    "GET",
+					Method:    GET,
 					URLString: "https://www.alvarloes.com/posts/:id/comments/:id",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
 					Resources: []Resource{
@@ -69,7 +69,7 @@ var testCases = []testCase{
 		expectedApi: &Api{
 			Endpoints: []Endpoint{
 				{
-					Method:    "POST",
+					Method:    POST,
 					URLString: "https://www.alvarloes.com/posts/:id/comments",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
@@ -111,7 +111,7 @@ var testCases = []testCase{
 		expectedApi: &Api{
 			Endpoints: []Endpoint{
 				{
-					Method:    "GET",
+					Method:    GET,
 					URLString: "https://www.alvarloes.com/posts/:id/comments",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
@@ -146,7 +146,7 @@ var testCases = []testCase{
 		expectedApi: &Api{
 			Endpoints: []Endpoint{
 				{
-					Method:    "DELETE",
+					Method:    DELETE,
 					URLString: "https://www.alvarloes.com/posts/:id",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id"),
 					Resources: []Resource{
@@ -208,7 +208,7 @@ var testCases = []testCase{
 		expectedApi: &Api{
 			Endpoints: []Endpoint{
 				{
-					Method:    "GET",
+					Method:    GET,
 					URLString: "https://www.alvarloes.com/posts",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts"),
 					Resources: []Resource{

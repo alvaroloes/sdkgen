@@ -24,7 +24,7 @@ var modelsInfoTestCases = []modelsInfoTestCase{
 		api: &parser.Api{
 			Endpoints: []parser.Endpoint{
 				{
-					Method:    "GET",
+					Method:    parser.GET,
 					URLString: "https://www.alvarloes.com/posts/:id/comments/:id",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
 					Resources: []parser.Resource{
@@ -67,7 +67,7 @@ var modelsInfoTestCases = []modelsInfoTestCase{
 				},
 				EndpointsInfo: []endpointInfo{
 					{
-						Method:  "GET",
+						Method:  parser.GET,
 						URLPath: "/posts/:id/comments/:id",
 						SegmentParams: []string{
 							"id",

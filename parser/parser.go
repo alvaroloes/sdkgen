@@ -18,7 +18,8 @@ var (
 type HTTPMethod int
 
 const (
-	GET HTTPMethod = iota
+	UNKNOWN_HTTP_METHOD HTTPMethod = iota
+	GET
 	POST
 	PUT
 	DELETE
@@ -48,7 +49,7 @@ type Api struct {
 }
 
 type Endpoint struct {
-	Method       string
+	Method       HTTPMethod
 	URLString    string //TODO: Remove this. It's redundant
 	URL          *url.URL
 	Resources    []Resource
@@ -112,9 +113,14 @@ func NewApi(spec []byte) (*Api, error) {
 	endpointMatches := endpointRegexp.FindAllSubmatchIndex(spec, -1)
 	for i, match := range endpointMatches {
 		endpoint := Endpoint{
-			Method:    string(spec[match[methodIndex]:match[methodIndex+1]]),
 			URLString: string(spec[match[urlIndex]:match[urlIndex+1]]),
 		}
+
+		httpMethod, err := HTTPMethodString(string(spec[match[methodIndex]:match[methodIndex+1]]))
+		if err != nil {
+			return nil, errors.Annotate(err, "while extracting the HTTP method of "+endpoint.URLString)
+		}
+		endpoint.Method = httpMethod
 
 		if err := endpoint.extractResources(); err != nil {
 			return nil, errors.Annotate(err, "while extracting resources of "+endpoint.URLString)

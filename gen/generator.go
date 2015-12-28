@@ -13,14 +13,15 @@ import (
 	"github.com/juju/errors"
 )
 
-//go:generate go-bindata -o templates_bindata.go -debug=$DEBUG -pkg $GOPACKAGE ../templates/...
-//go:generate stringer -type=Language
+//go:generate go-bindata -debug=$DEBUG -o=templates_bindata.go -pkg=$GOPACKAGE ../templates/...
 
 var (
 	ErrLangNotSupported = errors.New("language not supported")
 )
 
 type Language int
+
+//go:generate stringer -type=Language
 
 const (
 	Android Language = iota
