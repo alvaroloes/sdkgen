@@ -13,7 +13,7 @@ var (
 	ErrNoRootResource = errors.New("root REST resource not found")
 )
 
-//go:generate stringer -type=HTTPMethod
+//go:generate enumer -type=HTTPMethod
 
 type HTTPMethod int
 
