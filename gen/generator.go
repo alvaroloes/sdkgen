@@ -105,21 +105,42 @@ func (g *Generator) Generate() error {
 
 func (g *Generator) generateGeneralFiles(generalTpls *template.Template, apiDir string) error {
 	for _, tpl := range generalTpls.Templates() {
-		tpl = tpl
+		// TODO: Do this concurrently
+		// Get the name of the file, replacing some special strings in the template name
+		repl := strings.NewReplacer(
+			templateExt, "",
+			fileNameApiNameInterpolation, g.config.APIName,
+			fileNameApiPrefixInterpolation, g.config.APIPrefix,
+		)
+		fileName := repl.Replace(tpl.Name())
+		err := g.generateGeneralFile(path.Join(apiDir, fileName), tpl)
+		if err != nil {
+			return errors.Annotatef(err, "when generating API file %q", fileName)
+		}
 	}
 	return nil
 }
 
+func (g *Generator) generateGeneralFile(filePath string, tpl *template.Template) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	defer file.Close()
+
+	err = tpl.Execute(file, templateData{
+		Config:        g.config,
+		API:           g.api,
+		AllModelsInfo: g.modelsInfo,
+	})
+
+	return errors.Trace(err)
+}
+
 func (g *Generator) generateModelFiles(modelTpls *template.Template, modelsDir string) error {
 	for _, tpl := range modelTpls.Templates() {
-		tplFileName := tpl.Name()
-		var ext string
-		from := strings.Index(tplFileName, ".")
-		to := strings.LastIndex(tplFileName, ".")
-		if from > 0 && to > 0 {
-			ext = tplFileName[from:to]
-		}
-
+		ext := getExtensionFromTemplateFileName(tpl.Name())
+		// Apply the templates to each model in the API
 		for _, modelInfo := range g.modelsInfo {
 			// TODO: Do this concurrently
 			err := g.generateModel(modelInfo, path.Join(modelsDir, modelInfo.Name+ext), tpl)
@@ -131,7 +152,7 @@ func (g *Generator) generateModelFiles(modelTpls *template.Template, modelsDir s
 	return nil
 }
 
-func (g *Generator) generateModel(modelInfo *modelInfo, filePath string, template *template.Template) error {
+func (g *Generator) generateModel(modelInfo *modelInfo, filePath string, tpl *template.Template) error {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return errors.Trace(err)
@@ -139,7 +160,7 @@ func (g *Generator) generateModel(modelInfo *modelInfo, filePath string, templat
 	defer file.Close()
 
 	// Write the template to the file
-	err = template.Execute(file, templateData{
+	err = tpl.Execute(file, templateData{
 		Config:           g.config,
 		API:              g.api,
 		CurrentModelInfo: modelInfo,
@@ -259,6 +280,15 @@ func extractSegmentParamsRenamingDups(resources []parser.Resource) []string {
 		segmentParams = append(segmentParams, r.Parameters...)
 	}
 	return segmentParams
+}
+
+func getExtensionFromTemplateFileName(tplFileName string) string {
+	from := strings.Index(tplFileName, ".")
+	to := strings.LastIndex(tplFileName, ".")
+	if from > 0 && to > 0 {
+		return tplFileName[from:to]
+	}
+	return ""
 }
 
 // New creates a new Generator for the API and configured for the language passed.
