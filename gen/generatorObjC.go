@@ -29,6 +29,8 @@ func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parse
 			prop.Type = objCType(prop, config)
 			modelInfo.Properties[propSpec] = prop
 			// TODO: Property attributes
+			// TODO: Insert the resource manager file as a template
+			// TODO: Generate the model methods: Which name? param names?
 		}
 	}
 }
