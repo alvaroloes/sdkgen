@@ -13,8 +13,8 @@ func main() {
 	log.SetLevel(log.DebugLevel)
 	// This will be extracted from command line flags
 	config := gen.Config{
-		ApiName:       "Test",
-		ApiPrefix:     "TT",
+		APIName:       "Test",
+		APIPrefix:     "TT",
 		ModelsRelPath: "Models",
 		OutputDir:     "./testFiles",
 	}
@@ -24,7 +24,7 @@ func main() {
 		log.Fatal(errors.Annotate(err, "when reading API spec file"))
 	}
 
-	api, err := parser.NewApi(specBytes)
+	api, err := parser.NewAPI(specBytes)
 	if err != nil {
 		log.Fatal(errors.ErrorStack(err))
 	}

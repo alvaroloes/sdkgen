@@ -2,15 +2,15 @@ package parser
 
 import "testing"
 
-func BenchmarkSmallApi(b *testing.B) {
+func BenchmarkSmallAPI(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		NewApi(apiSpecSmall)
+		NewAPI(apiSpecSmall)
 	}
 }
 
-func BenchmarkLargeApi(b *testing.B) {
+func BenchmarkLargeAPI(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		NewApi(apiSpecLarge)
+		NewAPI(apiSpecLarge)
 	}
 }
 

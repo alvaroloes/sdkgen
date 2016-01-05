@@ -14,14 +14,14 @@ const (
 
 type modelsInfoTestCase struct {
 	name               string
-	api                *parser.Api
+	api                *parser.API
 	expectedModelsInfo map[string]*modelInfo
 }
 
 var modelsInfoTestCases = []modelsInfoTestCase{
 	{
 		name: "Simple. Only one GET endpoint",
-		api: &parser.Api{
+		api: &parser.API{
 			Endpoints: []parser.Endpoint{
 				{
 					Method:    parser.GET,

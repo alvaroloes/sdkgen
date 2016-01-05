@@ -22,9 +22,9 @@ var objCTypePerGoType = map[string]objCTypeInfo{
 type ObjCGen struct {
 }
 
-func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parser.Api, config Config) {
+func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parser.API, config Config) {
 	for _, modelInfo := range modelsInfo {
-		modelInfo.Name = config.ApiPrefix + capitalize(modelInfo.Name)
+		modelInfo.Name = config.APIPrefix + capitalize(modelInfo.Name)
 		for propSpec, prop := range modelInfo.Properties {
 			prop.Type = objCType(prop, config)
 			modelInfo.Properties[propSpec] = prop
@@ -51,7 +51,7 @@ func objCType(prop property, config Config) string {
 			res += objCType.Name
 		}
 	} else {
-		res += config.ApiPrefix + capitalize(prop.Type)
+		res += config.APIPrefix + capitalize(prop.Type)
 	}
 
 	if prop.IsArray {

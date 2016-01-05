@@ -43,7 +43,7 @@ var (
 
 const segmentParameterPrefix = ":"
 
-type Api struct {
+type API struct {
 	//	Version   string //TODO
 	Endpoints []Endpoint
 }
@@ -108,8 +108,8 @@ type Resource struct {
 	Parameters []string
 }
 
-func NewApi(spec []byte) (*Api, error) {
-	var api Api
+func NewAPI(spec []byte) (*API, error) {
+	var api API
 	endpointMatches := endpointRegexp.FindAllSubmatchIndex(spec, -1)
 	for i, match := range endpointMatches {
 		endpoint := Endpoint{

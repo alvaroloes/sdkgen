@@ -10,13 +10,13 @@ import (
 
 const (
 	failErrorFormat = "Test %q: Expected error %q, got: %q"
-	failApiFormat   = "Test %q: Didn't get the expected API. Differences are:\n%v"
+	failAPIFormat   = "Test %q: Didn't get the expected API. Differences are:\n%v"
 )
 
 type testCase struct {
 	name        string
 	spec        []byte
-	expectedApi *Api
+	expectedAPI *API
 	expectedErr error
 }
 
@@ -29,7 +29,7 @@ var testCases = []testCase{
 				"title":"I like it",
 				"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client languages your API target"
 			}`),
-		expectedApi: &Api{
+		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
 					Method:    GET,
@@ -66,7 +66,7 @@ var testCases = []testCase{
 				"title":"I like it",
 				"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client languages your API target"
 			}`),
-		expectedApi: &Api{
+		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
 					Method:    POST,
@@ -108,7 +108,7 @@ var testCases = []testCase{
 					"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator"
 				}
 			]`),
-		expectedApi: &Api{
+		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
 					Method:    GET,
@@ -143,7 +143,7 @@ var testCases = []testCase{
 	}, {
 		name: "Simple. No request nor response",
 		spec: []byte(`DELETE https://www.alvarloes.com/posts/:id`),
-		expectedApi: &Api{
+		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
 					Method:    DELETE,
@@ -205,7 +205,7 @@ var testCases = []testCase{
 					]
 				}
 			]`),
-		expectedApi: &Api{
+		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
 					Method:    GET,
@@ -268,16 +268,16 @@ var testCases = []testCase{
 	},
 }
 
-func TestApi(t *testing.T) {
+func TestAPI(t *testing.T) {
 	for _, testCase := range testCases {
-		api, err := NewApi(testCase.spec)
+		api, err := NewAPI(testCase.spec)
 
 		if ok := reflect.DeepEqual(testCase.expectedErr, err); !ok {
 			t.Errorf(failErrorFormat, testCase.name, testCase.expectedErr, err)
 		}
 
-		if diff := pretty.Diff(testCase.expectedApi, api); len(diff) > 0 {
-			t.Errorf(failApiFormat, testCase.name, tests.FormattedDiff(diff))
+		if diff := pretty.Diff(testCase.expectedAPI, api); len(diff) > 0 {
+			t.Errorf(failAPIFormat, testCase.name, tests.FormattedDiff(diff))
 		}
 	}
 }

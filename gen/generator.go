@@ -40,25 +40,25 @@ const (
 type Config struct {
 	OutputDir     string
 	ModelsRelPath string
-	ApiName       string
-	ApiPrefix     string
+	APIName       string
+	APIPrefix     string
 }
 
 type templateData struct {
 	Config           Config
-	Api              *parser.Api
+	API              *parser.API
 	CurrentModelInfo *modelInfo
 	AllModelsInfo    map[string]*modelInfo
 }
 
 type languageSpecificGenerator interface {
-	adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parser.Api, config Config)
+	adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parser.API, config Config)
 }
 
 // Generator contains all the information needed to generate the SDK in a specific language
 type Generator struct {
 	gen        languageSpecificGenerator
-	api        *parser.Api
+	api        *parser.API
 	modelsInfo map[string]*modelInfo // Contains processed information to generate the models
 	config     Config
 	tplDir     string
@@ -81,7 +81,7 @@ func (g *Generator) Generate() error {
 		return errors.Annotate(err, "when reading model templates at "+modelTplDir)
 	}
 
-	apiDir := path.Join(g.config.OutputDir, g.config.ApiName)
+	apiDir := path.Join(g.config.OutputDir, g.config.APIName)
 	modelsDir := path.Join(apiDir, g.config.ModelsRelPath)
 
 	// Create the model directory
@@ -123,7 +123,7 @@ func (g *Generator) generateModel(modelInfo *modelInfo, filePath string, templat
 	// Write the template to the file
 	err = template.Execute(file, templateData{
 		Config:           g.config,
-		Api:              g.api,
+		API:              g.api,
 		CurrentModelInfo: modelInfo,
 		AllModelsInfo:    g.modelsInfo,
 	})
@@ -244,7 +244,7 @@ func extractSegmentParamsRenamingDups(resources []parser.Resource) []string {
 }
 
 // New creates a new Generator for the API and configured for the language passed.
-func New(language Language, api *parser.Api, config Config) (Generator, error) {
+func New(language Language, api *parser.API, config Config) (Generator, error) {
 	var gen languageSpecificGenerator
 	var tplDir string
 
