@@ -1,7 +1,6 @@
 package gen
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -30,10 +29,12 @@ const (
 )
 
 const (
-	templateDir       = "./templates"
-	templateExt       = ".tpl"
-	modelTemplatePath = "model"
-	dirPermissions    = 0777
+	templateDir                    = "./templates"
+	templateExt                    = ".tpl"
+	modelTemplatePath              = "model"
+	fileNameApiNameInterpolation   = "--ApiName--"
+	fileNameApiPrefixInterpolation = "--ApiPrefix--"
+	dirPermissions                 = 0777
 )
 
 // Config contains the needed configuration for the generator
@@ -89,6 +90,27 @@ func (g *Generator) Generate() error {
 		return errors.Annotatef(err, "when creating model directory")
 	}
 
+	err = g.generateGeneralFiles(generalTpls, apiDir)
+	if err != nil {
+		return errors.Annotate(err, "when generating API files")
+	}
+
+	err = g.generateModelFiles(modelTpls, modelsDir)
+	if err != nil {
+		return errors.Annotate(err, "when generating model files")
+	}
+
+	return nil
+}
+
+func (g *Generator) generateGeneralFiles(generalTpls *template.Template, apiDir string) error {
+	for _, tpl := range generalTpls.Templates() {
+		tpl = tpl
+	}
+	return nil
+}
+
+func (g *Generator) generateModelFiles(modelTpls *template.Template, modelsDir string) error {
 	for _, tpl := range modelTpls.Templates() {
 		tplFileName := tpl.Name()
 		var ext string
@@ -100,16 +122,12 @@ func (g *Generator) Generate() error {
 
 		for _, modelInfo := range g.modelsInfo {
 			// TODO: Do this concurrently
-			g.generateModel(modelInfo, path.Join(modelsDir, modelInfo.Name+ext), tpl)
+			err := g.generateModel(modelInfo, path.Join(modelsDir, modelInfo.Name+ext), tpl)
 			if err != nil {
-				return errors.Annotatef(err, "when creating model %q", modelInfo.Name)
+				return errors.Annotatef(err, "when generating model %q", modelInfo.Name)
 			}
 		}
 	}
-	for _, tpl := range generalTpls.Templates() {
-		fmt.Println(tpl.Name())
-	}
-
 	return nil
 }
 
