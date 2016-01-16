@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/juju/errors"
@@ -51,6 +52,7 @@ type templateData struct {
 	API              *parser.API
 	CurrentModelInfo *modelInfo
 	AllModelsInfo    map[string]*modelInfo
+	CurrentTime      time.Time
 }
 
 type languageSpecificGenerator interface {
@@ -134,6 +136,7 @@ func (g *Generator) generateGeneralFile(filePath string, tpl *template.Template)
 		Config:        g.config,
 		API:           g.api,
 		AllModelsInfo: g.modelsInfo,
+		CurrentTime:   time.Now(),
 	})
 
 	return errors.Trace(err)
@@ -168,6 +171,7 @@ func (g *Generator) generateModel(modelInfo *modelInfo, filePath string, tpl *te
 		API:              g.api,
 		CurrentModelInfo: modelInfo,
 		AllModelsInfo:    g.modelsInfo,
+		CurrentTime:      time.Now(),
 	})
 	if err != nil {
 		return errors.Trace(err)
