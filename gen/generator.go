@@ -33,8 +33,8 @@ const (
 	templateDir                    = "./templates"
 	templateExt                    = ".tpl"
 	modelTemplatePath              = "model"
-	fileNameApiNameInterpolation   = "--ApiName--"
-	fileNameApiPrefixInterpolation = "--ApiPrefix--"
+	fileNameAPINameInterpolation   = "--APIName--"
+	fileNameAPIPrefixInterpolation = "--APIPrefix--"
 	dirPermissions                 = 0777
 )
 
@@ -110,8 +110,8 @@ func (g *Generator) generateGeneralFiles(generalTpls *template.Template, apiDir 
 		// Get the name of the file, replacing some special strings in the template name
 		repl := strings.NewReplacer(
 			templateExt, "",
-			fileNameApiNameInterpolation, g.config.APIName,
-			fileNameApiPrefixInterpolation, g.config.APIPrefix,
+			fileNameAPINameInterpolation, g.config.APIName,
+			fileNameAPIPrefixInterpolation, g.config.APIPrefix,
 		)
 		fileName := repl.Replace(tpl.Name())
 		err := g.generateGeneralFile(path.Join(apiDir, fileName), tpl)
