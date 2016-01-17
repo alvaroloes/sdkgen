@@ -9,6 +9,8 @@ import (
 	"text/template"
 	"time"
 
+	"path/filepath"
+
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/juju/errors"
 )
@@ -83,14 +85,22 @@ func (g *Generator) Generate() error {
 		return errors.Annotate(err, "when reading common templates ("+baseTplsGlob+")")
 	}
 
-	generalTpls, err := template.Must(baseTpls.Clone()).ParseGlob(generalTplsGlob)
+	generalTplFileNames, err := filepath.Glob(generalTplsGlob)
 	if err != nil {
-		return errors.Annotate(err, "when reading general templates ("+generalTplsGlob+")")
+		return errors.Annotate(err, "when reading general template files ("+generalTplsGlob+")")
+	}
+	generalTpls, err := template.Must(baseTpls.Clone()).ParseFiles(generalTplFileNames...)
+	if err != nil {
+		return errors.Annotate(err, "when parsing general template files ("+generalTplsGlob+")")
 	}
 
-	modelTpls, err := template.Must(baseTpls.Clone()).ParseGlob(modelTplsGlob)
+	modelTplFileNames, err := filepath.Glob(modelTplsGlob)
 	if err != nil {
-		return errors.Annotate(err, "when reading model templates ("+modelTplsGlob+")")
+		return errors.Annotate(err, "when reading model template files ("+modelTplsGlob+")")
+	}
+	modelTpls, err := template.Must(baseTpls.Clone()).ParseFiles(modelTplFileNames...)
+	if err != nil {
+		return errors.Annotate(err, "when parsing model templates files ("+modelTplsGlob+")")
 	}
 
 	apiDir := path.Join(g.config.OutputDir, g.config.APIName)
@@ -101,12 +111,12 @@ func (g *Generator) Generate() error {
 		return errors.Annotatef(err, "when creating model directory")
 	}
 
-	err = g.generateGeneralFiles(generalTpls, apiDir)
+	err = g.generateGeneralFiles(generalTplFileNames, generalTpls, apiDir)
 	if err != nil {
 		return errors.Annotate(err, "when generating API files")
 	}
 
-	err = g.generateModelFiles(modelTpls, modelsDir)
+	err = g.generateModelFiles(modelTplFileNames, modelTpls, modelsDir)
 	if err != nil {
 		return errors.Annotate(err, "when generating model files")
 	}
@@ -114,8 +124,9 @@ func (g *Generator) Generate() error {
 	return nil
 }
 
-func (g *Generator) generateGeneralFiles(generalTpls *template.Template, apiDir string) error {
-	for _, tpl := range generalTpls.Templates() {
+func (g *Generator) generateGeneralFiles(templateFileNames []string, generalTpls *template.Template, apiDir string) error {
+	for _, tplFileName := range templateFileNames {
+		tplName := filepath.Base(tplFileName)
 		// TODO: Do this concurrently
 		// Get the name of the file, replacing some special strings in the template name
 		repl := strings.NewReplacer(
@@ -123,8 +134,8 @@ func (g *Generator) generateGeneralFiles(generalTpls *template.Template, apiDir 
 			fileNameAPINameInterpolation, g.config.APIName,
 			fileNameAPIPrefixInterpolation, g.config.APIPrefix,
 		)
-		fileName := repl.Replace(tpl.Name())
-		err := g.generateGeneralFile(path.Join(apiDir, fileName), tpl)
+		fileName := repl.Replace(tplName)
+		err := g.generateGeneralFile(path.Join(apiDir, fileName), generalTpls.Lookup(tplName))
 		if err != nil {
 			return errors.Annotatef(err, "when generating API file %q", fileName)
 		}
@@ -149,13 +160,14 @@ func (g *Generator) generateGeneralFile(filePath string, tpl *template.Template)
 	return errors.Trace(err)
 }
 
-func (g *Generator) generateModelFiles(modelTpls *template.Template, modelsDir string) error {
-	for _, tpl := range modelTpls.Templates() {
-		ext := getExtensionFromTemplateFileName(tpl.Name())
+func (g *Generator) generateModelFiles(templateFileNames []string, modelTpls *template.Template, modelsDir string) error {
+	for _, tplFileName := range templateFileNames {
+		tplName := filepath.Base(tplFileName)
+		ext := getExtensionFromTemplateFileName(tplName)
 		// Apply the templates to each model in the API
 		for _, modelInfo := range g.modelsInfo {
 			// TODO: Do this concurrently
-			err := g.generateModel(modelInfo, path.Join(modelsDir, modelInfo.Name+ext), tpl)
+			err := g.generateModel(modelInfo, path.Join(modelsDir, modelInfo.Name+ext), modelTpls.Lookup(tplName))
 			if err != nil {
 				return errors.Annotatef(err, "when generating model %q", modelInfo.Name)
 			}
