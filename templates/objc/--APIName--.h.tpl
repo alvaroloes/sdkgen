@@ -1,16 +1,13 @@
-//
-//  Created on {{.CurrentTime.Format "2006/01/02 15:04:05 MST"}}
-//
+{{template "preHeaderComment" .}}
 
 #import "{{.Config.APIPrefix}}ResourceManager.h"
 {{- /*TODO: #import " AuthenticationManager.h" */}}
-{{- /*TODO: #import "MSDKRequestInfo.h" */}}
 {{- range .AllModelsInfo }}
 #import "{{.Name}}.h"
 {{- end}}
 
 @interface {{.Config.APIName}} : NSObject
-{{- /*TODO: This is still unfinished: @property (nonatomic, strong) {{.Config.APIPrefix}}AuthenticationManager *authenticationManager;*/}}
+{{- /*TODO: @property (nonatomic, strong) {{.Config.APIPrefix}}AuthenticationManager *authenticationManager;*/}}
 
 /**
  *  Overrides the {{.Config.APIName}} SDK base url
