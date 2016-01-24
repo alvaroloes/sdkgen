@@ -33,7 +33,7 @@ static NSString * s{{.Config.APIPrefix}}BaseURL = nil;
     return {{$apiVar}};
 }
 
-- (void)setDefaultErrorHandlerWithBlock:(void (^)(NSError *))block
+- (void)setGlobalErrorHandlerWithBlock:(void (^)(NSError *))block
 {
 	PMKUnhandledErrorHandler = ^void(NSError *error)
 	{
