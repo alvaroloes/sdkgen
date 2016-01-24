@@ -6,18 +6,11 @@ import (
 )
 
 var funcMap = template.FuncMap{
-	"capitalize": capitalize,
-	"camelize":   camelize,
-}
-
-func capitalize(s string) string {
-	if s == "" {
+	"toLower":strings.ToLower,
+	"title": func(s string) string {
 		return ""
-	}
-	return strings.ToUpper(s[0:1]) + s[1:]
-}
-
-func camelize(s string) string {
-	// TODO
-	return s
+	},
+	"camelize": func(s string) string {
+		return ""
+	},
 }

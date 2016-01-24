@@ -1,6 +1,9 @@
 package gen
 
-import "github.com/alvaroloes/sdkgen/parser"
+import (
+	"github.com/alvaroloes/sdkgen/parser"
+	"strings"
+)
 
 type objCTypeInfo struct {
 	Name    string
@@ -24,7 +27,7 @@ type ObjCGen struct {
 
 func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parser.API, config Config) {
 	for _, modelInfo := range modelsInfo {
-		modelInfo.Name = config.APIPrefix + capitalize(modelInfo.Name)
+		modelInfo.Name = config.APIPrefix + strings.Title(modelInfo.Name)
 		for propSpec, prop := range modelInfo.Properties {
 			prop.Type = objCType(prop, config)
 			modelInfo.Properties[propSpec] = prop
@@ -51,7 +54,7 @@ func objCType(prop property, config Config) string {
 			res += objCType.Name
 		}
 	} else {
-		res += config.APIPrefix + capitalize(prop.Type)
+		res += config.APIPrefix + strings.Title(prop.Type)
 	}
 
 	if prop.IsArray {
