@@ -8,3 +8,4 @@ Still in an early stage of development. Be patient ;-)
 - [ ] Allow the specification of query parameters per each endpoint
 - [ ] How to detect enum values from the API spec?
 - [ ] Allow model tuning in the same way than property tuning
+- [ ] JSON arrays of arrays may not be properly handled

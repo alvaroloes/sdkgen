@@ -80,11 +80,13 @@ func (g *Generator) Generate() error {
 	generalTplsGlob := path.Join(g.tplDir, "*"+templateExt)
 	modelTplsGlob := path.Join(g.tplDir, modelTemplatePath, "*"+templateExt)
 
+	// Parse the base templates that contains common definitions
 	baseTpls, err := template.New("base").Funcs(funcMap).ParseGlob(baseTplsGlob)
 	if err != nil {
-		return errors.Annotate(err, "when reading common templates ("+baseTplsGlob+")")
+		return errors.Annotate(err, "when parsing common templates ("+baseTplsGlob+")")
 	}
 
+	// Read and parse the SDK general template files
 	generalTplFileNames, err := filepath.Glob(generalTplsGlob)
 	if err != nil {
 		return errors.Annotate(err, "when reading general template files ("+generalTplsGlob+")")
@@ -94,6 +96,7 @@ func (g *Generator) Generate() error {
 		return errors.Annotate(err, "when parsing general template files ("+generalTplsGlob+")")
 	}
 
+	// Read and parse the SDK model template files
 	modelTplFileNames, err := filepath.Glob(modelTplsGlob)
 	if err != nil {
 		return errors.Annotate(err, "when reading model template files ("+modelTplsGlob+")")
@@ -111,11 +114,11 @@ func (g *Generator) Generate() error {
 		return errors.Annotatef(err, "when creating model directory")
 	}
 
+	// Generate the SDK files applying the templates
 	err = g.generateGeneralFiles(generalTplFileNames, generalTpls, apiDir)
 	if err != nil {
 		return errors.Annotate(err, "when generating API files")
 	}
-
 	err = g.generateModelFiles(modelTplFileNames, modelTpls, modelsDir)
 	if err != nil {
 		return errors.Annotate(err, "when generating model files")

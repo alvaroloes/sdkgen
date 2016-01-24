@@ -37,8 +37,4 @@ func main() {
 	if err := gen.Generate(); err != nil {
 		log.Fatal(errors.ErrorStack(err))
 	}
-
-	//TODO:
-	// - JSON arrays of arrays may not be properly handled
-
 }
