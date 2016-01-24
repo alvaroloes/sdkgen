@@ -1,30 +1,18 @@
 {{template "preHeaderComment" .}}
 
 #import "{{.Config.APIName}}.h"
-{{- /*TODO: #import <AFOAuth2Manager.h>*/}}
 
-static NSString * s{{.Config.APIPrefix}}BaseURL = nil;
+static const NSString * k{{.Config.APIPrefix}}BaseURL = @"TODO: This should be the default base url";
+
+@interface {{.Config.APIName}} : NSObject
+@property (nonatomic, strong) {{.Config.APIPrefix}}ResourceManager *resourceManager
+@end
 
 @implementation {{.Config.APIName}}
 
-+ (void) useBaseURLString:(NSString *)urlString
++ (instancetype)default
 {
-    s{{.Config.APIPrefix}}BaseURL = urlString;
-}
-
-- (instancetype)init
-{
-    if (self = [super init])
-    {
-        _resourceManager = [[{{.Config.APIPrefix}}ResourceManager alloc] initWithBaseURL:s{{.Config.APIPrefix}}BaseURL];
-    }
-    return self;
-}
-
-+ (instancetype)sharedInstance
-{
-    assert(s{{.Config.APIPrefix}}BaseURL != nil);
-    {{$apiVar := lowerFirst .Config.APIName}}
+    {{- $apiVar := lowerFirst .Config.APIName}}
     static {{.Config.APIName}} *{{$apiVar}} = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -33,7 +21,27 @@ static NSString * s{{.Config.APIPrefix}}BaseURL = nil;
     return {{$apiVar}};
 }
 
-- (void)setGlobalErrorHandlerWithBlock:(void (^)(NSError *))block
+- (instancetype)init
+{
+    if (self = [super init])
+    {
+        _resourceManager = [[{{.Config.APIPrefix}}ResourceManager alloc] initWithBaseURL:k{{.Config.APIPrefix}}BaseURL];
+    }
+    return self;
+}
+
+- (void)useBaseURLString:(NSString *)baseURL
+{
+    self.resourceManager.baseURL = baseURL
+}
+
+- (id<{{.Config.APIPrefix}}Model>)model:(Class<{{.Config.APIPrefix}}Model>)modelClass
+{
+    NSAssert([modelClass conformsToProtocol:@protocol({{.Config.APIPrefix}}Model)], @"The model class must conform {{.Config.APIPrefix}}Model protocol");
+    return [modelClass modelWithResourceManager:self.resourceManager];
+}
+
++ (void)setGlobalErrorHandlerWithBlock:(void (^)(NSError *))block
 {
 	PMKUnhandledErrorHandler = ^void(NSError *error)
 	{

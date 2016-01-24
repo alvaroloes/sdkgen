@@ -10,18 +10,18 @@
 /**
  * Default {{.Config.APIName}} SDK instance
  */
-+ (instancetype) default;
-
-/**
- * Returns a properly initialized model of the class passed as parameter. It must
- * conform the {{.Config.APIPrefix}}Model protocol
- */
-- (id)model:(Class)modelClass;
++ (instancetype)default;
 
 /**
  *  Overrides the {{.Config.APIName}} SDK base url
  */
 - (void)useBaseURLString:(NSString *)urlString;
+
+/**
+ * Returns a properly initialized model of the class passed as parameter. It must
+ * conform the {{.Config.APIPrefix}}Model protocol. An exception is thrown otherwise
+ */
+- (id<{{.Config.APIPrefix}}Model>)model:(Class<{{.Config.APIPrefix}}Model>)modelClass;
 
 /**
  * Sets an error handler block that will be executed always when any error occurs.

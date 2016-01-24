@@ -4,6 +4,6 @@
 
 @protocol {{.Config.APIPrefix}}Model <NSObject>
 
-- (instancetype)initWithResourceManager:({{.Config.APIPrefix}}ResourceManager *)resourceManager;
++ (instancetype)modelWithResourceManager:({{.Config.APIPrefix}}ResourceManager *)resourceManager;
 
 @end
