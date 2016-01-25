@@ -1,7 +1,5 @@
 {{template "preHeaderComment" .}}
-
-#import "{{.Config.APIPrefix}}ResourceManager.h"
-{{- range .AllModelsInfo }}
+{{ range .AllModelsInfo }}
 #import "{{.Name}}.h"
 {{- end}}
 
