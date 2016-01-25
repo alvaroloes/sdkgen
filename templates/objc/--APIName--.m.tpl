@@ -35,10 +35,10 @@ static const NSString * k{{.Config.APIPrefix}}BaseURL = @"TODO: This should be t
     self.resourceManager.baseURL = baseURL
 }
 
-- (id<{{.Config.APIPrefix}}Model>)model:(Class<{{.Config.APIPrefix}}Model>)modelClass
+- (id<{{.Config.APIPrefix}}Service>)service:(Class<{{.Config.APIPrefix}}Service>)serviceClass
 {
-    NSAssert([modelClass conformsToProtocol:@protocol({{.Config.APIPrefix}}Model)], @"The model class must conform {{.Config.APIPrefix}}Model protocol");
-    return [modelClass modelWithResourceManager:self.resourceManager];
+    NSAssert([serviceClass conformsToProtocol:@protocol({{.Config.APIPrefix}}Service)], @"The service class must conform {{.Config.APIPrefix}}Service protocol");
+    return [serviceClass serviceWithResourceManager:self.resourceManager];
 }
 
 + (void)setGlobalErrorHandlerWithBlock:(void (^)(NSError *))block

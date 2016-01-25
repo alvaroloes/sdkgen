@@ -16,10 +16,10 @@
 - (void)useBaseURLString:(NSString *)urlString;
 
 /**
- * Returns a properly initialized model of the class passed as parameter. It must
- * conform the {{.Config.APIPrefix}}Model protocol. An exception is thrown otherwise
+ * Returns a properly initialized service of the class passed as parameter. It must
+ * conform the {{.Config.APIPrefix}}Service protocol. An exception is thrown otherwise
  */
-- (id<{{.Config.APIPrefix}}Model>)model:(Class<{{.Config.APIPrefix}}Model>)modelClass;
+- (id<{{.Config.APIPrefix}}Service>)service:(Class<{{.Config.APIPrefix}}Service>)serviceClass;
 
 /**
  * Sets an error handler block that will be executed always when any error occurs.

@@ -2,11 +2,11 @@
 
 #import "{{.Config.APIPrefix}}ResourceManager.h"
 
-@protocol {{.Config.APIPrefix}}Model <NSObject>
+@protocol {{.Config.APIPrefix}}Service <NSObject>
 
 /**
  * Creates an instance initialized and configured with the passed resource manager
  */
-+ (instancetype)modelWithResourceManager:({{.Config.APIPrefix}}ResourceManager *)resourceManager;
++ (instancetype)serviceWithResourceManager:({{.Config.APIPrefix}}ResourceManager *)resourceManager;
 
 @end
