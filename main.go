@@ -16,6 +16,7 @@ func main() {
 		APIName:       "Test",
 		APIPrefix:     "TT",
 		ModelsRelPath: "Models",
+		ServicesRelPath: "Services",
 		OutputDir:     "./testFiles",
 	}
 

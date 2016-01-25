@@ -35,6 +35,7 @@ const (
 	templateDir                    = "./templates"
 	commonTemplatesPath            = "common"
 	modelTemplatePath              = "model"
+	serviceTemplatePath            = "service"
 	templateExt                    = ".tpl"
 	fileNameAPINameInterpolation   = "--APIName--"
 	fileNameAPIPrefixInterpolation = "--APIPrefix--"
@@ -45,6 +46,7 @@ const (
 type Config struct {
 	OutputDir     string
 	ModelsRelPath string
+	ServicesRelPath string
 	APIName       string
 	APIPrefix     string
 }
@@ -77,41 +79,26 @@ func (g *Generator) Generate() error {
 	g.gen.adaptModelsInfo(g.modelsInfo, g.api, g.config)
 
 	baseTplsGlob := path.Join(g.tplDir, commonTemplatesPath, "*"+templateExt)
-	generalTplsGlob := path.Join(g.tplDir, "*"+templateExt)
-	modelTplsGlob := path.Join(g.tplDir, modelTemplatePath, "*"+templateExt)
-
 	// Parse the base templates that contains common definitions
 	baseTpls, err := template.New("base").Funcs(funcMap).ParseGlob(baseTplsGlob)
 	if err != nil {
 		return errors.Annotate(err, "when parsing common templates ("+baseTplsGlob+")")
 	}
 
-	// Read and parse the SDK general template files
-	generalTplFileNames, err := filepath.Glob(generalTplsGlob)
-	if err != nil {
-		return errors.Annotate(err, "when reading general template files ("+generalTplsGlob+")")
-	}
-	generalTpls, err := template.Must(baseTpls.Clone()).ParseFiles(generalTplFileNames...)
-	if err != nil {
-		return errors.Annotate(err, "when parsing general template files ("+generalTplsGlob+")")
-	}
+	// Read and parse the SDK general, model and service template files
+	generalTplFileNames, generalTpls, err := g.parseTemplates(path.Join(g.tplDir, "*"+templateExt), baseTpls)
+	modelTplFileNames, modelTpls, err := g.parseTemplates(path.Join(g.tplDir, modelTemplatePath, "*"+templateExt), baseTpls)
+	serviceTplFileNames, serviceTpls, err := g.parseTemplates(path.Join(g.tplDir, serviceTemplatePath, "*"+templateExt), baseTpls)
 
-	// Read and parse the SDK model template files
-	modelTplFileNames, err := filepath.Glob(modelTplsGlob)
-	if err != nil {
-		return errors.Annotate(err, "when reading model template files ("+modelTplsGlob+")")
-	}
-	modelTpls, err := template.Must(baseTpls.Clone()).ParseFiles(modelTplFileNames...)
-	if err != nil {
-		return errors.Annotate(err, "when parsing model templates files ("+modelTplsGlob+")")
-	}
-
+	// Create the needed directories
 	apiDir := path.Join(g.config.OutputDir, g.config.APIName)
 	modelsDir := path.Join(apiDir, g.config.ModelsRelPath)
-
-	// Create the model directory
 	if err := os.MkdirAll(modelsDir, dirPermissions); err != nil {
 		return errors.Annotatef(err, "when creating model directory")
+	}
+	servicesDir := path.Join(apiDir, g.config.ServicesRelPath)
+	if err := os.MkdirAll(servicesDir, dirPermissions); err != nil {
+		return errors.Annotatef(err, "when creating service directory")
 	}
 
 	// Generate the SDK files applying the templates
@@ -119,12 +106,28 @@ func (g *Generator) Generate() error {
 	if err != nil {
 		return errors.Annotate(err, "when generating API files")
 	}
-	err = g.generateModelFiles(modelTplFileNames, modelTpls, modelsDir)
+	err = g.generatePerModelFiles(modelTplFileNames, modelTpls, modelsDir)
 	if err != nil {
 		return errors.Annotate(err, "when generating model files")
 	}
+	err = g.generatePerModelFiles(serviceTplFileNames, serviceTpls, servicesDir)
+	if err != nil {
+		return errors.Annotate(err, "when generating service files")
+	}
 
 	return nil
+}
+
+func (g *Generator) parseTemplates(pathGlob string, baseTpl *template.Template) (fileNames []string, templates *template.Template, err error) {
+	fileNames, err = filepath.Glob(pathGlob)
+	if err != nil {
+		return nil, nil, errors.Annotate(err, "when reading files in "+pathGlob)
+	}
+	templates, err = template.Must(baseTpl.Clone()).ParseFiles(fileNames...)
+	if err != nil {
+		return nil, nil, errors.Annotate(err, "when parsing service templates files in "+pathGlob)
+	}
+	return
 }
 
 func (g *Generator) generateGeneralFiles(templateFileNames []string, generalTpls *template.Template, apiDir string) error {
@@ -138,7 +141,12 @@ func (g *Generator) generateGeneralFiles(templateFileNames []string, generalTpls
 			fileNameAPIPrefixInterpolation, g.config.APIPrefix,
 		)
 		fileName := repl.Replace(tplName)
-		err := g.generateGeneralFile(path.Join(apiDir, fileName), generalTpls.Lookup(tplName))
+		err := generateFile(path.Join(apiDir, fileName), generalTpls.Lookup(tplName), templateData{
+			Config:        g.config,
+			API:           g.api,
+			AllModelsInfo: g.modelsInfo,
+			CurrentTime:   time.Now(),
+		})
 		if err != nil {
 			return errors.Annotatef(err, "when generating API file %q", fileName)
 		}
@@ -146,31 +154,20 @@ func (g *Generator) generateGeneralFiles(templateFileNames []string, generalTpls
 	return nil
 }
 
-func (g *Generator) generateGeneralFile(filePath string, tpl *template.Template) error {
-	file, err := os.Create(filePath)
-	if err != nil {
-		return errors.Trace(err)
-	}
-	defer file.Close()
-
-	err = tpl.Execute(file, templateData{
-		Config:        g.config,
-		API:           g.api,
-		AllModelsInfo: g.modelsInfo,
-		CurrentTime:   time.Now(),
-	})
-
-	return errors.Trace(err)
-}
-
-func (g *Generator) generateModelFiles(templateFileNames []string, modelTpls *template.Template, modelsDir string) error {
+func (g *Generator) generatePerModelFiles(templateFileNames []string, modelTpls *template.Template, modelsDir string) error {
 	for _, tplFileName := range templateFileNames {
 		tplName := filepath.Base(tplFileName)
 		ext := getExtensionFromTemplateFileName(tplName)
 		// Apply the templates to each model in the API
 		for _, modelInfo := range g.modelsInfo {
 			// TODO: Do this concurrently
-			err := g.generateModel(modelInfo, path.Join(modelsDir, modelInfo.Name+ext), modelTpls.Lookup(tplName))
+			err := generateFile(path.Join(modelsDir, modelInfo.Name+ext), modelTpls.Lookup(tplName), templateData{
+				Config:           g.config,
+				API:              g.api,
+				CurrentModelInfo: modelInfo,
+				AllModelsInfo:    g.modelsInfo,
+				CurrentTime:      time.Now(),
+			})
 			if err != nil {
 				return errors.Annotatef(err, "when generating model %q", modelInfo.Name)
 			}
@@ -179,26 +176,13 @@ func (g *Generator) generateModelFiles(templateFileNames []string, modelTpls *te
 	return nil
 }
 
-func (g *Generator) generateModel(modelInfo *modelInfo, filePath string, tpl *template.Template) error {
+func generateFile(filePath string, tpl *template.Template, data templateData) error {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return errors.Trace(err)
 	}
 	defer file.Close()
-
-	// Write the template to the file
-	err = tpl.Execute(file, templateData{
-		Config:           g.config,
-		API:              g.api,
-		CurrentModelInfo: modelInfo,
-		AllModelsInfo:    g.modelsInfo,
-		CurrentTime:      time.Now(),
-	})
-	if err != nil {
-		return errors.Trace(err)
-	}
-
-	return nil
+	return errors.Trace(tpl.Execute(file, data))
 }
 
 func (g *Generator) extractModelsInfo() {

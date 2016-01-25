@@ -7,6 +7,4 @@
 {{range .CurrentModelInfo.Properties -}}
 @property (nonatomic, copy) {{.Type}}{{.Name}};
 {{end -}}
-{{range .CurrentModelInfo.EndpointsInfo}}
-{{end}}
 @end
