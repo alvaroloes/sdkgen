@@ -1,9 +1,9 @@
 {{template "preHeaderComment" .}}
 
-#import <Foundation/Foundation.h>
+#import "{{.Config.APIName}}.h"
 
 @interface {{.CurrentModelInfo.Name}} : NSObject
-{{/* range .CurrentModelInfo.Properties -}}
-@property (nonatomic, copy) {{.Type}}{{.Name}};
-{{end - */}}
+{{range .CurrentModelInfo.Properties -}}
+@property (nonatomic) {{.Type}}{{.Name}};
+{{end -}}
 @end

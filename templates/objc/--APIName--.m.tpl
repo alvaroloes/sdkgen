@@ -2,7 +2,7 @@
 
 #import "{{.Config.APIName}}.h"
 
-static const NSString * k{{.Config.APIPrefix}}BaseURL = @"TODO: This should be the default base url";
+static NSString * const k{{.Config.APIPrefix}}BaseURL = @"TODO: This should be the default base url";
 
 @interface {{.Config.APIName}} ()
 @property (nonatomic, strong) {{.Config.APIPrefix}}ResourceManager *resourceManager;
@@ -32,10 +32,10 @@ static const NSString * k{{.Config.APIPrefix}}BaseURL = @"TODO: This should be t
 
 - (void)useBaseURLString:(NSString *)baseURL
 {
-    self.resourceManager.baseURL = baseURL
+    self.resourceManager.baseURL = baseURL;
 }
 
-- (id<{{.Config.APIPrefix}}Service>)service:(Class<{{.Config.APIPrefix}}Service>)serviceClass
+- (id<{{.Config.APIPrefix}}Service>)service:(Class)serviceClass
 {
     NSAssert([serviceClass conformsToProtocol:@protocol({{.Config.APIPrefix}}Service)], @"The service class must conform {{.Config.APIPrefix}}Service protocol");
     return [serviceClass serviceWithResourceManager:self.resourceManager];
@@ -43,6 +43,7 @@ static const NSString * k{{.Config.APIPrefix}}BaseURL = @"TODO: This should be t
 
 + (void)setGlobalErrorHandlerWithBlock:(void (^)(NSError *))block
 {
+{{/*
 	PMKUnhandledErrorHandler = ^void(NSError *error)
 	{
 		dispatch_async(dispatch_get_main_queue(), ^
@@ -50,6 +51,7 @@ static const NSString * k{{.Config.APIPrefix}}BaseURL = @"TODO: This should be t
 			block(error);
 		});
 	};
+*/}}
 }
 
 @end

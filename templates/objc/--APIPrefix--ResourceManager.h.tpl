@@ -4,4 +4,8 @@
 
 @interface {{.Config.APIPrefix}}ResourceManager : NSObject
 
+@property (nonatomic, copy) NSString *baseURL;
+
+- (instancetype)initWithBaseURL:(NSString *)baseURL;
+
 @end

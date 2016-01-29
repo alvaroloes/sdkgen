@@ -8,4 +8,12 @@
 
 @implementation {{.Config.APIPrefix}}ResourceManager
 
+- (instancetype)initWithBaseURL:(NSString *)baseURL
+{
+    if (self = [super init])
+    {
+
+    }
+    return self;
+}
 @end
