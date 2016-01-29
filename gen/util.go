@@ -6,7 +6,7 @@ import (
 )
 
 var funcMap = template.FuncMap{
-	"lowerFirst":func(s string) string {
+	"lowerFirst": func(s string) string {
 		return strings.ToLower(s[:1]) + s[1:]
 	},
 }

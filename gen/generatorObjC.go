@@ -1,8 +1,9 @@
 package gen
 
 import (
-	"github.com/alvaroloes/sdkgen/parser"
 	"strings"
+
+	"github.com/alvaroloes/sdkgen/parser"
 )
 
 type objCTypeInfo struct {

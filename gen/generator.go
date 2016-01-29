@@ -37,6 +37,7 @@ const (
 	modelTemplatePath              = "model"
 	serviceTemplatePath            = "service"
 	templateExt                    = ".tpl"
+	fileNameModelNameInterpolation = "--ModelName--"
 	fileNameAPINameInterpolation   = "--APIName--"
 	fileNameAPIPrefixInterpolation = "--APIPrefix--"
 	dirPermissions                 = 0777
@@ -44,11 +45,11 @@ const (
 
 // Config contains the needed configuration for the generator
 type Config struct {
-	OutputDir     string
-	ModelsRelPath string
+	OutputDir       string
+	ModelsRelPath   string
 	ServicesRelPath string
-	APIName       string
-	APIPrefix     string
+	APIName         string
+	APIPrefix       string
 }
 
 type templateData struct {
@@ -157,11 +158,17 @@ func (g *Generator) generateGeneralFiles(templateFileNames []string, generalTpls
 func (g *Generator) generatePerModelFiles(templateFileNames []string, modelTpls *template.Template, modelsDir string) error {
 	for _, tplFileName := range templateFileNames {
 		tplName := filepath.Base(tplFileName)
-		ext := getExtensionFromTemplateFileName(tplName)
 		// Apply the templates to each model in the API
 		for _, modelInfo := range g.modelsInfo {
 			// TODO: Do this concurrently
-			err := generateFile(path.Join(modelsDir, modelInfo.Name+ext), modelTpls.Lookup(tplName), templateData{
+			repl := strings.NewReplacer(
+				templateExt, "",
+				fileNameModelNameInterpolation, modelInfo.Name,
+				fileNameAPINameInterpolation, g.config.APIName,
+				fileNameAPIPrefixInterpolation, g.config.APIPrefix,
+			)
+			fileName := repl.Replace(tplName)
+			err := generateFile(path.Join(modelsDir, fileName), modelTpls.Lookup(tplName), templateData{
 				Config:           g.config,
 				API:              g.api,
 				CurrentModelInfo: modelInfo,

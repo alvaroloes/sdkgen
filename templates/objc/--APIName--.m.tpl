@@ -4,8 +4,8 @@
 
 static const NSString * k{{.Config.APIPrefix}}BaseURL = @"TODO: This should be the default base url";
 
-@interface {{.Config.APIName}} : NSObject
-@property (nonatomic, strong) {{.Config.APIPrefix}}ResourceManager *resourceManager
+@interface {{.Config.APIName}} ()
+@property (nonatomic, strong) {{.Config.APIPrefix}}ResourceManager *resourceManager;
 @end
 
 @implementation {{.Config.APIName}}

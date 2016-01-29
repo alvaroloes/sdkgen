@@ -13,11 +13,11 @@ func main() {
 	log.SetLevel(log.DebugLevel)
 	// This will be extracted from command line flags
 	config := gen.Config{
-		APIName:       "Test",
-		APIPrefix:     "TT",
-		ModelsRelPath: "Models",
+		APIName:         "Test",
+		APIPrefix:       "TT",
+		ModelsRelPath:   "Models",
 		ServicesRelPath: "Services",
-		OutputDir:     "./testFiles",
+		OutputDir:       "./testFiles",
 	}
 
 	specBytes, err := ioutil.ReadFile("./testFiles/api.spec")

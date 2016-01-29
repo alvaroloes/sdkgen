@@ -1,7 +1,19 @@
 {{template "preHeaderComment" .}}
-{{ range .AllModelsInfo }}
+
+#import <Foundation/Foundation.h>
+
+// Services
+{{- range .AllModelsInfo }}
+#import "{{.Name}}Service.h"
+{{- end}}
+
+// Models
+{{- range .AllModelsInfo }}
 #import "{{.Name}}.h"
 {{- end}}
+
+//Protocols
+#import "{{.Config.APIName}}ServiceProtocol.h"
 
 @interface {{.Config.APIName}} : NSObject
 
