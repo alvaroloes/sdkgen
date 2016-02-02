@@ -11,6 +11,7 @@ import (
 
 var (
 	ErrNoRootResource = errors.New("root REST resource not found")
+	ErrMultipleHosts  = errors.New("multiple hosts/scheme API is not supported")
 )
 
 //go:generate enumer -type=HTTPMethod
@@ -44,8 +45,27 @@ var (
 const segmentParameterPrefix = ":"
 
 type API struct {
-	//	Version   string //TODO
+	BaseURL   string
 	Endpoints []Endpoint
+}
+
+func (api *API) extractBaseURL() error {
+	var scheme, host string
+	for _, ep := range api.Endpoints {
+		if scheme == "" {
+			scheme = ep.URL.Scheme
+		} else if scheme != ep.URL.Scheme {
+			return errors.Annotatef(ErrMultipleHosts, `found schemes "%s" and "%s"`, scheme, ep.URL.Scheme)
+		}
+
+		if host == "" {
+			host = ep.URL.Host
+		} else if host != ep.URL.Host {
+			return errors.Annotatef(ErrMultipleHosts, `found hosts "%s" and "%s"`, host, ep.URL.Host)
+		}
+	}
+	api.BaseURL = scheme + "://" + host
+	return nil
 }
 
 type Endpoint struct {
@@ -109,7 +129,7 @@ func NewAPI(spec []byte) (*API, error) {
 		urlString := string(spec[match[urlIndex]:match[urlIndex+1]])
 		parsedURL, err := url.Parse(urlString)
 		if err != nil {
-			return nil, errors.Annotate(err, "while parsing the URL " + urlString)
+			return nil, errors.Annotate(err, "while parsing the URL "+urlString)
 		}
 
 		endpoint := Endpoint{
@@ -137,6 +157,11 @@ func NewAPI(spec []byte) (*API, error) {
 		}
 		api.Endpoints = append(api.Endpoints, endpoint)
 	}
+
+	if err := api.extractBaseURL(); err != nil {
+		return nil, errors.Annotate(err, "while extracting the base URL")
+	}
+
 	return &api, nil
 }
 

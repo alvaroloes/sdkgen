@@ -32,8 +32,8 @@ var testCases = []testCase{
 		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
-					Method:    GET,
-					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
+					Method: GET,
+					URL:    tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
 					Resources: []Resource{
 						{
 							Name:       "posts",
@@ -68,8 +68,8 @@ var testCases = []testCase{
 		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
-					Method:    POST,
-					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
+					Method: POST,
+					URL:    tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
 						{
 							Name:       "posts",
@@ -109,8 +109,8 @@ var testCases = []testCase{
 		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
-					Method:    GET,
-					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
+					Method: GET,
+					URL:    tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
 						{
 							Name:       "posts",
@@ -143,8 +143,8 @@ var testCases = []testCase{
 		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
-					Method:    DELETE,
-					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id"),
+					Method: DELETE,
+					URL:    tests.MustParseURL("https://www.alvarloes.com/posts/:id"),
 					Resources: []Resource{
 						{
 							Name:       "posts",
@@ -204,8 +204,8 @@ var testCases = []testCase{
 		expectedAPI: &API{
 			Endpoints: []Endpoint{
 				{
-					Method:    GET,
-					URL:       tests.MustParseURL("https://www.alvarloes.com/posts"),
+					Method: GET,
+					URL:    tests.MustParseURL("https://www.alvarloes.com/posts"),
 					Resources: []Resource{
 						{
 							Name:       "posts",

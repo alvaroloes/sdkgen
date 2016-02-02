@@ -24,8 +24,8 @@ var modelsInfoTestCases = []modelsInfoTestCase{
 		api: &parser.API{
 			Endpoints: []parser.Endpoint{
 				{
-					Method:    parser.GET,
-					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
+					Method: parser.GET,
+					URL:    tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
 					Resources: []parser.Resource{
 						{
 							Name:       "posts",
