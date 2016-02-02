@@ -12,7 +12,7 @@
 {
     if (self = [super init])
     {
-
+        _baseURL = baseURL;
     }
     return self;
 }

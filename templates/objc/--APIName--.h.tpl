@@ -13,7 +13,7 @@
 {{- end}}
 
 //Protocols
-#import "{{.Config.APIName}}ServiceProtocol.h"
+#import "{{.Config.APIPrefix}}ServiceProtocol.h"
 
 @interface {{.Config.APIName}} : NSObject
 
