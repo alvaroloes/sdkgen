@@ -88,8 +88,17 @@ func (g *Generator) Generate() error {
 
 	// Read and parse the SDK general, model and service template files
 	generalTplFileNames, generalTpls, err := g.parseTemplates(path.Join(g.tplDir, "*"+templateExt), baseTpls)
+	if err != nil {
+		return errors.Trace(err)
+	}
 	modelTplFileNames, modelTpls, err := g.parseTemplates(path.Join(g.tplDir, modelTemplatePath, "*"+templateExt), baseTpls)
+	if err != nil {
+		return errors.Trace(err)
+	}
 	serviceTplFileNames, serviceTpls, err := g.parseTemplates(path.Join(g.tplDir, serviceTemplatePath, "*"+templateExt), baseTpls)
+	if err != nil {
+		return errors.Trace(err)
+	}
 
 	// Create the needed directories
 	apiDir := path.Join(g.config.OutputDir, g.config.APIName)
@@ -176,7 +185,7 @@ func (g *Generator) generatePerModelFiles(templateFileNames []string, modelTpls 
 				CurrentTime:      time.Now(),
 			})
 			if err != nil {
-				return errors.Annotatef(err, "when generating model %q", modelInfo.Name)
+				return errors.Annotatef(err, "when generating model or service %q", modelInfo.Name)
 			}
 		}
 	}
