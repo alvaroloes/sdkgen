@@ -30,17 +30,18 @@ func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parse
 	for _, modelInfo := range modelsInfo {
 		modelInfo.Name = config.APIPrefix + strings.Title(modelInfo.Name)
 		for propSpec, prop := range modelInfo.Properties {
-			prop.Type = objCType(prop, config)
+			var propertyDependencies []string
+			prop.Type, propertyDependencies = objCType(prop, config)
 			modelInfo.Properties[propSpec] = prop
+			modelInfo.Dependencies = append(modelInfo.Dependencies, propertyDependencies...)
 			// TODO: Property attributes
-			// TODO: Insert the resource manager file as a template
-			// TODO: Generate the model methods: Which name? param names?
 		}
 	}
 }
 
-func objCType(prop property, config Config) string {
+func objCType(prop property, config Config) (string, []string) {
 	var res string
+	var dependencies []string
 
 	if prop.IsArray {
 		res = "NSArray<"
@@ -55,7 +56,9 @@ func objCType(prop property, config Config) string {
 			res += objCType.Name
 		}
 	} else {
-		res += config.APIPrefix + strings.Title(prop.Type)
+		modelName := config.APIPrefix + strings.Title(prop.Type)
+		dependencies = append(dependencies, modelName)
+		res += modelName
 	}
 
 	if prop.IsArray {
@@ -67,5 +70,5 @@ func objCType(prop property, config Config) string {
 		res += " "
 	}
 
-	return res
+	return res, dependencies
 }

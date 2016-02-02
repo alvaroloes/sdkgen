@@ -1,6 +1,9 @@
 {{template "preHeaderComment" .}}
 
-#import "{{.Config.APIName}}.h"
+#import <Foundation/Foundation.h>
+{{- range .CurrentModelInfo.Dependencies}}
+@class {{.}};
+{{- end}}
 
 @interface {{.CurrentModelInfo.Name}} : NSObject
 {{range .CurrentModelInfo.Properties -}}

@@ -16,9 +16,12 @@ const (
 )
 
 type modelInfo struct {
-	Name             string
-	Properties       map[string]property
-	EndpointsInfo    []endpointInfo
+	Name          string
+	Properties    map[string]property
+	EndpointsInfo []endpointInfo
+
+	// These are responsibility of language specific generators
+	Dependencies     []string
 	LangSpecificData map[string]interface{}
 }
 
