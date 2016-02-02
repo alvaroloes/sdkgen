@@ -33,7 +33,6 @@ var testCases = []testCase{
 			Endpoints: []Endpoint{
 				{
 					Method:    GET,
-					URLString: "https://www.alvarloes.com/posts/:id/comments/:id",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments/:id"),
 					Resources: []Resource{
 						{
@@ -70,7 +69,6 @@ var testCases = []testCase{
 			Endpoints: []Endpoint{
 				{
 					Method:    POST,
-					URLString: "https://www.alvarloes.com/posts/:id/comments",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
 						{
@@ -112,7 +110,6 @@ var testCases = []testCase{
 			Endpoints: []Endpoint{
 				{
 					Method:    GET,
-					URLString: "https://www.alvarloes.com/posts/:id/comments",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id/comments"),
 					Resources: []Resource{
 						{
@@ -147,7 +144,6 @@ var testCases = []testCase{
 			Endpoints: []Endpoint{
 				{
 					Method:    DELETE,
-					URLString: "https://www.alvarloes.com/posts/:id",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts/:id"),
 					Resources: []Resource{
 						{
@@ -209,7 +205,6 @@ var testCases = []testCase{
 			Endpoints: []Endpoint{
 				{
 					Method:    GET,
-					URLString: "https://www.alvarloes.com/posts",
 					URL:       tests.MustParseURL("https://www.alvarloes.com/posts"),
 					Resources: []Resource{
 						{

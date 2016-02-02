@@ -50,7 +50,6 @@ type API struct {
 
 type Endpoint struct {
 	Method       HTTPMethod
-	URLString    string //TODO: Remove this. It's redundant
 	URL          *url.URL
 	Resources    []Resource
 	RequestBody  interface{}
@@ -58,11 +57,6 @@ type Endpoint struct {
 }
 
 func (ep *Endpoint) extractResources() error {
-	var err error
-	ep.URL, err = url.Parse(ep.URLString)
-	if err != nil {
-		return errors.Trace(err)
-	}
 	for _, segment := range strings.Split(ep.URL.Path, "/")[1:] {
 		segment = strings.TrimSpace(segment)
 		if segment == "" {
@@ -70,7 +64,7 @@ func (ep *Endpoint) extractResources() error {
 		}
 		if strings.HasPrefix(segment, segmentParameterPrefix) {
 			if len(ep.Resources) == 0 {
-				return errors.Annotate(ErrNoRootResource, "in URL "+ep.URLString)
+				return errors.Annotate(ErrNoRootResource, "in URL "+ep.URL.String())
 			}
 			lastResource := &ep.Resources[len(ep.Resources)-1]
 			parameterName := segment[len(segmentParameterPrefix):]
@@ -90,14 +84,14 @@ func (ep *Endpoint) extractBodies(endpointData []byte) error {
 	if match != nil {
 		requestBody := findJSONObject(endpointData[match[1]:])
 		if err := json.Unmarshal(requestBody, &ep.RequestBody); err != nil {
-			return errors.Annotate(err, "while parsing JSON request body of "+ep.URLString)
+			return errors.Annotate(err, "while parsing JSON request body of "+ep.URL.String())
 		}
 	}
 	match = responseBodyMarkRegexp.FindIndex(endpointData)
 	if match != nil {
 		responseBody := findJSONObject(endpointData[match[1]:])
 		if err := json.Unmarshal(responseBody, &ep.ResponseBody); err != nil {
-			return errors.Annotate(err, "while parsing JSON response body of "+ep.URLString)
+			return errors.Annotate(err, "while parsing JSON response body of "+ep.URL.String())
 		}
 	}
 	return nil
@@ -112,18 +106,23 @@ func NewAPI(spec []byte) (*API, error) {
 	var api API
 	endpointMatches := endpointRegexp.FindAllSubmatchIndex(spec, -1)
 	for i, match := range endpointMatches {
-		endpoint := Endpoint{
-			URLString: string(spec[match[urlIndex]:match[urlIndex+1]]),
+		urlString := string(spec[match[urlIndex]:match[urlIndex+1]])
+		parsedURL, err := url.Parse(urlString)
+		if err != nil {
+			return nil, errors.Annotate(err, "while parsing the URL " + urlString)
 		}
 
+		endpoint := Endpoint{
+			URL: parsedURL,
+		}
 		httpMethod, err := HTTPMethodString(string(spec[match[methodIndex]:match[methodIndex+1]]))
 		if err != nil {
-			return nil, errors.Annotate(err, "while extracting the HTTP method of "+endpoint.URLString)
+			return nil, errors.Annotate(err, "while extracting the HTTP method of "+endpoint.URL.String())
 		}
 		endpoint.Method = httpMethod
 
 		if err := endpoint.extractResources(); err != nil {
-			return nil, errors.Annotate(err, "while extracting resources of "+endpoint.URLString)
+			return nil, errors.Annotate(err, "while extracting resources of "+endpoint.URL.String())
 		}
 
 		var endpointDataFinalIndex int
@@ -134,7 +133,7 @@ func NewAPI(spec []byte) (*API, error) {
 		}
 
 		if err := endpoint.extractBodies(spec[match[endpointFullIndex+1]:endpointDataFinalIndex]); err != nil {
-			return nil, errors.Annotate(err, "while extracting bodies of "+endpoint.URLString)
+			return nil, errors.Annotate(err, "while extracting bodies of "+endpoint.URL.String())
 		}
 		api.Endpoints = append(api.Endpoints, endpoint)
 	}
