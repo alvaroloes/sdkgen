@@ -1,22 +1,32 @@
 {{template "preHeaderComment" .}}
+{{- $model := .CurrentModelInfo}}
 
-#import "{{.CurrentModelInfo.Name}}Service.h"
+#import "{{$model.Name}}Service.h"
 #import "{{.Config.APIPrefix}}ResourceManager.h"
 
-@interface {{.CurrentModelInfo.Name}}Service ()
+@interface {{$model.Name}}Service ()
 @property (nonatomic, weak) {{.Config.APIPrefix}}ResourceManager *resourceManager;
 @end
 
-@implementation {{.CurrentModelInfo.Name}}Service
+@implementation {{$model.Name}}Service
 
 + (instancetype)serviceWithResourceManager:({{.Config.APIPrefix}}ResourceManager *)resourceManager
 {
-    {{.CurrentModelInfo.Name}}Service *service = [[{{.CurrentModelInfo.Name}}Service alloc] init];
+    {{$model.Name}}Service *service = [[{{$model.Name}}Service alloc] init];
     if (service != nil)
     {
         service.resourceManager = resourceManager;
     }
     return service;
 }
+
+{{range $model.EndpointsInfo -}}
+{{$modelName := upperFirst $model.OriginalName}}
+- (void){{.CRUDMethodName}}{{if .IsArrayResponse}}{{pluralize $modelName}}{{else}}{{$modelName}}{{end}}
+{
+    //TODO
+}
+
+{{end}}
 
 @end

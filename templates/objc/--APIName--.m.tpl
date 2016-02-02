@@ -2,7 +2,7 @@
 
 #import "{{.Config.APIName}}.h"
 
-static NSString * const k{{.Config.APIPrefix}}BaseURL = @"TODO: This should be the default base url";
+static NSString * const k{{.Config.APIPrefix}}BaseURL = @"{{.API.BaseURL}}";
 
 @interface {{.Config.APIName}} ()
 @property (nonatomic, strong) {{.Config.APIPrefix}}ResourceManager *resourceManager;

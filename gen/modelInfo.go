@@ -5,6 +5,7 @@ import (
 
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/jinzhu/inflection"
+	"github.com/juju/errors"
 )
 
 type ResponseType int
@@ -15,8 +16,16 @@ const (
 	EmptyResponse
 )
 
+var crudNamePerMethod = map[parser.HTTPMethod]string{
+	parser.GET:    "fetch",
+	parser.POST:   "create",
+	parser.PUT:    "update",
+	parser.DELETE: "delete",
+}
+
 type modelInfo struct {
 	Name          string
+	OriginalName  string
 	Properties    map[string]property
 	EndpointsInfo []endpointInfo
 
@@ -26,9 +35,11 @@ type modelInfo struct {
 }
 
 func newModelInfo(name string) *modelInfo {
+	singularName := inflection.Singular(name)
 	return &modelInfo{
-		Name:       inflection.Singular(name),
-		Properties: make(map[string]property),
+		Name:         singularName,
+		OriginalName: singularName,
+		Properties:   make(map[string]property),
 	}
 }
 
@@ -69,4 +80,15 @@ type endpointInfo struct {
 	URLPath       string
 	SegmentParams []string
 	ResponseType  ResponseType
+}
+
+func (epi *endpointInfo) CRUDMethodName() (string, error) {
+	if epi.Method == parser.UNKNOWN_HTTP_METHOD {
+		return "", errors.Errorf("Unknown http method for endopint %s", epi.URLPath)
+	}
+	return crudNamePerMethod[epi.Method], nil
+}
+
+func (epi *endpointInfo) IsArrayResponse() bool {
+	return epi.ResponseType == ArrayResponse
 }
