@@ -76,6 +76,7 @@ func (p *property) extractType(propertySpec string, val interface{}) {
 }
 
 type endpointInfo struct {
+	Model *modelInfo
 	Method        parser.HTTPMethod
 	URLPath       string
 	SegmentParams []string

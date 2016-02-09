@@ -271,6 +271,7 @@ func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVa
 func (g *Generator) setEndpointInfo(modelName string, endpoint parser.Endpoint) {
 	mInfo := g.getModelOrCreate(modelName)
 	mInfo.EndpointsInfo = append(mInfo.EndpointsInfo, endpointInfo{
+		Model: mInfo,
 		Method:        endpoint.Method,
 		URLPath:       g.getURLPathForModels(endpoint.URL),
 		SegmentParams: extractSegmentParamsRenamingDups(endpoint.Resources),
