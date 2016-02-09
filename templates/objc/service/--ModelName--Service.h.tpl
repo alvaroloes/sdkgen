@@ -8,8 +8,7 @@
 + (instancetype)serviceWithResourceManager:({{.Config.APIPrefix}}ResourceManager *)resourceManager;
 {{- $model := .CurrentModelInfo}}
 {{range $model.EndpointsInfo -}}
-{{$modelName := upperFirst $model.OriginalName}}
-- (void){{.CRUDMethodName}}{{if .IsArrayResponse}}{{pluralize $modelName}}{{else}}{{$modelName}}{{end}};
+{{template "serviceMethodName" .}};
 {{- end}}
 
 @end

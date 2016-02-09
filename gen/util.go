@@ -3,7 +3,6 @@ package gen
 import (
 	"strings"
 	"text/template"
-
 	"github.com/jinzhu/inflection"
 )
 
@@ -16,5 +15,8 @@ var funcMap = template.FuncMap{
 	},
 	"pluralize": func(s string) string {
 		return inflection.Plural(s)
+	},
+	"add": func(a, b int) int {
+		return a + b
 	},
 }

@@ -19,14 +19,12 @@
     }
     return service;
 }
-
 {{range $model.EndpointsInfo -}}
-{{$modelName := upperFirst $model.OriginalName}}
-- (void){{.CRUDMethodName}}{{if .IsArrayResponse}}{{pluralize $modelName}}{{else}}{{$modelName}}{{end}}
+{{template "serviceMethodName" .}}
 {
-    //TODO
+//TODO: Avoid equal names in parameters (generator.go:307)
+//TODO: method parameters, url creation with resource object? with a simple URL? how to parse the result?
+//{{.}}
 }
-
 {{end}}
-
 @end
