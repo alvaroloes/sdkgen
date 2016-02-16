@@ -132,14 +132,14 @@ GET https://www.alvarloes.com/posts/:id/comments
 	}
 ]
 
-GET https://www.alvarloes.com/posts/:id/comments/:id
+GET https://www.alvarloes.com/posts/:post_id/comments/:id
 <- {
 	"id":"4567",
 	"title":"I like it",
 	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
 }
 
-POST https://www.alvarloes.com/posts/:id/comments
+POST https://www.alvarloes.com/posts/:post_id/comments
 -> {
 	"title":"I like it",
 	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
@@ -149,7 +149,7 @@ POST https://www.alvarloes.com/posts/:id/comments
 	"title":"I like it",
 	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
 }
-PUT https://www.alvarloes.com/posts/:id/comments/:id
+PUT https://www.alvarloes.com/posts/:post_id/comments/:id
 -> {
 	"title":"I really like it"
 }
@@ -158,5 +158,5 @@ PUT https://www.alvarloes.com/posts/:id/comments/:id
 	"title":"I really like it",
 	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
 }
-DELETE https://www.alvarloes.com/posts/:id/comments/:id
+DELETE https://www.alvarloes.com/posts/:post_id/comments/:id
 

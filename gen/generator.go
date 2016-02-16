@@ -271,7 +271,7 @@ func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVa
 func (g *Generator) setEndpointInfo(modelName string, endpoint parser.Endpoint) {
 	mInfo := g.getModelOrCreate(modelName)
 	mInfo.EndpointsInfo = append(mInfo.EndpointsInfo, endpointInfo{
-		Model: mInfo,
+		Model:         mInfo,
 		Method:        endpoint.Method,
 		URLPath:       g.getURLPathForModels(endpoint.URL),
 		SegmentParams: extractSegmentParamsRenamingDups(endpoint.Resources),
@@ -305,19 +305,10 @@ func getResponseType(body interface{}) ResponseType {
 func extractSegmentParamsRenamingDups(resources []parser.Resource) []string {
 	segmentParams := []string{}
 	for _, r := range resources {
-		//TODO: use r.Name to avoid duplicates
+		//We assume that segment params have a unique name among the others in the same endpoint
 		segmentParams = append(segmentParams, r.Parameters...)
 	}
 	return segmentParams
-}
-
-func getExtensionFromTemplateFileName(tplFileName string) string {
-	from := strings.Index(tplFileName, ".")
-	to := strings.LastIndex(tplFileName, ".")
-	if from > 0 && to > 0 {
-		return tplFileName[from:to]
-	}
-	return ""
 }
 
 // New creates a new Generator for the API and configured for the language passed.
