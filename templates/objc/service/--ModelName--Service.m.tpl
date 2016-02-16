@@ -22,8 +22,7 @@
 {{range $model.EndpointsInfo -}}
 {{template "serviceMethodName" .}}
 {
-//TODO: Avoid equal names in parameters (generator.go:307)
-//TODO: method parameters, url creation with resource object? with a simple URL? how to parse the result?
+//TODO: url creation with resource object? with a simple URL? how to parse the result?
 //{{.}}
 }
 {{end}}
