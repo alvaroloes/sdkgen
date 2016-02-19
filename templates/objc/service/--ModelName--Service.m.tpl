@@ -22,6 +22,7 @@
 {{range $model.EndpointsInfo -}}
 {{template "serviceMethodName" .}}
 {
+//TODO: The method name must include the object to update in the create/update HTTP methods
 //TODO: url creation with resource object? with a simple URL? how to parse the result?
 //{{.}}
 }

@@ -1,4 +1,4 @@
-GET https://www.alvarloes.com/posts
+GET https://www.alvarloes.com/api/v1/posts
 <- [
 	{
 		"id":"1234",
