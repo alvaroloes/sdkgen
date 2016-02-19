@@ -23,7 +23,8 @@
 {{template "serviceMethodName" .}}
 {
 //TODO: The method name must include the object to update in the create/update HTTP methods
-//TODO: url creation with resource object? with a simple URL? how to parse the result?
+//TODO: The resourceManager accepts directly the built URL. Think about parsing -> we should be able to update an instance
+//from the result, instead of creating a new one (in create/update methods)
 //{{.}}
 }
 {{end}}
