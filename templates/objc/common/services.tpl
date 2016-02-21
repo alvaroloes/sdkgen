@@ -1,8 +1,14 @@
 {{define "serviceMethodName" -}}
 
-{{$modelName := upperFirst .Model.OriginalName}}
-- (void){{.CRUDMethodName}}{{if .IsArrayResponse}}{{plural $modelName}}{{else}}{{$modelName}}{{end}}
-{{- if .SegmentParams }}With
+{{$modelNameUpper := upperFirst .Model.OriginalName}}
+- (void){{.CRUDMethodName}}{{if .IsArrayResponse}}{{plural $modelNameUpper}}{{else}}{{$modelNameUpper}}{{end}}
+
+{{- if .NeedsModelParam -}}
+    :({{.Model.Name}} *){{.Model.OriginalName}}
+    {{- if .SegmentParams}} with{{end}}
+{{- end}}
+{{- if .SegmentParams}}
+    {{- if not .NeedsModelParam}}With{{end}}
     {{- $n := len .SegmentParams -}}
     {{- $first := index .SegmentParams 0 | singular | camelCase -}}
     {{$first | upperFirst}}:(NSString *){{$first -}}

@@ -90,6 +90,15 @@ func (epi *endpointInfo) CRUDMethodName() (string, error) {
 	return crudNamePerMethod[epi.Method], nil
 }
 
+func (epi *endpointInfo) NeedsModelParam() bool {
+	switch epi.Method {
+	case parser.POST, parser.PUT:
+		return true
+	default:
+		return false
+	}
+}
+
 func (epi *endpointInfo) IsArrayResponse() bool {
 	return epi.ResponseType == ArrayResponse
 }

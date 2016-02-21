@@ -119,7 +119,7 @@ PUT https://www.alvarloes.com/posts/:id
 
 DELETE https://www.alvarloes.com/posts/:id
 
-GET https://www.alvarloes.com/posts/:id/comments
+GET https://www.alvarloes.com/posts/:post_id/comments
 <- [
 	{
 		"id":"4567",
