@@ -2,7 +2,7 @@
 
 #import <Foundation/Foundation.h>
 #import "{{.Config.APIPrefix}}ServiceProtocol.h"
-#import <Promise.h>
+#import <PromiseKit/PromiseKit.h>
 
 @class {{.CurrentModelInfo.Name}};
 

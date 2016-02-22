@@ -25,6 +25,7 @@
 //TODO: The resourceManager accepts directly the built URL. Think about parsing -> we should be able to update an instance
 //from the result, instead of creating a new one (in create/update methods)
 //{{.}}
+    return nil;
 }
 {{end}}
 @end

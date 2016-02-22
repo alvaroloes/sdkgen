@@ -1,7 +1,7 @@
 {{define "serviceMethodName" -}}
 
 {{$modelNameUpper := upperFirst .Model.OriginalName}}
-- (PMKPromise *){{.CRUDMethodName}}{{if .IsArrayResponse}}{{plural $modelNameUpper}}{{else}}{{$modelNameUpper}}{{end}}
+- (AnyPromise *){{.CRUDMethodName}}{{if .IsArrayResponse}}{{plural $modelNameUpper}}{{else}}{{$modelNameUpper}}{{end}}
 
 {{- if .NeedsModelParam -}}
     :({{.Model.Name}} *){{.Model.OriginalName}}
