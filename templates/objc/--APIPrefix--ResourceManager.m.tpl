@@ -23,22 +23,46 @@
 
 - (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params
 {
-    return nil;
+    {{- block "resourceManagerRequestPromiseCreation" "GET"}}
+    PMKResolver resolver;
+    AnyPromise *requestPromise = [[AnyPromise alloc] initWithResolver:&resolver];
+
+    [self.sessionManager {{.}}:@""
+                  parameters:params
+                  {{- if or (eq . "GET") (eq . "POST")}}
+                    progress:nil
+                  {{- end}}
+                     success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                         resolver(responseObject);
+                     }
+                     failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                         resolver(error);
+                     }];
+
+    return [self wrapRequestPromise:requestPromise];
+    {{- end}}
 }
 
 - (AnyPromise *)postResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params
 {
-    return nil;
+    {{- template "resourceManagerRequestPromiseCreation" "POST"}}
 }
 
 - (AnyPromise *)putResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params
 {
-    return nil;
+    {{- template "resourceManagerRequestPromiseCreation" "PUT"}}
 }
 
 - (AnyPromise *)deleteResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params
 {
-    return nil;
+    {{- template "resourceManagerRequestPromiseCreation" "DELETE"}}
+}
+
+#pragma mark - Private methods
+
+- (AnyPromise *)wrapRequestPromise:(AnyPromise *)requestPromise
+{
+    return requestPromise;
 }
 
 @end
