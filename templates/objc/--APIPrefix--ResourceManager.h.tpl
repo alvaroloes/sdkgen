@@ -2,6 +2,7 @@
 
 #import <Foundation/Foundation.h>
 #import <PromiseKit/PromiseKit.h>
+#import "{{.Config.APIPrefix}}SerializableModelProtocol.h"
 
 @interface {{.Config.APIPrefix}}ResourceManager : NSObject
 
@@ -9,9 +10,20 @@
 
 - (instancetype)initWithBaseURL:(NSString *)baseURL;
 
-- (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params;
-- (AnyPromise *)postResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params;
-- (AnyPromise *)putResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params;
-- (AnyPromise *)deleteResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params;
+- (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath
+                                params:(NSDictionary *)params
+                         modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance;
+
+- (AnyPromise *)postResourceWithURLPath:(NSString *)urlPath
+                                 params:(NSDictionary *)params
+                          modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance;
+
+- (AnyPromise *)putResourceWithURLPath:(NSString *)urlPath
+                                params:(NSDictionary *)params
+                         modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance;
+
+- (AnyPromise *)deleteResourceWithURLPath:(NSString *)urlPath
+                                   params:(NSDictionary *)params
+                            modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance;
 
 @end
