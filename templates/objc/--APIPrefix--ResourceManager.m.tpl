@@ -21,48 +21,67 @@
     return self;
 }
 
-- (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params
+- (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath
+                                params:(NSDictionary *)params
+                             parseInto:(id<{{.Config.APIPrefix}}ModelProtocol>)modelInstance
 {
     {{- block "resourceManagerRequestPromiseCreation" "GET"}}
-    PMKResolver resolver;
-    AnyPromise *requestPromise = [[AnyPromise alloc] initWithResolver:&resolver];
-
-    [self.sessionManager {{.}}:@""
-                  parameters:params
-                  {{- if or (eq . "GET") (eq . "POST")}}
-                    progress:nil
-                  {{- end}}
-                     success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                         resolver(responseObject);
-                     }
-                     failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                         resolver(error);
-                     }];
-
-    return [self wrapRequestPromise:requestPromise];
+    typeof (self) __weak weakSelf = self;
+    return [self doRequest:^AnyPromise * {
+                     typeof (self) __strong strongSelf = weakSelf;
+                     PMKResolver resolver;
+                     AnyPromise *requestPromise = [[AnyPromise alloc] initWithResolver:&resolver];
+                     [strongSelf.sessionManager {{.}}:@""
+                                         parameters:params
+                                         {{- if or (eq . "GET") (eq . "POST")}}
+                                           progress:nil
+                                         {{- end}}
+                                            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                                resolver(responseObject);
+                                            }
+                                            failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                                resolver(error);
+                                            }];
+                     return requestPromise;
+                 }
+                 parseInto:modelInstance];
     {{- end}}
 }
 
-- (AnyPromise *)postResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params
+- (AnyPromise *)postResourceWithURLPath:(NSString *)urlPath
+                                 params:(NSDictionary *)params
+                              parseInto:(id<{{.Config.APIPrefix}}ModelProtocol>)modelInstance
 {
     {{- template "resourceManagerRequestPromiseCreation" "POST"}}
 }
 
-- (AnyPromise *)putResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params
+- (AnyPromise *)putResourceWithURLPath:(NSString *)urlPath
+                                params:(NSDictionary *)params
+                             parseInto:(id<{{.Config.APIPrefix}}ModelProtocol>)modelInstance
 {
     {{- template "resourceManagerRequestPromiseCreation" "PUT"}}
 }
 
-- (AnyPromise *)deleteResourceWithURLPath:(NSString *)urlPath params:(NSDictionary *)params
+- (AnyPromise *)deleteResourceWithURLPath:(NSString *)urlPath
+                                   params:(NSDictionary *)params
+                                parseInto:(id<{{.Config.APIPrefix}}ModelProtocol>)modelInstance
 {
     {{- template "resourceManagerRequestPromiseCreation" "DELETE"}}
 }
 
 #pragma mark - Private methods
 
-- (AnyPromise *)wrapRequestPromise:(AnyPromise *)requestPromise
+- (AnyPromise *)doRequest:(AnyPromise *(^)())requestBlock parseInto:(id<{{.Config.APIPrefix}}ModelProtocol>)modelInstance
 {
-    return requestPromise;
+    typeof (self) __weak weakSelf = self;
+    return requestBlock()
+    .then(^(id response) {
+        return [weakSelf parseResponse:response into:modelInstance];
+    })
+    .catch(^(NSError *error) {
+        // TODO: Check unauthorized, use refresh token and retry;
+        return error;
+    });;
 }
 
 @end
