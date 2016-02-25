@@ -11,6 +11,7 @@ import (
 var camelCaseRegexp = regexp.MustCompile("[0-9A-Za-z]+")
 
 var funcMap = template.FuncMap{
+	"trim":strings.TrimSpace,
 	"lowerFirst": func(s string) string {
 		return strings.ToLower(s[:1]) + s[1:]
 	},

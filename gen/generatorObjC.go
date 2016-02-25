@@ -31,7 +31,7 @@ func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parse
 		modelInfo.Name = config.APIPrefix + strings.Title(modelInfo.Name)
 		for propSpec, prop := range modelInfo.Properties {
 			var propertyDependencies []string
-			prop.Type, propertyDependencies = objCType(prop, config)
+			prop.TypeLabel, propertyDependencies = objCType(prop, config)
 			modelInfo.Properties[propSpec] = prop
 			modelInfo.Dependencies = append(modelInfo.Dependencies, propertyDependencies...)
 			// TODO: Property attributes

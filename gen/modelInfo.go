@@ -46,6 +46,7 @@ func newModelInfo(name string) *modelInfo {
 type property struct {
 	Name    string
 	Type    string
+	TypeLabel string
 	IsArray bool
 }
 
@@ -73,6 +74,7 @@ func (p *property) extractType(propertySpec string, val interface{}) {
 	default:
 		p.Type = value.String()
 	}
+	p.TypeLabel = p.Type
 }
 
 type endpointInfo struct {

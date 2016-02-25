@@ -9,19 +9,21 @@
 
 - (void)fillWithDictionary:(NSDictionary *)dictionary
 {
-// TODO: type conversions (specially for bool in the other method) nil checks?
 // TODO: Conversion from other dictionaries and models
 {{- range .CurrentModelInfo.Properties}}
-    self.{{.Name}} = dictionary[@"{{.Name}}"];
+    self.{{.Name}} = {{if eq .Type "bool"}}[dictionary[@"{{.Name}}"] boolValue]{{else}}dictionary[@"{{.Name}}"]{{end}};
 {{- end}}
 }
 
 - (NSDictionary *)toDictionary
 {
+// TODO: Conversion to dictionary of other models or arrays.
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+
 {{- range .CurrentModelInfo.Properties}}
-    dictionary[@"{{.Name}}"] = self.{{.Name}};
+    dictionary[@"{{.Name}}"] = {{if eq .Type "bool"}}@(self.{{.Name}}){{else}}self.{{.Name}}{{end}};
 {{- end}}
+
     return dictionary;
 }
 
