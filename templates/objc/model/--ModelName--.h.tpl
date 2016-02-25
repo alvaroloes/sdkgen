@@ -1,7 +1,7 @@
 {{template "preHeaderComment" .}}
 
 #import <Foundation/Foundation.h>
-{{- range .CurrentModelInfo.Dependencies}}
+{{- range .CurrentModelInfo.ModelDependencies}}
 @class {{.}};
 {{- end}}
 #import "{{.Config.APIPrefix}}SerializableModelProtocol.h"

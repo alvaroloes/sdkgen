@@ -30,8 +30,8 @@ type modelInfo struct {
 	EndpointsInfo []endpointInfo
 
 	// These are responsibility of language specific generators
-	Dependencies     []string
-	LangSpecificData map[string]interface{}
+	ModelDependencies []string
+	LangSpecificData  map[string]interface{}
 }
 
 func newModelInfo(name string) *modelInfo {
@@ -44,10 +44,10 @@ func newModelInfo(name string) *modelInfo {
 }
 
 type property struct {
-	Name    string
-	Type    string
+	Name      string
+	Type      string
 	TypeLabel string
-	IsArray bool
+	IsArray   bool
 }
 
 func newProperty(propertySpec string, val interface{}) property {

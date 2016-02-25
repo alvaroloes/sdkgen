@@ -11,7 +11,8 @@ import (
 var camelCaseRegexp = regexp.MustCompile("[0-9A-Za-z]+")
 
 var funcMap = template.FuncMap{
-	"trim":strings.TrimSpace,
+	"trim":  strings.TrimSpace,
+	"lower": strings.ToLower,
 	"lowerFirst": func(s string) string {
 		return strings.ToLower(s[:1]) + s[1:]
 	},
@@ -32,5 +33,13 @@ var funcMap = template.FuncMap{
 			}
 		}
 		return strings.Join(chunks, "")
+	},
+	"contains": func(needle string, haystack []string) bool {
+		for _, s := range haystack {
+			if needle == s {
+				return true
+			}
+		}
+		return false
 	},
 }

@@ -31,44 +31,45 @@ func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parse
 		modelInfo.Name = config.APIPrefix + strings.Title(modelInfo.Name)
 		for propSpec, prop := range modelInfo.Properties {
 			var propertyDependencies []string
-			prop.TypeLabel, propertyDependencies = objCType(prop, config)
+			prop.Type, prop.TypeLabel, propertyDependencies = objCType(prop, config)
 			modelInfo.Properties[propSpec] = prop
-			modelInfo.Dependencies = append(modelInfo.Dependencies, propertyDependencies...)
+			modelInfo.ModelDependencies = append(modelInfo.ModelDependencies, propertyDependencies...)
 			// TODO: Property attributes
 		}
 	}
 }
 
-func objCType(prop property, config Config) (string, []string) {
-	var res string
+func objCType(prop property, config Config) (string, string, []string) {
+	var typeName, typeLabel string
 	var dependencies []string
 
 	if prop.IsArray {
-		res = "NSArray<"
+		typeLabel = "NSArray<"
 	}
 
 	objCType, typeFound := objCTypePerGoType[prop.Type]
 	if typeFound {
+		typeName = objCType.Name
 		// In Objective C an array of booleans needs to be an array of NSNumbers
-		if prop.IsArray && objCType.Name == typeBOOL {
-			res += typeNSNumber
+		if prop.IsArray && typeName == typeBOOL {
+			typeLabel += typeNSNumber
 		} else {
-			res += objCType.Name
+			typeLabel += typeName
 		}
 	} else {
-		modelName := config.APIPrefix + strings.Title(prop.Type)
-		dependencies = append(dependencies, modelName)
-		res += modelName
+		typeName = config.APIPrefix + strings.Title(prop.Type)
+		dependencies = append(dependencies, typeName)
+		typeLabel += typeName
 	}
 
 	if prop.IsArray {
-		res += " *> *"
+		typeLabel += " *> *"
 	} else if !typeFound || objCType.Pointer {
 		// If type is not found, it means that the type is a class, so we need a pointer
-		res += " *"
+		typeLabel += " *"
 	} else {
-		res += " "
+		typeLabel += " "
 	}
 
-	return res, dependencies
+	return typeName, typeLabel, dependencies
 }
