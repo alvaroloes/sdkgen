@@ -25,7 +25,7 @@
     NSArray *itemDictionariesOf{{.Type}} = dictionary[@"{{.Name}}"];
     for (NSDictionary *itemDictionary in itemDictionariesOf{{.Type}})
     {
-        [itemsOf{{.Type}} addObject:[[{{.Type}} alloc] initWithDictionary:itemDictionary]]];
+        [itemsOf{{.Type}} addObject:[[{{.Type}} alloc] initWithDictionary:itemDictionary]];
     }
     self.{{.Name}} = itemsOf{{.Type}};
         {{else -}}
@@ -39,11 +39,22 @@
 
 - (NSDictionary *)toDictionary
 {
-// TODO: Conversion to dictionary of other models or arrays.
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-{{- range .CurrentModelInfo.Properties}}
-    {{if $.CurrentModelInfo.ModelDependencies | contains .Type}} Yeah! {{end}}
-    dictionary[@"{{.Name}}"] = {{if eq .Type "BOOL"}}@(self.{{.Name}}){{else}}self.{{.Name}}{{end}};
+{{ range .CurrentModelInfo.Properties}}
+    {{ if $.CurrentModelInfo.ModelDependencies | contains .Type -}}
+        {{- if .IsArray}}
+    NSMutableArray *itemDictionariesOf{{.Type}} = [NSMutableArray new];
+    for ({{.Type}} *item in self.{{.Name}})
+    {
+        [itemDictionariesOf{{.Type}} addObject:[item toDictionary]];
+    }
+    dictionary[@"{{.Name}}"] = itemDictionariesOf{{.Type}};
+        {{- else -}}
+    dictionary[@"{{.Name}}"] = [self.{{.Name}} toDictionary];
+        {{- end}}
+    {{- else -}}
+        dictionary[@"{{.Name}}"] = {{if eq .Type "BOOL"}}@(self.{{.Name}}){{else}}self.{{.Name}}{{end}};
+    {{- end}}
 {{- end}}
 
     return dictionary;

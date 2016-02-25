@@ -1,10 +1,10 @@
 {{template "preHeaderComment" .}}
 
 #import <Foundation/Foundation.h>
-{{- range .CurrentModelInfo.ModelDependencies}}
+#import "{{.Config.APIPrefix}}SerializableModelProtocol.h"
+{{ range .CurrentModelInfo.ModelDependencies}}
 @class {{.}};
 {{- end}}
-#import "{{.Config.APIPrefix}}SerializableModelProtocol.h"
 
 @interface {{.CurrentModelInfo.Name}} : NSObject <{{.Config.APIPrefix}}SerializableModel>
 {{range .CurrentModelInfo.Properties -}}
