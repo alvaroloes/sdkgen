@@ -1,6 +1,7 @@
 {{template "preHeaderComment" .}}
 
 #import "{{.Config.APIName}}.h"
+#import "{{.Config.APIPrefix}}ResourceManager.h"
 
 static NSString * const k{{.Config.APIPrefix}}BaseURL = @"{{.API.BaseURL}}";
 

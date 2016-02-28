@@ -27,14 +27,13 @@
     {{if .SegmentParams -}}
     NSMutableDictionary *segmentParams = [NSMutableDictionary new];
     {{range .SegmentParams -}}
-        segmentParams[@"{{.}}"] = {{. | singular | camelCase}};
+        segmentParams[@"{{.}}"] = {{. | sanitizeVariable | singular | camelCase}};
     {{end -}}
     NSString *urlPath = [TTURLHelper replaceSegmentParams:segmentParams inURL:@"{{.URLPath}}"];
     {{- else -}}
     NSString *urlPath = @"{{.URLPath}}";
     {{end}}
-
-    // TODO: Problem with the "id" parameter name
+    
     [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
                                           params:{{if .NeedsModelParam}}[{{.Model.OriginalName}} toDictionary]{{else}}nil{{end}}
                                    modelInstance:^id <TTSerializableModel>
