@@ -79,8 +79,8 @@ func (g *Generator) Generate() error {
 	// Adapt them to the specific language
 	g.gen.adaptModelsInfo(g.modelsInfo, g.api, g.config)
 
-	baseTplsGlob := path.Join(g.tplDir, commonTemplatesPath, "*"+templateExt)
 	// Parse the base templates that contains common definitions
+	baseTplsGlob := path.Join(g.tplDir, commonTemplatesPath, "*"+templateExt)
 	baseTpls, err := template.New("base").Funcs(funcMap).ParseGlob(baseTplsGlob)
 	if err != nil {
 		return errors.Annotate(err, "when parsing common templates ("+baseTplsGlob+")")
