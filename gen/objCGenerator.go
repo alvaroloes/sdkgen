@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/alvaroloes/sdkgen/parser"
+"text/template"
 )
 
 type objCTypeInfo struct {
@@ -37,6 +38,10 @@ func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parse
 			// TODO: Property attributes
 		}
 	}
+}
+
+func (gen *ObjCGen) funcMap() template.FuncMap {
+	return objCFuncMap
 }
 
 func objCType(prop property, config Config) (string, string, []string) {

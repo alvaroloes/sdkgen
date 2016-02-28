@@ -62,6 +62,7 @@ type templateData struct {
 
 type languageSpecificGenerator interface {
 	adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parser.API, config Config)
+	funcMap() template.FuncMap
 }
 
 // Generator contains all the information needed to generate the SDK in a specific language
@@ -81,7 +82,7 @@ func (g *Generator) Generate() error {
 
 	// Parse the base templates that contains common definitions
 	baseTplsGlob := path.Join(g.tplDir, commonTemplatesPath, "*"+templateExt)
-	baseTpls, err := template.New("base").Funcs(funcMap).ParseGlob(baseTplsGlob)
+	baseTpls, err := template.New("base").Funcs(funcMap).Funcs(g.gen.funcMap()).ParseGlob(baseTplsGlob)
 	if err != nil {
 		return errors.Annotate(err, "when parsing common templates ("+baseTplsGlob+")")
 	}
