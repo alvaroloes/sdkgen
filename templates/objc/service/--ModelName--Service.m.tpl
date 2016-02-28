@@ -3,6 +3,7 @@
 
 #import "{{$model.Name}}Service.h"
 #import "{{.Config.APIPrefix}}ResourceManager.h"
+#import "{{.Config.APIPrefix}}URLHelper.h"
 
 @interface {{$model.Name}}Service ()
 @property (nonatomic, weak) {{.Config.APIPrefix}}ResourceManager *resourceManager;
@@ -22,9 +23,18 @@
 {{range $model.EndpointsInfo -}}
 {{template "serviceMethodName" .}}
 {
-//TODO: The resourceManager accepts directly the built URL. Think about parsing -> we should be able to update an instance
-//from the result, instead of creating a new one (in create/update methods)
-//{{.}}
+    {{if .SegmentParams -}}
+    NSMutableDictionary *segmentParams = [NSMutableDictionary new];
+    {{range .SegmentParams -}}
+        segmentParams[@"{{.}}"] = {{. | singular | camelCase}};
+    {{end -}}
+    NSString *url = [TTURLHelper replaceSegmentParams:segmentParams inURL:@"{{.URLPath}}"];
+    {{- else -}}
+    NSString *url = @"{{.URLPath}}";
+    {{end}}
+
+
+
     return nil;
 }
 {{end}}

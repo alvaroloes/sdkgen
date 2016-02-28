@@ -2,6 +2,7 @@
 Still in an early stage of development. Be patient ;-)
 
 ## TODO
+- [ ] Don't create a service class if the corresponding model doesn't have any endpoints
 - [ ] Allow API versioning
 - [ ] Allow property tuning with a key=value after the colon. Something like: `"prop1: name=desiredName, type=desiredType"`
 - [ ] Right now, when a property value is a map, it is generated as a class. Allow it to be generated just as a map/dictionary
