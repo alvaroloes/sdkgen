@@ -32,16 +32,14 @@
     NSString *urlPath = [TTURLHelper replaceSegmentParams:segmentParams inURL:@"{{.URLPath}}"];
     {{- else -}}
     NSString *urlPath = @"{{.URLPath}}";
-    {{end}}
-    
-    [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
-                                          params:{{if .NeedsModelParam}}[{{.Model.OriginalName}} toDictionary]{{else}}nil{{end}}
-                                   modelInstance:^id <TTSerializableModel>
-                                   {
-                                       return {{if .Method.String | eq "PUT"}}{{.Model.OriginalName}}{{else}}[{{.Model.Name}} new]{{end}};
-                                   }];
+    {{- end}}
 
-    return nil;
+    return [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
+                                                 params:{{if .NeedsModelParam}}[{{.Model.OriginalName}} toDictionary]{{else}}nil{{end}}
+                                          modelInstance:^id <TTSerializableModel>
+                                          {
+                                              return {{if .Method.String | eq "PUT"}}{{.Model.OriginalName}}{{else}}[{{.Model.Name}} new]{{end}};
+                                          }];
 }
 {{end}}
 @end

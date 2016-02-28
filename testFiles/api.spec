@@ -1,4 +1,4 @@
-GET https://www.alvarloes.com/api/v1/posts
+GET https://www.alvaroloes.com/api/v1/posts
 <- [
 	{
 		"id":"1234",
@@ -42,7 +42,7 @@ GET https://www.alvarloes.com/api/v1/posts
     }
 ]
 
-GET https://www.alvarloes.com/posts/:id
+GET https://www.alvaroloes.com/posts/:id
 <- {
 	"id":"1234",
 	"author":{
@@ -64,7 +64,7 @@ GET https://www.alvarloes.com/posts/:id
 	]
 }
 
-POST https://www.alvarloes.com/posts
+POST https://www.alvaroloes.com/posts
 -> {
 	"title":"We really need a client SDK generator",
 	"body":"(...) we to make the machine work for us, thus we should write generators to make the computer write the non-creative part of the code for us"
@@ -91,7 +91,7 @@ POST https://www.alvarloes.com/posts
    	]
 }
 
-PUT https://www.alvarloes.com/posts/:id
+PUT https://www.alvaroloes.com/posts/:id
 -> {
 	"title":"We really need a client SDK generator. Please"
 }
@@ -117,9 +117,9 @@ PUT https://www.alvarloes.com/posts/:id
    	]
 }
 
-DELETE https://www.alvarloes.com/posts/:id
+DELETE https://www.alvaroloes.com/posts/:id
 
-GET https://www.alvarloes.com/posts/:post_id/comments
+GET https://www.alvaroloes.com/posts/:post_id/comments
 <- [
 	{
 		"id":"4567",
@@ -132,14 +132,14 @@ GET https://www.alvarloes.com/posts/:post_id/comments
 	}
 ]
 
-GET https://www.alvarloes.com/posts/:post_id/comments/:id
+GET https://www.alvaroloes.com/posts/:post_id/comments/:id
 <- {
 	"id":"4567",
 	"title":"I like it",
 	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
 }
 
-POST https://www.alvarloes.com/posts/:post_id/comments
+POST https://www.alvaroloes.com/posts/:post_id/comments
 -> {
 	"title":"I like it",
 	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
@@ -149,7 +149,7 @@ POST https://www.alvarloes.com/posts/:post_id/comments
 	"title":"I like it",
 	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
 }
-PUT https://www.alvarloes.com/posts/:post_id/comments/:id
+PUT https://www.alvaroloes.com/posts/:post_id/comments/:id
 -> {
 	"title":"I really like it"
 }
@@ -158,5 +158,5 @@ PUT https://www.alvarloes.com/posts/:post_id/comments/:id
 	"title":"I really like it",
 	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
 }
-DELETE https://www.alvarloes.com/posts/:post_id/comments/:id
+DELETE https://www.alvaroloes.com/posts/:post_id/comments/:id
 

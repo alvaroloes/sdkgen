@@ -31,7 +31,7 @@
                  typeof (self) __strong strongSelf = weakSelf;
                  PMKResolver resolver;
                  AnyPromise *requestPromise = [[AnyPromise alloc] initWithResolver:&resolver];
-                 [strongSelf.sessionManager {{.}}:@""
+                 [strongSelf.sessionManager {{.}}:urlPath
                                      parameters:params
                                      {{- if or (eq . "GET") (eq . "POST")}}
                                        progress:nil
