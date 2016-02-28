@@ -79,15 +79,39 @@
         return [weakSelf parseResponse:response withModelInstance:modelInstance];
     })
     .catch(^(NSError *error) {
-        // TODO: Check unauthorized, use refresh token and retry;
+        // TODO: Check unauthorized, use refresh token, retry, parse custom error.
         return error;
     });
 }
 
 - (id)parseResponse:(id)response withModelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance
 {
-    // TODO
-    return modelInstance();
+    if ([response isKindOfClass:[NSDictionary class]])
+    {
+        return [self parseDictionary:response
+                   withModelInstance:modelInstance];
+    }
+    else if ([response isKindOfClass:[NSArray class]])
+    {
+        NSMutableArray *responseArray = [NSMutableArray array];
+        for (NSDictionary *dictionary in response) {
+            [responseArray addObject:[self parseDictionary:dictionary
+                                         withModelInstance:modelInstance]];
+        }
+        return responseArray;
+    }
+    else
+    {
+        NSAssert(NO, @"ResourceManager: Cannot parse, response coming from server is neither an array nor a dictionary");
+        return nil;
+    }
+}
+
+- (id)parseDictionary:(NSDictionary *)dictionary withModelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance
+{
+    id<{{.Config.APIPrefix}}SerializableModel> instance = modelInstance();
+    [instance updateWithDictionary:dictionary];
+    return instance;
 }
 
 @end
