@@ -2,6 +2,7 @@
 {{- $model := .CurrentModelInfo}}
 
 #import "{{$model.Name}}Service.h"
+#import "{{.CurrentModelInfo.Name}}.h"
 #import "{{.Config.APIPrefix}}ResourceManager.h"
 #import "{{.Config.APIPrefix}}URLHelper.h"
 
@@ -28,12 +29,17 @@
     {{range .SegmentParams -}}
         segmentParams[@"{{.}}"] = {{. | singular | camelCase}};
     {{end -}}
-    NSString *url = [TTURLHelper replaceSegmentParams:segmentParams inURL:@"{{.URLPath}}"];
+    NSString *urlPath = [TTURLHelper replaceSegmentParams:segmentParams inURL:@"{{.URLPath}}"];
     {{- else -}}
-    NSString *url = @"{{.URLPath}}";
+    NSString *urlPath = @"{{.URLPath}}";
     {{end}}
 
-
+    [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
+                                          params:{{if .NeedsModelParam}}[{{.Model.OriginalName}} toDictionary]{{else}}nil{{end}}
+                                   modelInstance:^id <TTSerializableModel>
+                                   {
+                                       return {{if .Method.String | eq "PUT"}}{{.Model.OriginalName}}{{else}}[{{.Model.Name}} new]{{end}};
+                                   }];
 
     return nil;
 }
