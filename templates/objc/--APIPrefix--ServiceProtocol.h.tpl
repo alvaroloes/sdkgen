@@ -1,6 +1,6 @@
 {{template "preHeaderComment" .}}
 
-#import "{{.Config.APIPrefix}}ResourceManager.h"
+@class {{.Config.APIPrefix}}ResourceManager;
 
 @protocol {{.Config.APIPrefix}}Service <NSObject>
 

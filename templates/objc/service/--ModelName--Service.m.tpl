@@ -34,6 +34,7 @@
     NSString *urlPath = @"{{.URLPath}}";
     {{end}}
 
+    // TODO: Problem with the "id" parameter name
     [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
                                           params:{{if .NeedsModelParam}}[{{.Model.OriginalName}} toDictionary]{{else}}nil{{end}}
                                    modelInstance:^id <TTSerializableModel>
