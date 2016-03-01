@@ -29,9 +29,13 @@
     {{range .SegmentParams -}}
         segmentParams[@"{{.}}"] = {{. | sanitizeVariable | singular | camelCase}};
     {{end -}}
-    NSString *urlPath = [TTURLHelper replaceSegmentParams:segmentParams inURL:@"{{.URLPath}}"];
+    NSString *urlPath = [{{$.Config.APIPrefix}}URLHelper replaceSegmentParams:segmentParams inURL:@"{{.URLPath}}"];
     {{- else -}}
     NSString *urlPath = @"{{.URLPath}}";
+    {{- end}}
+
+    {{- if .URLQueryParams }}
+    urlPath = [urlPath stringByAppendingString:[{{$.Config.APIPrefix}}URLHelper encodeQueryStringFromDictionary:query]];
     {{- end}}
 
     return [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath

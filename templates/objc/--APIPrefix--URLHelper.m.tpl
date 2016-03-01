@@ -28,4 +28,38 @@
     return finalURL;
 }
 
++ (NSString *)encodeQueryStringFromDictionary:(NSDictionary *)dict
+{
+    NSMutableString *query = [NSMutableString stringWithString:@"?"];
+    for (NSString *key in dict)
+    {
+        if (query.length > 1)
+        {
+            [query appendString:@"&"];
+        }
+
+        id value = dict[key];
+        if ([value isKindOfClass:[NSArray class]])
+        {
+            NSMutableString *queryArrayPart = [NSMutableString new];
+            for (id val in value)
+            {
+                if (queryArrayPart.length > 0)
+                {
+                    [queryArrayPart appendString:@"&"];
+                }
+
+                [queryArrayPart appendFormat:@"%@[]=%@", key, val];
+            }
+            [query appendString:queryArrayPart];
+        }
+        else
+        {
+            [query appendFormat:@"%@=%@", key, value];
+        }
+    }
+
+    return query;
+}
+
 @end

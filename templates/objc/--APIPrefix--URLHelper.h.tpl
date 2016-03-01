@@ -6,4 +6,6 @@
 
 + (NSString *)replaceSegmentParams:(NSDictionary *)params inURL:(NSString *)url;
 
++ (NSString *)encodeQueryStringFromDictionary:(NSDictionary *)dict;
+
 @end

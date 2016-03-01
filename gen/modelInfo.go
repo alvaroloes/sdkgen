@@ -3,6 +3,8 @@ package gen
 import (
 	"reflect"
 
+	"net/url"
+
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/jinzhu/inflection"
 	"github.com/juju/errors"
@@ -78,11 +80,12 @@ func (p *property) extractType(propertySpec string, val interface{}) {
 }
 
 type endpointInfo struct {
-	Model         *modelInfo
-	Method        parser.HTTPMethod
-	URLPath       string
-	SegmentParams []string
-	ResponseType  ResponseType
+	Model          *modelInfo
+	Method         parser.HTTPMethod
+	URLPath        string
+	URLQueryParams url.Values
+	SegmentParams  []string
+	ResponseType   ResponseType
 }
 
 func (epi *endpointInfo) CRUDMethodName() (string, error) {

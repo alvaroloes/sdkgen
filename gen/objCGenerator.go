@@ -3,8 +3,9 @@ package gen
 import (
 	"strings"
 
+	"text/template"
+
 	"github.com/alvaroloes/sdkgen/parser"
-"text/template"
 )
 
 type objCTypeInfo struct {

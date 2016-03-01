@@ -1,4 +1,4 @@
-GET https://www.alvaroloes.com/api/v1/posts
+GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
 <- [
 	{
 		"id":"1234",
@@ -42,7 +42,7 @@ GET https://www.alvaroloes.com/api/v1/posts
     }
 ]
 
-GET https://www.alvaroloes.com/posts/:id
+GET https://www.alvaroloes.com/posts/:id?a=1&b=Pepe&c
 <- {
 	"id":"1234",
 	"author":{
@@ -64,7 +64,7 @@ GET https://www.alvaroloes.com/posts/:id
 	]
 }
 
-POST https://www.alvaroloes.com/posts
+POST https://www.alvaroloes.com/posts?a=1&b=Pepe&c
 -> {
 	"title":"We really need a client SDK generator",
 	"body":"(...) we to make the machine work for us, thus we should write generators to make the computer write the non-creative part of the code for us"
@@ -91,7 +91,7 @@ POST https://www.alvaroloes.com/posts
    	]
 }
 
-PUT https://www.alvaroloes.com/posts/:id
+PUT https://www.alvaroloes.com/posts/:id?a=1&b=Pepe&c
 -> {
 	"title":"We really need a client SDK generator. Please"
 }
