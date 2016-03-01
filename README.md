@@ -3,7 +3,7 @@ Still in an early stage of development. Be patient ;-)
 
 ## TODO
 - [ ] Sanitize property names too (for example "description")
-- [*] Allow the specification of query parameters per each endpoint
+- [x] Allow the specification of query parameters per each endpoint
 - [ ] Token based authentication
 - [ ] Don't create a service class if the corresponding model doesn't have any endpoints
 - [ ] Don't create a model if it has no properties (This happens when a property of other model is an array of simple types)
