@@ -13,14 +13,14 @@ func main() {
 	log.SetLevel(log.DebugLevel)
 	// This will be extracted from command line flags
 	config := gen.Config{
-		APIName:         "Test",
-		APIPrefix:       "TT",
+		APIName:         "GoogleBooks",
+		APIPrefix:       "GOB",
 		ModelsRelPath:   "Models",
 		ServicesRelPath: "Services",
-		OutputDir:       "./testFiles",
+		OutputDir:       "../../../../../SDKGenDemo/SDKGenDemo/GoogleBooks/",
 	}
 
-	specBytes, err := ioutil.ReadFile("./testFiles/api.spec")
+	specBytes, err := ioutil.ReadFile("../../../../../SDKGenDemo/SDKGenDemo/GoogleBooks/api.sas")
 	if err != nil {
 		log.Fatal(errors.Annotate(err, "when reading API spec file"))
 	}

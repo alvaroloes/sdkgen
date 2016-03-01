@@ -2,7 +2,7 @@
 Still in an early stage of development. Be patient ;-)
 
 ## TODO
-- [ ] Sanitize property names too (for example "description")
+- [x] Sanitize property names too (for example "description")
 - [x] Allow the specification of query parameters per each endpoint
 - [ ] Token based authentication
 - [ ] Don't create a service class if the corresponding model doesn't have any endpoints
