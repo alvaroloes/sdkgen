@@ -34,12 +34,16 @@
     NSString *urlPath = @"{{.URLPath}}";
     {{- end}}
 
-    {{- if .URLQueryParams }}
+    {{- if .URLQueryParams | and .NeedsModelParam }}
     urlPath = [urlPath stringByAppendingString:[{{$.Config.APIPrefix}}URLHelper encodeQueryStringFromDictionary:query]];
     {{- end}}
 
     return [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
-                                                 params:{{if .NeedsModelParam}}[{{.Model.OriginalName}} toDictionary]{{else}}nil{{end}}
+                                                 params:{{if .NeedsModelParam -}}
+                                                            [{{.Model.OriginalName}} toDictionary]
+                                                        {{- else -}}
+                                                            {{if .URLQueryParams }}query{{else}}nil{{end}}
+                                                        {{- end}}
                                           modelInstance:^id <TTSerializableModel>
                                           {
                                               return {{if .Method.String | eq "PUT"}}{{.Model.OriginalName}}{{else}}[{{.Model.Name}} new]{{end}};
