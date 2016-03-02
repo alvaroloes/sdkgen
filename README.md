@@ -5,8 +5,8 @@ Still in an early stage of development. Be patient ;-)
 - [x] Sanitize property names too (for example "description")
 - [x] Allow the specification of query parameters per each endpoint
 - [ ] Token based authentication
-- [ ] Don't create a service class if the corresponding model doesn't have any endpoints
-- [ ] Don't create a model if it has no properties (This happens when a property of other model is an array of simple types)
+- [x] Don't create a service class if the corresponding model doesn't have any endpoints
+- [x] Don't create a model if it has no properties (This happens when a property of other model is an array of simple types)
 - [ ] Use the request type to generate de method parameter, don't rely only on HTTP Methods
 - [ ] Use de response type and generate the code accordingly. don't use always the resource (for example a DELETE endpoint usually return nothing)
 - [ ] Allow API versioning
