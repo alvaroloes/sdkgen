@@ -4,12 +4,16 @@
 
 // Services
 {{- range .AllModelsInfo }}
+{{- if .EndpointsInfo }}
 #import "{{.Name}}Service.h"
+{{- end}}
 {{- end}}
 
 // Models
 {{- range .AllModelsInfo }}
+{{- if .Properties }}
 #import "{{.Name}}.h"
+{{- end}}
 {{- end}}
 
 //Protocols

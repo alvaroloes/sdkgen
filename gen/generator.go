@@ -117,11 +117,15 @@ func (g *Generator) Generate() error {
 	if err != nil {
 		return errors.Annotate(err, "when generating API files")
 	}
-	err = g.generatePerModelFiles(modelTplFileNames, modelTpls, modelsDir)
+	err = g.generatePerModelFiles(modelTplFileNames, modelTpls, modelsDir, func(modelInfo *modelInfo) bool {
+		return len(modelInfo.Properties) == 0
+	})
 	if err != nil {
 		return errors.Annotate(err, "when generating model files")
 	}
-	err = g.generatePerModelFiles(serviceTplFileNames, serviceTpls, servicesDir)
+	err = g.generatePerModelFiles(serviceTplFileNames, serviceTpls, servicesDir, func(modelInfo *modelInfo) bool {
+		return len(modelInfo.EndpointsInfo) == 0
+	})
 	if err != nil {
 		return errors.Annotate(err, "when generating service files")
 	}
@@ -165,11 +169,14 @@ func (g *Generator) generateGeneralFiles(templateFileNames []string, generalTpls
 	return nil
 }
 
-func (g *Generator) generatePerModelFiles(templateFileNames []string, modelTpls *template.Template, modelsDir string) error {
+func (g *Generator) generatePerModelFiles(templateFileNames []string, modelTpls *template.Template, modelsDir string, filter func(modelInfo *modelInfo) bool) error {
 	for _, tplFileName := range templateFileNames {
 		tplName := filepath.Base(tplFileName)
 		// Apply the templates to each model in the API
 		for _, modelInfo := range g.modelsInfo {
+			if filter(modelInfo) {
+				continue
+			}
 			// TODO: Do this concurrently
 			repl := strings.NewReplacer(
 				templateExt, "",
