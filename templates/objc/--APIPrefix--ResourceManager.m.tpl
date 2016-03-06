@@ -76,6 +76,11 @@
     typeof (self) __weak weakSelf = self;
     return requestBlock()
     .then(^(id response) {
+        if (modelInstance == nil)
+        {
+            return nil;
+        }
+
         return [weakSelf parseResponse:response withModelInstance:modelInstance];
     })
     .catch(^(NSError *error) {

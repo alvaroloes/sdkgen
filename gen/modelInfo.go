@@ -107,3 +107,7 @@ func (epi *endpointInfo) NeedsModelParam() bool {
 func (epi *endpointInfo) IsArrayResponse() bool {
 	return epi.ResponseType == ArrayResponse
 }
+
+func (epi *endpointInfo) HasResponse() bool {
+	return epi.ResponseType != EmptyResponse
+}

@@ -18,3 +18,4 @@ Still in an early stage of development. Be patient ;-)
 - [ ] How to detect enum values from the API spec?
 - [ ] JSON arrays of arrays may not be properly handled
 - [ ] Allow flagging some query parameters as method parameters (so they'll be treated similarly as segment parameters)
+- [ ] Generate string constants for the query parameter names (or something similar)

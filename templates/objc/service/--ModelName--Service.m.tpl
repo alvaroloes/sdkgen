@@ -44,10 +44,10 @@
                                                         {{- else -}}
                                                             {{if .URLQueryParams }}query{{else}}nil{{end}}
                                                         {{- end}}
-                                          modelInstance:^id <{{$.Config.APIPrefix}}SerializableModel>
+                                          modelInstance:{{if not .HasResponse}}nil{{else}}^id <{{$.Config.APIPrefix}}SerializableModel>
                                           {
                                               return {{if .Method.String | eq "PUT"}}{{.Model.OriginalName}}{{else}}[{{.Model.Name}} new]{{end}};
-                                          }];
+                                          }{{end}}];
 }
 {{end}}
 @end
