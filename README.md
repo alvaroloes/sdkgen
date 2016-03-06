@@ -12,7 +12,9 @@ Still in an early stage of development. Be patient ;-)
 - [ ] Allow API versioning
 - [ ] Support for format specifiers at the end of the endpoint (.json)? (by simply ignore them for now)
 - [ ] Allow property tuning with a key=value after the colon. Something like: `"prop1: name=desiredName, type=desiredType"`
+- [ ] Allow specifying Time type in properties (What format?).
+- [ ] Allow model tuning in the same way than property tuning (taking into account the models whose name is taken from the resource endpoint)
 - [ ] Right now, when a property value is a map, it is generated as a class. Allow it to be generated just as a map/dictionary
 - [ ] How to detect enum values from the API spec?
-- [ ] Allow model tuning in the same way than property tuning (taking into account the models whose name is taken from the resource endpoint)
 - [ ] JSON arrays of arrays may not be properly handled
+- [ ] Allow flagging some query parameters as method parameters (so they'll be treated similarly as segment parameters)

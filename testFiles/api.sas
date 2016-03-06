@@ -1,3 +1,20 @@
+OAUTH POST https://www.alvaroloes.com/oauth/token
+-> {
+    "username":"testUser",
+    "password": "demo",
+    "first_name": "Test",
+    "last_name": "User",
+    "grant_type": "password"
+}
+
+<- {
+    "accessToken:token": "token",
+    "tokenType:tokenType": "Bearer",
+    "refreshToken:refreshToken": "refreshToken",
+    "expiresIn:expiresIn": "3600",
+    "createdAt:createdAt": "1457299698278"
+}
+
 GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
 <- [
 	{
