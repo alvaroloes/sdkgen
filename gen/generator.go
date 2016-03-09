@@ -272,7 +272,7 @@ func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVa
 
 	valKind := reflect.TypeOf(propVal).Kind()
 	if valKind == reflect.Map || valKind == reflect.Array || valKind == reflect.Slice {
-		g.mergeModelProperties(prop.Name, propVal)
+		g.mergeModelProperties(prop.Type, propVal)
 	}
 }
 

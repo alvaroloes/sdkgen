@@ -53,8 +53,7 @@ func objCType(prop property, config Config) (string, string, []string) {
 
 	if prop.IsArray {
 		typeLabel = typeNSArray + "<"
-	}
-	if prop.IsMap {
+	} else if prop.IsMap {
 		typeLabel = typeNSDictionary + "<NSString *, "
 	}
 
