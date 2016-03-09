@@ -28,6 +28,14 @@
         [itemsOf{{.Type}} addObject:[[{{.Type}} alloc] initWithDictionary:itemDictionary]];
     }
     self.{{.Name | sanitizeProperty}} = itemsOf{{.Type}};
+        {{else if .IsMap -}}
+    NSMutableDictionary *dictionaryOf{{.Type}} = [NSMutableDictionary new];
+    NSDictionary *rawDictionaryOf{{.Type}} = dictionary[@"{{.Name}}"];
+    for (NSString *key in rawDictionaryOf{{.Type}})
+    {
+        dictionaryOf{{.Type}}[key] = [[{{.Type}} alloc] initWithDictionary:rawDictionaryOf{{.Type}}[key]];
+    }
+    self.{{.Name | sanitizeProperty}} = dictionaryOf{{.Type}};
         {{else -}}
     self.{{.Name | sanitizeProperty}} = [[{{.Type}} alloc] initWithDictionary:dictionary[@"{{.Name}}"]];
         {{- end}}
@@ -49,6 +57,15 @@
         [itemDictionariesOf{{.Type}} addObject:[item toDictionary]];
     }
     dictionary[@"{{.Name}}"] = itemDictionariesOf{{.Type}};
+        {{- else if .IsMap -}}
+
+    NSMutableDictionary *rawDictionaryOf{{.Type}} = [NSMutableDictionary new];
+    for (NSString *key in self.{{.Name | sanitizeProperty}})
+    {
+        {{.Type}} *item = self.{{.Name | sanitizeProperty}}[key];
+        rawDictionaryOf{{.Type}}[key] = [item toDictionary];
+    }
+    dictionary[@"{{.Name}}"] = rawDictionaryOf{{.Type}};
         {{- else -}}
     dictionary[@"{{.Name}}"] = [self.{{.Name | sanitizeProperty}} toDictionary];
         {{- end}}
