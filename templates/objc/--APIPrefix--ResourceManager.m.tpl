@@ -78,7 +78,7 @@
     .then(^(id response) {
         if (modelInstance == nil)
         {
-            return nil;
+            return (id)nil;
         }
 
         return [weakSelf parseResponse:response withModelInstance:modelInstance];
