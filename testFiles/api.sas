@@ -24,7 +24,7 @@ GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
 			"name":"John",
 			"age":20
 		},
-		"title":"We really need a client SDK generator",
+		"title:name=header;map":"We really need a client SDK generator",
 		"body":"(...) we to make the machine work for us, thus we should write generators to make the computer write the non-creative part of the code for us",
 		"comments":[
 			{

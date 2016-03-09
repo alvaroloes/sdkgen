@@ -5,6 +5,8 @@ import (
 
 	"net/url"
 
+	"strings"
+
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/jinzhu/inflection"
 	"github.com/juju/errors"
@@ -16,6 +18,17 @@ const (
 	ObjectResponse ResponseType = iota
 	ArrayResponse
 	EmptyResponse
+)
+
+const (
+	propertySpecSeparator         = ":"
+	propertyAttrSeparator         = ";"
+	propertyAttrKeyValueSeparator = "="
+)
+const (
+	propertyAttrKeyName = "name"
+	propertyAttrKeyType = "type"
+	propertyAttrKeyMap = "map"
 )
 
 var crudNamePerMethod = map[parser.HTTPMethod]string{
@@ -50,33 +63,74 @@ type property struct {
 	Type      string
 	TypeLabel string
 	IsArray   bool
+	IsMap   bool
 }
 
 func newProperty(propertySpec string, val interface{}) property {
 	var p property
-	// TODO: Allow overriding the property name when nameSpec: "prop1: name=desiredName". This would have preference
-	p.Name = propertySpec
-	p.extractType(propertySpec, val)
+	attributes := NewPropertyAttributes(propertySpec)
+	if attributes.forcedName != "" {
+		p.Name = attributes.forcedName
+	} else {
+		p.Name = attributes.name
+	}
+	p.extractType(attributes, val)
+	p.IsMap = attributes.isMap
 	return p
 }
 
-func (p *property) extractType(propertySpec string, val interface{}) {
-	// TODO: Allow overriding the property type when nameSpec: "prop1: type=desiredType". This would have preference
-	value := reflect.TypeOf(val)
-	switch value.Kind() {
-	case reflect.Map:
-		// The value is an object, the type name is the property name
-		p.Type = inflection.Singular(p.Name)
-	case reflect.Array, reflect.Slice:
-		p.IsArray = true
-		arrayVal := reflect.ValueOf(val)
-		if arrayVal.Len() > 0 {
-			p.extractType(propertySpec, arrayVal.Index(0).Interface())
+func (p *property) extractType(attributes propertyAttributes, val interface{}) {
+	if attributes.forcedType != "" {
+		p.Type = attributes.forcedType
+	} else {
+		value := reflect.TypeOf(val)
+		switch value.Kind() {
+		case reflect.Map:
+			// The value is an object, the type name is the property name
+			p.Type = inflection.Singular(p.Name)
+		case reflect.Array, reflect.Slice:
+			p.IsArray = true
+			arrayVal := reflect.ValueOf(val)
+			if arrayVal.Len() > 0 {
+				p.extractType(attributes, arrayVal.Index(0).Interface())
+			}
+		default:
+			p.Type = value.String()
 		}
-	default:
-		p.Type = value.String()
 	}
 	p.TypeLabel = p.Type
+}
+
+type propertyAttributes struct {
+	name       string
+	forcedName string
+	forcedType string
+	isMap bool
+}
+
+func NewPropertyAttributes(propertySpec string) (res propertyAttributes) {
+	nameAndAttributes := strings.Split(propertySpec, propertySpecSeparator)
+	res.name = nameAndAttributes[0]
+	if len(nameAndAttributes) < 2 {
+		return
+	}
+	attributes := strings.Split(nameAndAttributes[1], propertyAttrSeparator)
+	for _, attr := range attributes {
+		keyVal := strings.Split(attr, propertyAttrKeyValueSeparator)
+		val := ""
+		if len(keyVal) > 1 {
+			val = keyVal[1]
+		}
+		switch keyVal[0] {
+		case propertyAttrKeyName:
+			res.forcedName = val
+		case propertyAttrKeyType:
+			res.forcedType = val
+		case propertyAttrKeyMap:
+			res.isMap = true
+		}
+	}
+	return
 }
 
 type endpointInfo struct {

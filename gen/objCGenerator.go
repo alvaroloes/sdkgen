@@ -17,6 +17,8 @@ const (
 	typeBOOL     = "BOOL"
 	typeNSNumber = "NSNumber"
 	typeNSString = "NSString"
+	typeNSArray = "NSArray"
+	typeNSDictionary = "NSDictionary"
 )
 
 var objCTypePerGoType = map[string]objCTypeInfo{
@@ -50,14 +52,17 @@ func objCType(prop property, config Config) (string, string, []string) {
 	var dependencies []string
 
 	if prop.IsArray {
-		typeLabel = "NSArray<"
+		typeLabel = typeNSArray + "<"
+	}
+	if prop.IsMap {
+		typeLabel = typeNSDictionary + "<NSString *, "
 	}
 
 	objCType, typeFound := objCTypePerGoType[prop.Type]
 	if typeFound {
 		typeName = objCType.Name
 		// In Objective C an array of booleans needs to be an array of NSNumbers
-		if prop.IsArray && typeName == typeBOOL {
+		if (prop.IsArray || prop.IsMap ) && typeName == typeBOOL {
 			typeLabel += typeNSNumber
 		} else {
 			typeLabel += typeName
@@ -68,7 +73,7 @@ func objCType(prop property, config Config) (string, string, []string) {
 		typeLabel += typeName
 	}
 
-	if prop.IsArray {
+	if prop.IsArray || prop.IsMap {
 		typeLabel += " *> *"
 	} else if !typeFound || objCType.Pointer {
 		// If type is not found, it means that the type is a class, so we need a pointer
