@@ -37,7 +37,7 @@ func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parse
 			var propertyDependencies []string
 			prop.Type, prop.TypeLabel, propertyDependencies = objCType(prop, config)
 			modelInfo.Properties[propSpec] = prop
-			modelInfo.ModelDependencies = append(modelInfo.ModelDependencies, propertyDependencies...)
+			modelInfo.ModelDependencies = merge(modelInfo.ModelDependencies, propertyDependencies)
 			// TODO: Property attributes
 		}
 	}
@@ -83,4 +83,19 @@ func objCType(prop property, config Config) (string, string, []string) {
 	}
 
 	return typeName, typeLabel, dependencies
+}
+
+func merge(a []string, b []string) []string {
+	m := map[string]struct{}{}
+	for _,elem := range a {
+		m[elem] = struct{}{}
+	}
+	for _,elem := range b {
+		m[elem] = struct{}{}
+	}
+	var res []string
+	for elem,_ := range m {
+		res = append(res, elem)
+	}
+	return res
 }
