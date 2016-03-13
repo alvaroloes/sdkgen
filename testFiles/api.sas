@@ -16,25 +16,25 @@ OAUTH POST https://www.alvaroloes.com/oauth/token
 }
 
 GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
-<- [
+<- type=SuperPost; map [
 	{
 		"id":"1234",
-		"author:type=person;name=authorazo":{
+		"author:type = person; name = authorazo":{
 			"isAdmin":false,
 			"name":"John",
 			"age":20
 		},
-		"title:name=header":"We really need a client SDK generator",
+		"title:name = header":"We really need a client SDK generator",
 		"body":"(...) we to make the machine work for us, thus we should write generators to make the computer write the non-creative part of the code for us",
-		"comments:name=comentarios;type=comentarito":[
+		"comments:name=postComments;type=littleComment":[
 			{
 				"id":"4567",
 				"title":"I like it",
-				"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+				"body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
 			},{
 				"id":"4567",
 				"title":"I like it too",
-				"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator"
+				"body":"I like it, but it seems to be really hard to come up with a powerful and flexible generator"
 			}
 		]
 	},{
@@ -49,11 +49,11 @@ GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
             {
                 "id":"4567",
                 "title":"I like it",
-                "body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+                "body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
             },{
                 "id":"4567",
                 "title":"I like it too",
-                "body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator"
+                "body":"I like it, but it seems to be really hard to come up with a powerful and flexible generator"
             }
         ]
     }
@@ -72,11 +72,11 @@ GET https://www.alvaroloes.com/posts/:id?a=1&b=Pepe&c
 		{
 			"id":"4567",
 			"title":"I like it",
-			"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+			"body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
 		},{
 			"id":"4567",
 			"title":"I like it too",
-			"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator"
+			"body":"I like it, but it seems to be really hard to come up with a powerful and flexible generator"
 		}
 	]
 }
@@ -99,11 +99,11 @@ POST https://www.alvaroloes.com/posts?a=1&b=Pepe&c
    		{
    			"id":"4567",
    			"title":"I like it",
-   			"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+   			"body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
    		},{
    			"id":"4567",
    			"title":"I like it too",
-   			"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator"
+   			"body":"I like it, but it seems to be really hard to come up with a powerful and flexible generator"
    		}
    	]
 }
@@ -125,11 +125,11 @@ PUT https://www.alvaroloes.com/posts/:id?a=1&b=Pepe&c
    		{
    			"id":"4567",
    			"title":"I like it",
-   			"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+   			"body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
    		},{
    			"id":"4567",
    			"title":"I like it too",
-   			"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator"
+   			"body":"I like it, but it seems to be really hard to come up with a powerful and flexible generator"
    		}
    	]
 }
@@ -141,11 +141,11 @@ GET https://www.alvaroloes.com/posts/:post_id/comments
 	{
 		"id":"4567",
 		"title":"I like it",
-		"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+		"body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
 	},{
 		"id":"4567",
 		"title":"I like it too",
-		"body":"I like it, but it seems to be really hard to come up with a powerfull and flexible generator"
+		"body":"I like it, but it seems to be really hard to come up with a powerful and flexible generator"
 	}
 ]
 
@@ -153,18 +153,18 @@ GET https://www.alvaroloes.com/posts/:post_id/comments/:id
 <- {
 	"id":"4567",
 	"title":"I like it",
-	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+	"body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
 }
 
 POST https://www.alvaroloes.com/posts/:post_id/comments
 -> {
 	"title":"I like it",
-	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+	"body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
 }
 <- {
 	"id":"4567",
 	"title":"I like it",
-	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+	"body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
 }
 PUT https://www.alvaroloes.com/posts/:post_id/comments/:id
 -> {
@@ -173,7 +173,7 @@ PUT https://www.alvaroloes.com/posts/:post_id/comments/:id
 <- {
 	"id":"4567",
 	"title":"I really like it",
-	"body":"I like this post about api generators. It would be awesome to have a powerfull generator to avoid coding SDKs for all the client laguanges your API target"
+	"body":"I like this post about api generators. It would be awesome to have a powerful generator to avoid coding SDKs for all the client laguanges your API target"
 }
 DELETE https://www.alvaroloes.com/posts/:post_id/comments/:id
 

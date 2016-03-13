@@ -71,7 +71,9 @@ type Endpoint struct {
 	Method       HTTPMethod
 	URL          *url.URL
 	Resources    []Resource
+	RequestSpec  string
 	RequestBody  interface{}
+	ResponseSpec string
 	ResponseBody interface{}
 }
 
@@ -101,14 +103,16 @@ func (ep *Endpoint) extractResources() error {
 func (ep *Endpoint) extractBodies(endpointData []byte) error {
 	match := requestBodyMarkRegexp.FindIndex(endpointData)
 	if match != nil {
-		requestBody := findJSONObject(endpointData[match[1]:])
+		var requestBody []byte
+		ep.RequestSpec, requestBody = findSpecAndJSONObject(endpointData[match[1]:])
 		if err := json.Unmarshal(requestBody, &ep.RequestBody); err != nil {
 			return errors.Annotate(err, "while parsing JSON request body of "+ep.URL.String())
 		}
 	}
 	match = responseBodyMarkRegexp.FindIndex(endpointData)
 	if match != nil {
-		responseBody := findJSONObject(endpointData[match[1]:])
+		var responseBody []byte
+		ep.ResponseSpec, responseBody = findSpecAndJSONObject(endpointData[match[1]:])
 		if err := json.Unmarshal(responseBody, &ep.ResponseBody); err != nil {
 			return errors.Annotate(err, "while parsing JSON response body of "+ep.URL.String())
 		}
@@ -164,9 +168,9 @@ func NewAPI(spec []byte) (*API, error) {
 	return &api, nil
 }
 
-// findJSONObject returns a byte slice containing the first JSON object or array
-// in the provided bytes
-func findJSONObject(bytes []byte) []byte {
+// findSpecAndJSONObject returns a string with the specification and
+// a byte slice containing the first JSON object or array in the provided bytes
+func findSpecAndJSONObject(bytes []byte) (string, []byte) {
 	var opening, closing byte
 	var from, to int
 
@@ -195,5 +199,6 @@ func findJSONObject(bytes []byte) []byte {
 			break
 		}
 	}
-	return bytes[from : to+1]
+
+	return strings.TrimSpace(string(bytes[:from])), bytes[from : to+1]
 }
