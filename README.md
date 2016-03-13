@@ -12,11 +12,12 @@ Still in an early stage of development. Be patient ;-)
 - [ ] Token based authentication
 - [ ] Use the request type to generate de method parameter, don't rely only on HTTP Methods
 - [ ] Allow endpoint tuning (HTTP method -> crud method name override, resource -> model name part of service method override)
-- [ ] Allow specifying rawMap (heterogeneous, without type) type in properties.
+- [ ] Allow specifying rawMap/rawArraytype in properties.
 - [ ] Allow specifying Time type in properties (What format?).
 - [ ] Support for format specifiers at the end of the endpoint (.json)? (by simply ignore them for now)
 - [ ] How to detect enum values from the API spec?
-- [ ] JSON arrays of arrays may not be properly handled
 - [ ] Allow flagging some query parameters as method parameters (so they'll be treated similarly as segment parameters)
 - [ ] Generate string constants for the query parameter names (or something similar)
 - [ ] Allow API versioning
+- [ ] Arrays of arrays with typed elements (not rawArrays) are  not properly handled
+- [ ] Arrays of maps with typed elements (not rawMaps) are not properly handled

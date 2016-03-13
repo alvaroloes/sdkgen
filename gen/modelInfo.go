@@ -70,15 +70,14 @@ type property struct {
 func newProperty(propertySpec string, val interface{}) property {
 	var p property
 	attributes := NewPropertyAttributes(propertySpec)
-	p.Name = attributes.name
 
+	p.Name = attributes.name
 	if attributes.nameLabel != "" {
 		p.NameLabel = attributes.nameLabel
 	} else {
 		p.NameLabel = p.Name
 	}
 	p.extractType(attributes, val)
-	p.IsMap = attributes.forceAsMap
 	return p
 }
 
@@ -101,6 +100,7 @@ func (p *property) extractType(attributes propertyAttributes, val interface{}) {
 		p.Type = attributes.forcedType
 	}
 	p.TypeLabel = p.Type
+	p.IsMap = attributes.forceAsMap
 }
 
 type propertyAttributes struct {
@@ -112,7 +112,7 @@ type propertyAttributes struct {
 
 func NewPropertyAttributes(propertySpec string) (res propertyAttributes) {
 	nameAndAttributes := strings.Split(propertySpec, propertySpecSeparator)
-	res.name = nameAndAttributes[0]
+	res.name = strings.TrimSpace(nameAndAttributes[0])
 	if len(nameAndAttributes) < 2 {
 		return
 	}
@@ -123,11 +123,11 @@ func NewPropertyAttributes(propertySpec string) (res propertyAttributes) {
 		if len(keyVal) > 1 {
 			val = keyVal[1]
 		}
-		switch keyVal[0] {
+		switch strings.TrimSpace(keyVal[0]) {
 		case propertyAttrKeyName:
-			res.nameLabel = val
+			res.nameLabel = strings.TrimSpace(val)
 		case propertyAttrKeyType:
-			res.forcedType = val
+			res.forcedType = strings.TrimSpace(val)
 		case propertyAttrKeyMap:
 			res.forceAsMap = true
 		}
