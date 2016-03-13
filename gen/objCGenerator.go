@@ -14,10 +14,10 @@ type objCTypeInfo struct {
 }
 
 const (
-	typeBOOL     = "BOOL"
-	typeNSNumber = "NSNumber"
-	typeNSString = "NSString"
-	typeNSArray = "NSArray"
+	typeBOOL         = "BOOL"
+	typeNSNumber     = "NSNumber"
+	typeNSString     = "NSString"
+	typeNSArray      = "NSArray"
 	typeNSDictionary = "NSDictionary"
 )
 
@@ -61,7 +61,7 @@ func objCType(prop property, config Config) (string, string, []string) {
 	if typeFound {
 		typeName = objCType.Name
 		// In Objective C an array of booleans needs to be an array of NSNumbers
-		if (prop.IsArray || prop.IsMap ) && typeName == typeBOOL {
+		if (prop.IsArray || prop.IsMap) && typeName == typeBOOL {
 			typeLabel += typeNSNumber
 		} else {
 			typeLabel += typeName
@@ -86,14 +86,14 @@ func objCType(prop property, config Config) (string, string, []string) {
 
 func merge(a []string, b []string) []string {
 	m := map[string]struct{}{}
-	for _,elem := range a {
+	for _, elem := range a {
 		m[elem] = struct{}{}
 	}
-	for _,elem := range b {
+	for _, elem := range b {
 		m[elem] = struct{}{}
 	}
 	var res []string
-	for elem,_ := range m {
+	for elem, _ := range m {
 		res = append(res, elem)
 	}
 	return res

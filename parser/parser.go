@@ -37,7 +37,6 @@ const (
 )
 
 var (
-	//	queryMarkRegexp = regexp.MustCompile(`(?m)^\s*-?`) // TODO
 	requestBodyMarkRegexp  = regexp.MustCompile(`(?m)^\s*\-\>`)
 	responseBodyMarkRegexp = regexp.MustCompile(`(?m)^\s*\<\-`)
 )

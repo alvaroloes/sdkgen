@@ -28,7 +28,7 @@ const (
 const (
 	propertyAttrKeyName = "name"
 	propertyAttrKeyType = "type"
-	propertyAttrKeyMap = "map"
+	propertyAttrKeyMap  = "map"
 )
 
 var crudNamePerMethod = map[parser.HTTPMethod]string{
@@ -64,7 +64,7 @@ type property struct {
 	Type      string
 	TypeLabel string
 	IsArray   bool
-	IsMap   bool
+	IsMap     bool
 }
 
 func newProperty(propertySpec string, val interface{}) property {
@@ -78,28 +78,27 @@ func newProperty(propertySpec string, val interface{}) property {
 		p.NameLabel = p.Name
 	}
 	p.extractType(attributes, val)
-	p.IsMap = attributes.isMap
+	p.IsMap = attributes.forceAsMap
 	return p
 }
 
 func (p *property) extractType(attributes propertyAttributes, val interface{}) {
+	value := reflect.TypeOf(val)
+	switch value.Kind() {
+	case reflect.Map:
+		// The value is an object, the type name is the property name
+		p.Type = inflection.Singular(p.Name)
+	case reflect.Array, reflect.Slice:
+		p.IsArray = true
+		arrayVal := reflect.ValueOf(val)
+		if arrayVal.Len() > 0 {
+			p.extractType(attributes, arrayVal.Index(0).Interface())
+		}
+	default:
+		p.Type = value.String()
+	}
 	if attributes.forcedType != "" {
 		p.Type = attributes.forcedType
-	} else {
-		value := reflect.TypeOf(val)
-		switch value.Kind() {
-		case reflect.Map:
-			// The value is an object, the type name is the property name
-			p.Type = inflection.Singular(p.Name)
-		case reflect.Array, reflect.Slice:
-			p.IsArray = true
-			arrayVal := reflect.ValueOf(val)
-			if arrayVal.Len() > 0 {
-				p.extractType(attributes, arrayVal.Index(0).Interface())
-			}
-		default:
-			p.Type = value.String()
-		}
 	}
 	p.TypeLabel = p.Type
 }
@@ -108,7 +107,7 @@ type propertyAttributes struct {
 	name       string
 	nameLabel  string
 	forcedType string
-	isMap      bool
+	forceAsMap bool
 }
 
 func NewPropertyAttributes(propertySpec string) (res propertyAttributes) {
@@ -130,7 +129,7 @@ func NewPropertyAttributes(propertySpec string) (res propertyAttributes) {
 		case propertyAttrKeyType:
 			res.forcedType = val
 		case propertyAttrKeyMap:
-			res.isMap = true
+			res.forceAsMap = true
 		}
 	}
 	return
