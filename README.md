@@ -11,10 +11,10 @@ Still in an early stage of development. Be patient ;-)
 - [x] Allow property tuning with a key=value after the colon. Something like: `"prop1: name=desiredName, type=desiredType"`
 - [ ] Allow model tuning in the same way than property tuning (taking into account the models whose name is taken from the resource endpoint)
 - [ ] Allow endpoint tuning (HTTP method -> crud method name override, resource -> model name part of service method override)
-- [ ] Allow specifying Time type in properties (What format?).
-- [ ] Allow specifying rawMap (heterogeneous) type in properties.
+- [ ] Allow specifying rawMap (heterogeneous, without type) type in properties.
 - [ ] Support for format specifiers at the end of the endpoint (.json)? (by simply ignore them for now)
-- [ ] Right now, when a property value is a map, it is generated as a class. Allow it to be generated just as a map/dictionary (related with property tuning)
+- [ ] Allow specifying Time type in properties (What format?).
+- [x] Right now, when a property value is a map, it is generated as a class. Allow it to be generated just as a map/dictionary (related with property tuning)
 - [ ] How to detect enum values from the API spec?
 - [ ] JSON arrays of arrays may not be properly handled
 - [ ] Allow flagging some query parameters as method parameters (so they'll be treated similarly as segment parameters)

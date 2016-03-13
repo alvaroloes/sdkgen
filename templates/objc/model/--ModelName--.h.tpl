@@ -8,6 +8,6 @@
 
 @interface {{.CurrentModelInfo.Name}} : NSObject <{{.Config.APIPrefix}}SerializableModel>
 {{range .CurrentModelInfo.Properties -}}
-@property (nonatomic) {{.TypeLabel}}{{.Name | sanitizeProperty}};
+@property (nonatomic) {{.TypeLabel}}{{.NameLabel | sanitizeProperty}};
 {{end -}}
 @end

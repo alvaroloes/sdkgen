@@ -60,6 +60,7 @@ func newModelInfo(name string) *modelInfo {
 
 type property struct {
 	Name      string
+	NameLabel string
 	Type      string
 	TypeLabel string
 	IsArray   bool
@@ -69,10 +70,12 @@ type property struct {
 func newProperty(propertySpec string, val interface{}) property {
 	var p property
 	attributes := NewPropertyAttributes(propertySpec)
-	if attributes.forcedName != "" {
-		p.Name = attributes.forcedName
+	p.Name = attributes.name
+
+	if attributes.nameLabel != "" {
+		p.NameLabel = attributes.nameLabel
 	} else {
-		p.Name = attributes.name
+		p.NameLabel = p.Name
 	}
 	p.extractType(attributes, val)
 	p.IsMap = attributes.isMap
@@ -103,9 +106,9 @@ func (p *property) extractType(attributes propertyAttributes, val interface{}) {
 
 type propertyAttributes struct {
 	name       string
-	forcedName string
+	nameLabel  string
 	forcedType string
-	isMap bool
+	isMap      bool
 }
 
 func NewPropertyAttributes(propertySpec string) (res propertyAttributes) {
@@ -123,7 +126,7 @@ func NewPropertyAttributes(propertySpec string) (res propertyAttributes) {
 		}
 		switch keyVal[0] {
 		case propertyAttrKeyName:
-			res.forcedName = val
+			res.nameLabel = val
 		case propertyAttrKeyType:
 			res.forcedType = val
 		case propertyAttrKeyMap:

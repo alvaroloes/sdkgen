@@ -19,7 +19,7 @@ GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
 <- [
 	{
 		"id":"1234",
-		"author:type=person":{
+		"author:type=person;name=authorazo":{
 			"isAdmin":false,
 			"name":"John",
 			"age":20

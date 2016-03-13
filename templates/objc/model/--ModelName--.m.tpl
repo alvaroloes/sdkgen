@@ -27,7 +27,7 @@
     {
         [itemsOf{{.Type}} addObject:[[{{.Type}} alloc] initWithDictionary:itemDictionary]];
     }
-    self.{{.Name | sanitizeProperty}} = itemsOf{{.Type}};
+    self.{{.NameLabel | sanitizeProperty}} = itemsOf{{.Type}};
         {{else if .IsMap -}}
     NSMutableDictionary *dictionaryOf{{.Type}} = [NSMutableDictionary new];
     NSDictionary *rawDictionaryOf{{.Type}} = dictionary[@"{{.Name}}"];
@@ -35,12 +35,12 @@
     {
         dictionaryOf{{.Type}}[key] = [[{{.Type}} alloc] initWithDictionary:rawDictionaryOf{{.Type}}[key]];
     }
-    self.{{.Name | sanitizeProperty}} = dictionaryOf{{.Type}};
+    self.{{.NameLabel | sanitizeProperty}} = dictionaryOf{{.Type}};
         {{else -}}
-    self.{{.Name | sanitizeProperty}} = [[{{.Type}} alloc] initWithDictionary:dictionary[@"{{.Name}}"]];
+    self.{{.NameLabel | sanitizeProperty}} = [[{{.Type}} alloc] initWithDictionary:dictionary[@"{{.Name}}"]];
         {{- end}}
     {{- else -}}
-        self.{{.Name | sanitizeProperty}} = {{if eq .Type "BOOL"}}[dictionary[@"{{.Name}}"] boolValue]{{else}}dictionary[@"{{.Name}}"]{{end}};
+        self.{{.NameLabel | sanitizeProperty}} = {{if eq .Type "BOOL"}}[dictionary[@"{{.Name}}"] boolValue]{{else}}dictionary[@"{{.Name}}"]{{end}};
     {{- end}}
 {{- end}}
 }
@@ -52,7 +52,7 @@
     {{ if $.CurrentModelInfo.ModelDependencies | contains .Type -}}
         {{- if .IsArray}}
     NSMutableArray *itemDictionariesOf{{.Type}} = [NSMutableArray new];
-    for ({{.Type}} *item in self.{{.Name | sanitizeProperty}})
+    for ({{.Type}} *item in self.{{.NameLabel | sanitizeProperty}})
     {
         [itemDictionariesOf{{.Type}} addObject:[item toDictionary]];
     }
@@ -60,17 +60,17 @@
         {{- else if .IsMap -}}
 
     NSMutableDictionary *rawDictionaryOf{{.Type}} = [NSMutableDictionary new];
-    for (NSString *key in self.{{.Name | sanitizeProperty}})
+    for (NSString *key in self.{{.NameLabel | sanitizeProperty}})
     {
-        {{.Type}} *item = self.{{.Name | sanitizeProperty}}[key];
+        {{.Type}} *item = self.{{.NameLabel | sanitizeProperty}}[key];
         rawDictionaryOf{{.Type}}[key] = [item toDictionary];
     }
     dictionary[@"{{.Name}}"] = rawDictionaryOf{{.Type}};
         {{- else -}}
-    dictionary[@"{{.Name}}"] = [self.{{.Name | sanitizeProperty}} toDictionary];
+    dictionary[@"{{.Name}}"] = [self.{{.NameLabel | sanitizeProperty}} toDictionary];
         {{- end}}
     {{- else -}}
-        dictionary[@"{{.Name}}"] = {{if eq .Type "BOOL"}}@(self.{{.Name | sanitizeProperty}}){{else}}self.{{.Name | sanitizeProperty}}{{end}};
+        dictionary[@"{{.Name}}"] = {{if eq .Type "BOOL"}}@(self.{{.NameLabel | sanitizeProperty}}){{else}}self.{{.NameLabel | sanitizeProperty}}{{end}};
     {{- end}}
 {{- end}}
 
