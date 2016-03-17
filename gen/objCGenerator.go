@@ -34,11 +34,9 @@ func (gen *ObjCGen) adaptModelsInfo(modelsInfo map[string]*modelInfo, api *parse
 	for _, modelInfo := range modelsInfo {
 		modelInfo.Name = config.APIPrefix + strings.Title(modelInfo.Name)
 		for propSpec, prop := range modelInfo.Properties {
-			var propertyDependencies []string
-			prop.Type, prop.TypeLabel, propertyDependencies = objCType(prop, config)
+			prop.Type, prop.TypeLabel = objCType(prop, config)
 			modelInfo.Properties[propSpec] = prop
-			modelInfo.ModelDependencies = merge(modelInfo.ModelDependencies, propertyDependencies)
-			// TODO: Property attributes
+			// TODO: Property attributes?
 		}
 	}
 }
@@ -47,9 +45,8 @@ func (gen *ObjCGen) funcMap() template.FuncMap {
 	return objCFuncMap
 }
 
-func objCType(prop property, config Config) (string, string, []string) {
+func objCType(prop property, config Config) (string, string) {
 	var typeName, typeLabel string
-	var dependencies []string
 
 	if prop.IsArray {
 		typeLabel = typeNSArray + "<"
@@ -68,7 +65,6 @@ func objCType(prop property, config Config) (string, string, []string) {
 		}
 	} else {
 		typeName = config.APIPrefix + strings.Title(prop.Type)
-		dependencies = append(dependencies, typeName)
 		typeLabel += typeName
 	}
 
@@ -81,20 +77,5 @@ func objCType(prop property, config Config) (string, string, []string) {
 		typeLabel += " "
 	}
 
-	return typeName, typeLabel, dependencies
-}
-
-func merge(a []string, b []string) []string {
-	m := map[string]struct{}{}
-	for _, elem := range a {
-		m[elem] = struct{}{}
-	}
-	for _, elem := range b {
-		m[elem] = struct{}{}
-	}
-	var res []string
-	for elem, _ := range m {
-		res = append(res, elem)
-	}
-	return res
+	return typeName, typeLabel
 }

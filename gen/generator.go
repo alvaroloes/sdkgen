@@ -11,7 +11,10 @@ import (
 
 	"path/filepath"
 
+	"fmt"
+
 	"github.com/alvaroloes/sdkgen/parser"
+	"github.com/jinzhu/inflection"
 	"github.com/juju/errors"
 )
 
@@ -214,15 +217,30 @@ func (g *Generator) extractModelsInfo() {
 	for _, endpoint := range g.api.Endpoints {
 		// Extract the resource whose information is contained in this endpoint
 		mainResource := endpoint.Resources[len(endpoint.Resources)-1]
-		modelName := mainResource.Name
+		resourceModelAttrs := modelAttributes{
+			modelType:  mainResource.Name,
+			forceAsMap: false,
+		}
+		requestModelAttrs := modelAttributesFromSpec(endpoint.RequestSpec)
+		if requestModelAttrs.modelType == "" {
+			requestModelAttrs.modelType = resourceModelAttrs.modelType
+		}
+		responseModelAttrs := modelAttributesFromSpec(endpoint.ResponseSpec)
+		if responseModelAttrs.modelType == "" {
+			responseModelAttrs.modelType = resourceModelAttrs.modelType
+		}
 
+		// TODO: forceASMap is not working until the template is updated
 		// Extract the endpoint info and set it to the corresponding model
-		g.setEndpointInfo(modelName, endpoint)
+		g.setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs, endpoint)
 
 		// Merge the properties form the request and response bodies into
 		// the corresponding model
-		g.mergeModelProperties(modelName, endpoint.RequestBody)
-		g.mergeModelProperties(modelName, endpoint.ResponseBody)
+		g.mergeModelProperties(requestModelAttrs.modelType, endpoint.RequestBody)
+		g.mergeModelProperties(responseModelAttrs.modelType, endpoint.ResponseBody)
+	}
+	for name, mi := range g.modelsInfo {
+		fmt.Printf("%s, %v\n", name, mi)
 	}
 }
 
@@ -272,35 +290,61 @@ func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVa
 
 	valKind := reflect.TypeOf(propVal).Kind()
 	if valKind == reflect.Map || valKind == reflect.Array || valKind == reflect.Slice {
+		//TODO: if !prop.IsRawMap {
+		mInfo.ModelDependencies[g.getModelOrCreate(prop.Type)] = struct{}{}
+		//TODO: }
 		g.mergeModelProperties(prop.Type, propVal)
 	}
 }
 
-func (g *Generator) setEndpointInfo(modelName string, endpoint parser.Endpoint) {
-	mInfo := g.getModelOrCreate(modelName)
-	mInfo.EndpointsInfo = append(mInfo.EndpointsInfo, endpointInfo{
-		Model:          mInfo,
+func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs modelAttributes, endpoint parser.Endpoint) {
+	// Get/Create the needed models
+	resourceModelInfo := g.getModelOrCreate(resourceModelAttrs.modelType)
+	requestModelInfo := g.getModelOrCreate(requestModelAttrs.modelType)
+	responseModelInfo := g.getModelOrCreate(responseModelAttrs.modelType)
+
+	// Build the endpoint
+	epi := endpointInfo{
+		ResourceModel:  resourceModelInfo,
+		RequestModel:   requestModelInfo,
+		ResponseModel:  responseModelInfo,
 		Method:         endpoint.Method,
 		URLPath:        g.getURLPathForModels(endpoint.URL),
 		URLQueryParams: endpoint.URL.Query(),
 		SegmentParams:  extractSegmentParamsRenamingDups(endpoint.Resources),
-		ResponseType:   getResponseType(endpoint.ResponseBody),
-	})
+		// TODO: Future: add RequestKind
+		ResponseKind: getResponseKind(endpoint.ResponseBody, responseModelAttrs.forceAsMap), // TODO: response type can be "Map"
+	}
+
+	// Add the dependencies
+	if epi.NeedsModelParam() {
+		resourceModelInfo.EndpointsDependencies[requestModelInfo] = struct{}{}
+	}
+	if epi.HasResponse() /*TODO: && !epi.IsRawMapResponse()*/ {
+		resourceModelInfo.EndpointsDependencies[responseModelInfo] = struct{}{}
+	}
+
+	resourceModelInfo.EndpointsInfo = append(resourceModelInfo.EndpointsInfo, epi)
 }
 
 func (g *Generator) getModelOrCreate(modelName string) *modelInfo {
-	mInfo, modelExists := g.modelsInfo[modelName]
+	singularName := inflection.Singular(modelName)
+	mInfo, modelExists := g.modelsInfo[singularName]
 	if !modelExists {
-		mInfo = newModelInfo(modelName)
-		g.modelsInfo[modelName] = mInfo
+		mInfo = newModelInfo(singularName)
+		g.modelsInfo[singularName] = mInfo
 	}
 	return mInfo
 }
 
-func getResponseType(body interface{}) ResponseType {
+func getResponseKind(body interface{}, forceAsMap bool) ResponseKind {
 	if body == nil {
 		return EmptyResponse
 	}
+	if forceAsMap {
+		return MapResponse
+	}
+
 	switch reflect.TypeOf(body).Kind() {
 	case reflect.Map:
 		return ObjectResponse
@@ -318,6 +362,29 @@ func extractSegmentParamsRenamingDups(resources []parser.Resource) []string {
 		segmentParams = append(segmentParams, r.Parameters...)
 	}
 	return segmentParams
+}
+
+type modelAttributes struct {
+	modelType  string
+	forceAsMap bool
+}
+
+func modelAttributesFromSpec(modelSpec string) (res modelAttributes) {
+	attributes := strings.Split(modelSpec, attrSeparator)
+	for _, attr := range attributes {
+		keyVal := strings.Split(attr, attrKeyValueSeparator)
+		val := ""
+		if len(keyVal) > 1 {
+			val = keyVal[1]
+		}
+		switch strings.TrimSpace(keyVal[0]) {
+		case attrKeyType:
+			res.modelType = strings.TrimSpace(val)
+		case attrKeyMap:
+			res.forceAsMap = true
+		}
+	}
+	return
 }
 
 // New creates a new Generator for the API and configured for the language passed.

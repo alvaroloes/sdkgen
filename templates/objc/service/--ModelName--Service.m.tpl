@@ -2,7 +2,9 @@
 {{- $model := .CurrentModelInfo}}
 
 #import "{{$model.Name}}Service.h"
-#import "{{.CurrentModelInfo.Name}}.h"
+{{ range $dep, $_ := .CurrentModelInfo.EndpointsDependencies }}
+#import "{{$dep.Name}}.h"
+{{- end}}
 #import "{{.Config.APIPrefix}}ResourceManager.h"
 #import "{{.Config.APIPrefix}}URLHelper.h"
 
@@ -40,13 +42,13 @@
 
     return [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
                                                  params:{{if .NeedsModelParam -}}
-                                                            [{{.Model.OriginalName}} toDictionary]
+                                                            [{{.RequestModel.OriginalName}} toDictionary]
                                                         {{- else -}}
                                                             {{if .URLQueryParams }}query{{else}}nil{{end}}
                                                         {{- end}}
                                           modelInstance:{{if not .HasResponse}}nil{{else}}^id <{{$.Config.APIPrefix}}SerializableModel>
                                           {
-                                              return {{if .Method.String | eq "PUT"}}{{.Model.OriginalName}}{{else}}[{{.Model.Name}} new]{{end}};
+                                              return {{if .Method.String | eq "PUT"}}{{.RequestModel.OriginalName}}{{else}}[{{.ResponseModel.Name}} new]{{end}};
                                           }{{end}}];
 }
 {{end}}

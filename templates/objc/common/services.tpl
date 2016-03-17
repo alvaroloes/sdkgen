@@ -1,10 +1,11 @@
 {{define "serviceMethodName" -}}
 
-{{$modelNameUpper := upperFirst .Model.OriginalName}}
-- (AnyPromise *){{.CRUDMethodName}}{{if .IsArrayResponse}}{{plural $modelNameUpper}}{{else}}{{$modelNameUpper}}{{end}}
+{{$resourceNameUpper := upperFirst .ResourceModel.OriginalName}}
+// TODO <Add doc about the response type>
+- (AnyPromise *){{.CRUDMethodName}}{{if .IsArrayResponse}}{{plural $resourceNameUpper}}{{else}}{{$resourceNameUpper}}{{end}}
 
 {{- if .NeedsModelParam -}}
-    :({{.Model.Name}} *){{.Model.OriginalName}}
+    :({{.RequestModel.Name}} *){{.RequestModel.OriginalName}}
 {{- end}}
 {{- if .SegmentParams}}
     {{- if .NeedsModelParam}} with{{else}}With{{end}}

@@ -12,23 +12,24 @@ import (
 	"github.com/juju/errors"
 )
 
-type ResponseType int
+type ResponseKind int
 
 const (
-	ObjectResponse ResponseType = iota
+	ObjectResponse ResponseKind = iota
+	MapResponse
 	ArrayResponse
 	EmptyResponse
 )
 
 const (
-	propertySpecSeparator         = ":"
-	propertyAttrSeparator         = ";"
-	propertyAttrKeyValueSeparator = "="
+	propertySpecSeparator = ":"
+	attrSeparator         = ";"
+	attrKeyValueSeparator = "="
 )
 const (
-	propertyAttrKeyName = "name"
-	propertyAttrKeyType = "type"
-	propertyAttrKeyMap  = "map"
+	attrKeyName = "name"
+	attrKeyType = "type"
+	attrKeyMap  = "map"
 )
 
 var crudNamePerMethod = map[parser.HTTPMethod]string{
@@ -39,22 +40,33 @@ var crudNamePerMethod = map[parser.HTTPMethod]string{
 }
 
 type modelInfo struct {
-	Name          string
-	OriginalName  string
-	Properties    map[string]property
-	EndpointsInfo []endpointInfo
+	Name                  string
+	OriginalName          string
+	Properties            map[string]property
+	EndpointsInfo         []endpointInfo
+	ModelDependencies     map[*modelInfo]struct{}
+	EndpointsDependencies map[*modelInfo]struct{}
 
 	// These are responsibility of language specific generators
-	ModelDependencies []string
-	LangSpecificData  map[string]interface{}
+	LangSpecificData map[string]interface{}
+}
+
+func (mi *modelInfo) DependsOnModel(modelName string) bool {
+	for dep, _ := range mi.ModelDependencies {
+		if dep.Name == modelName {
+			return true
+		}
+	}
+	return false
 }
 
 func newModelInfo(name string) *modelInfo {
-	singularName := inflection.Singular(name)
 	return &modelInfo{
-		Name:         singularName,
-		OriginalName: singularName,
-		Properties:   make(map[string]property),
+		Name:                  name,
+		OriginalName:          name,
+		Properties:            make(map[string]property),
+		ModelDependencies:     make(map[*modelInfo]struct{}),
+		EndpointsDependencies: make(map[*modelInfo]struct{}),
 	}
 }
 
@@ -69,7 +81,7 @@ type property struct {
 
 func newProperty(propertySpec string, val interface{}) property {
 	var p property
-	attributes := NewPropertyAttributes(propertySpec)
+	attributes := newPropertyAttributes(propertySpec)
 
 	p.Name = attributes.name
 	if attributes.nameLabel != "" {
@@ -110,25 +122,25 @@ type propertyAttributes struct {
 	forceAsMap bool
 }
 
-func NewPropertyAttributes(propertySpec string) (res propertyAttributes) {
+func newPropertyAttributes(propertySpec string) (res propertyAttributes) {
 	nameAndAttributes := strings.Split(propertySpec, propertySpecSeparator)
 	res.name = strings.TrimSpace(nameAndAttributes[0])
 	if len(nameAndAttributes) < 2 {
 		return
 	}
-	attributes := strings.Split(nameAndAttributes[1], propertyAttrSeparator)
+	attributes := strings.Split(nameAndAttributes[1], attrSeparator)
 	for _, attr := range attributes {
-		keyVal := strings.Split(attr, propertyAttrKeyValueSeparator)
+		keyVal := strings.Split(attr, attrKeyValueSeparator)
 		val := ""
 		if len(keyVal) > 1 {
 			val = keyVal[1]
 		}
 		switch strings.TrimSpace(keyVal[0]) {
-		case propertyAttrKeyName:
+		case attrKeyName:
 			res.nameLabel = strings.TrimSpace(val)
-		case propertyAttrKeyType:
+		case attrKeyType:
 			res.forcedType = strings.TrimSpace(val)
-		case propertyAttrKeyMap:
+		case attrKeyMap:
 			res.forceAsMap = true
 		}
 	}
@@ -136,12 +148,14 @@ func NewPropertyAttributes(propertySpec string) (res propertyAttributes) {
 }
 
 type endpointInfo struct {
-	Model          *modelInfo
+	ResourceModel  *modelInfo
+	RequestModel   *modelInfo
+	ResponseModel  *modelInfo
 	Method         parser.HTTPMethod
 	URLPath        string
 	URLQueryParams url.Values
 	SegmentParams  []string
-	ResponseType   ResponseType
+	ResponseKind   ResponseKind
 }
 
 func (epi *endpointInfo) CRUDMethodName() (string, error) {
@@ -161,9 +175,13 @@ func (epi *endpointInfo) NeedsModelParam() bool {
 }
 
 func (epi *endpointInfo) IsArrayResponse() bool {
-	return epi.ResponseType == ArrayResponse
+	return epi.ResponseKind == ArrayResponse
+}
+
+func (epi *endpointInfo) IsMapResponse() bool {
+	return epi.ResponseKind == MapResponse
 }
 
 func (epi *endpointInfo) HasResponse() bool {
-	return epi.ResponseType != EmptyResponse
+	return epi.ResponseKind != EmptyResponse
 }

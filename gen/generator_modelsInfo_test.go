@@ -72,7 +72,7 @@ var modelsInfoTestCases = []modelsInfoTestCase{
 							"id",
 							"id",
 						},
-						ResponseType: 0,
+						ResponseKind: 0,
 					},
 				},
 			},

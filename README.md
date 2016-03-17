@@ -19,6 +19,7 @@ Still in an early stage of development. Be patient ;-)
 - [ ] Allow flagging some query parameters as method parameters (so they'll be treated similarly as segment parameters)
 - [ ] Generate string constants for the query parameter names (or something similar)
 - [ ] Allow API versioning
+- [ ] Allow send request with an array of objects.
 
 - [ ] Allow non JSON responses like string or bool?
 - [ ] Arrays of arrays with typed elements (not raw) are  not properly handled

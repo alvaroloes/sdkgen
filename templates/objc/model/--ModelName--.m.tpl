@@ -1,8 +1,8 @@
 {{template "preHeaderComment" .}}
 
 #import "{{.CurrentModelInfo.Name}}.h"
-{{- range .CurrentModelInfo.ModelDependencies}}
-#import "{{.}}.h"
+{{ range $dep, $_ := .CurrentModelInfo.ModelDependencies}}
+#import "{{$dep.Name}}.h"
 {{- end}}
 
 @implementation {{.CurrentModelInfo.Name}}
@@ -19,7 +19,7 @@
 - (void)updateWithDictionary:(NSDictionary *)dictionary
 {
 {{- range .CurrentModelInfo.Properties}}
-    {{ if $.CurrentModelInfo.ModelDependencies | contains .Type -}}
+    {{ if $.CurrentModelInfo.DependsOnModel .Type -}}
         {{- if .IsArray}}
     NSMutableArray *itemsOf{{.Type}} = [NSMutableArray new];
     NSArray *itemDictionariesOf{{.Type}} = dictionary[@"{{.Name}}"];
@@ -49,7 +49,7 @@
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 {{ range .CurrentModelInfo.Properties}}
-    {{ if $.CurrentModelInfo.ModelDependencies | contains .Type -}}
+    {{ if $.CurrentModelInfo.DependsOnModel .Type -}}
         {{- if .IsArray}}
     NSMutableArray *itemDictionariesOf{{.Type}} = [NSMutableArray new];
     for ({{.Type}} *item in self.{{.NameLabel | sanitizeProperty}})

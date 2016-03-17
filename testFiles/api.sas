@@ -16,7 +16,7 @@ OAUTH POST https://www.alvaroloes.com/oauth/token
 }
 
 GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
-<- type=SuperPost; map [
+<- type = SuperPost [
 	{
 		"id":"1234",
 		"author:type = person; name = authorazo":{
@@ -82,12 +82,12 @@ GET https://www.alvaroloes.com/posts/:id?a=1&b=Pepe&c
 }
 
 POST https://www.alvaroloes.com/posts?a=1&b=Pepe&c
--> {
+-> type=PostAEnviar {
 	"title":"We really need a client SDK generator",
 	"body":"(...) we to make the machine work for us, thus we should write generators to make the computer write the non-creative part of the code for us"
 }
 
-<- {
+<- type=PostAEnviar{
    	"id":"1234",
    	"author":{
    		"name":"John",
@@ -109,11 +109,11 @@ POST https://www.alvaroloes.com/posts?a=1&b=Pepe&c
 }
 
 PUT https://www.alvaroloes.com/posts/:id?a=1&b=Pepe&c
--> {
+-> type=PostAEnviar{
 	"title":"We really need a client SDK generator. Please"
 }
 
-<- {
+<- type=PostAEnviar{
    	"id":"1234",
    	"author":{
    		"name":"John",

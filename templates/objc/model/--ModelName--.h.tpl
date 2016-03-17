@@ -2,8 +2,8 @@
 
 #import <Foundation/Foundation.h>
 #import "{{.Config.APIPrefix}}SerializableModelProtocol.h"
-{{ range .CurrentModelInfo.ModelDependencies}}
-@class {{.}};
+{{ range $dep, $_ := .CurrentModelInfo.ModelDependencies}}
+@class {{$dep.Name}};
 {{- end}}
 
 @interface {{.CurrentModelInfo.Name}} : NSObject <{{.Config.APIPrefix}}SerializableModel>

@@ -4,7 +4,9 @@
 #import "{{.Config.APIPrefix}}ServiceProtocol.h"
 #import <PromiseKit/PromiseKit.h>
 
-@class {{.CurrentModelInfo.Name}};
+{{ range $dep, $_ := .CurrentModelInfo.EndpointsDependencies }}
+@class {{$dep.Name}};
+{{- end}}
 
 @interface {{.CurrentModelInfo.Name}}Service : NSObject <{{.Config.APIPrefix}}Service>
 
