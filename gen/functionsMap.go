@@ -34,12 +34,4 @@ var funcMap = template.FuncMap{
 		}
 		return strings.Join(chunks, "")
 	},
-	"contains": func(needle string, haystack []string) bool {
-		for _, s := range haystack {
-			if needle == s {
-				return true
-			}
-		}
-		return false
-	},
 }

@@ -230,7 +230,6 @@ func (g *Generator) extractModelsInfo() {
 			responseModelAttrs.modelType = resourceModelAttrs.modelType
 		}
 
-		// TODO: forceASMap is not working until the template is updated
 		// Extract the endpoint info and set it to the corresponding model
 		g.setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs, endpoint)
 
@@ -381,7 +380,7 @@ func modelAttributesFromSpec(modelSpec string) (res modelAttributes) {
 		case attrKeyType:
 			res.modelType = strings.TrimSpace(val)
 		case attrKeyMap:
-			res.forceAsMap = true
+			//res.forceAsMap = true
 		}
 	}
 	return
