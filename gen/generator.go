@@ -11,8 +11,6 @@ import (
 
 	"path/filepath"
 
-	"fmt"
-
 	"github.com/alvaroloes/sdkgen/parser"
 	"github.com/jinzhu/inflection"
 	"github.com/juju/errors"
@@ -238,9 +236,6 @@ func (g *Generator) extractModelsInfo() {
 		g.mergeModelProperties(requestModelAttrs.modelType, endpoint.RequestBody)
 		g.mergeModelProperties(responseModelAttrs.modelType, endpoint.ResponseBody)
 	}
-	for name, mi := range g.modelsInfo {
-		fmt.Printf("%s, %v\n", name, mi)
-	}
 }
 
 func (g *Generator) getURLPathForModels(url *url.URL) string {
@@ -312,7 +307,7 @@ func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, respo
 		URLQueryParams: endpoint.URL.Query(),
 		SegmentParams:  extractSegmentParamsRenamingDups(endpoint.Resources),
 		// TODO: Future: add RequestKind
-		ResponseKind: getResponseKind(endpoint.ResponseBody, responseModelAttrs.forceAsMap), // TODO: response type can be "Map"
+		ResponseKind: getResponseKind(endpoint.ResponseBody, responseModelAttrs.forceAsMap),
 	}
 
 	// Add the dependencies
@@ -380,7 +375,7 @@ func modelAttributesFromSpec(modelSpec string) (res modelAttributes) {
 		case attrKeyType:
 			res.modelType = strings.TrimSpace(val)
 		case attrKeyMap:
-			//res.forceAsMap = true
+			//TODO: res.forceAsMap = true
 		}
 	}
 	return
