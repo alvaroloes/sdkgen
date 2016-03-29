@@ -6,7 +6,7 @@
 
 @implementation {{.Config.APIPrefix}}SerializableModelUtils
 
-- (NSArray<id <{{.Config.APIPrefix}}SerializableModel>> *)parseResponse:(id)response asArrayOfModel:(Class)modelClass
++ (NSArray<id <{{.Config.APIPrefix}}SerializableModel>> *)parseResponse:(id)response asArrayOfModel:(Class)modelClass
 {
     NSAssert([modelClass conformsToProtocol:@protocol({{.Config.APIPrefix}}SerializableModel)], @"The model class must conform {{.Config.APIPrefix}}SerializableModel protocol");
     NSAssert([response isKindOfClass:[NSArray class]], [@"Error while parsing the response as an array. It is not an array, it is a " stringByAppendingString:NSStringFromClass([response class])]);
@@ -19,7 +19,7 @@
     return responseArray;
 }
 
-- (NSDictionary *)parseResponse:(id)response asDictionaryOfStringKeysAndValuesOfModel:(Class)modelClass
++ (NSDictionary *)parseResponse:(id)response asDictionaryOfStringKeysAndValuesOfModel:(Class)modelClass
 {
     NSAssert([modelClass conformsToProtocol:@protocol({{.Config.APIPrefix}}SerializableModel)], @"The model class must conform {{.Config.APIPrefix}}SerializableModel protocol");
     NSAssert([response isKindOfClass:[NSDictionary class]], [@"Error while parsing the response as a dictionary. It is not a dictionary, it is a " stringByAppendingString:NSStringFromClass([response class])]);
@@ -33,7 +33,7 @@
     return responseDictionary;
 }
 
-- (id <{{.Config.APIPrefix}}SerializableModel>)parseResponse:(id)response asModel:(Class)modelClass
++ (id <{{.Config.APIPrefix}}SerializableModel>)parseResponse:(id)response asModel:(Class)modelClass
 {
     NSAssert([modelClass conformsToProtocol:@protocol({{.Config.APIPrefix}}SerializableModel)], @"The model class must conform {{.Config.APIPrefix}}SerializableModel protocol");
 
@@ -42,7 +42,7 @@
     return instance;
 }
 
-- (void)parseResponse:(id)response updatingModel:(id <{{.Config.APIPrefix}}SerializableModel>)modelInstance
++ (void)parseResponse:(id)response updatingModel:(id <{{.Config.APIPrefix}}SerializableModel>)modelInstance
 {
     NSAssert([response isKindOfClass:[NSDictionary class]], [@"Error while parsing the response as a model. It must be a dictionary, but it is a " stringByAppendingString:NSStringFromClass([response class])]);
     [modelInstance updateWithDictionary:response];

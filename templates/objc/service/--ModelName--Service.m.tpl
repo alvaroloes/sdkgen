@@ -7,6 +7,7 @@
 {{- end}}
 #import "{{.Config.APIPrefix}}ResourceManager.h"
 #import "{{.Config.APIPrefix}}URLHelper.h"
+#import "{{.Config.APIPrefix}}SerializableModelUtils.h"
 
 @interface {{$model.Name}}Service ()
 @property (nonatomic, weak) {{.Config.APIPrefix}}ResourceManager *resourceManager;
@@ -42,14 +43,24 @@
 
     return [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
                                                  params:{{if .NeedsModelParam -}}
-                                                            [{{.RequestModel.OriginalName}} toDictionary]
+                                                            [{{.RequestModel.OriginalName | lowerFirst}} toDictionary]
                                                         {{- else -}}
                                                             {{if .URLQueryParams }}query{{else}}nil{{end}}
-                                                        {{- end}}
-                                          modelInstance:{{if not .HasResponse}}nil{{else}}^id <{{$.Config.APIPrefix}}SerializableModel>
-                                          {
-                                              return {{if .Method.String | eq "PUT"}}{{.RequestModel.OriginalName}}{{else}}[{{.ResponseModel.Name}} new]{{end}};
-                                          }{{end}}];
+                                                        {{- end}}]{{if .HasResponse}}
+    .then(^(id response) {
+        {{if .IsArrayResponse -}}
+            return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asArrayOfModel:[{{.ResponseModel.Name}} class]];
+        {{else if .IsMapResponse -}}
+            return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asDictionaryOfStringKeysAndValuesOfModel:[{{.ResponseModel.Name}} class]];
+        {{else if .IsObjectResponse -}}
+            {{if eq .Method.String "PUT" | and .NeedsModelParam | and (eq .RequestModel.Name .ResponseModel.Name) -}}
+                return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response updatingModel:{{.RequestModel.OriginalName | lowerFirst}}];
+            {{- else -}}
+                return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.ResponseModel.Name}} class]];
+            {{- end}}
+        {{- end}}
+    });
+    {{- else}};{{end}}
 }
 {{end}}
 @end

@@ -174,6 +174,10 @@ func (epi *endpointInfo) NeedsModelParam() bool {
 	}
 }
 
+func (epi *endpointInfo) IsObjectResponse() bool {
+	return epi.ResponseKind == ObjectResponse
+}
+
 func (epi *endpointInfo) IsArrayResponse() bool {
 	return epi.ResponseKind == ArrayResponse
 }

@@ -5,7 +5,7 @@
 - (AnyPromise *){{.CRUDMethodName}}{{if .IsArrayResponse}}{{plural $resourceNameUpper}}{{else}}{{$resourceNameUpper}}{{end}}
 
 {{- if .NeedsModelParam -}}
-    :({{.RequestModel.Name}} *){{.RequestModel.OriginalName}}
+    :({{.RequestModel.Name}} *){{.RequestModel.OriginalName | lowerFirst}}
 {{- end}}
 {{- if .SegmentParams}}
     {{- if .NeedsModelParam}} with{{else}}With{{end}}

@@ -47,22 +47,19 @@
 }
 
 - (AnyPromise *)postResourceWithURLPath:(NSString *)urlPath
-                                 params:(NSDictionary *)params
-                          modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance
+                                 params:(NSDictionary *)params;
 {
     {{- template "resourceManagerRequestPromiseCreation" "POST"}}
 }
 
 - (AnyPromise *)putResourceWithURLPath:(NSString *)urlPath
-                                params:(NSDictionary *)params
-                         modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance
+                                params:(NSDictionary *)params;
 {
     {{- template "resourceManagerRequestPromiseCreation" "PUT"}}
 }
 
 - (AnyPromise *)deleteResourceWithURLPath:(NSString *)urlPath
-                                   params:(NSDictionary *)params
-                            modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance
+                                   params:(NSDictionary *)params;
 {
     {{- template "resourceManagerRequestPromiseCreation" "DELETE"}}
 }
@@ -71,7 +68,7 @@
 
 - (AnyPromise *)doRequest:(AnyPromise *(^)())requestBlock
 {
-    typeof (self) __weak weakSelf = self;
+    {{/* typeof (self) __weak weakSelf = self; */}}
     return requestBlock()
     .then(^(id response) {
         // TODO: Log response
