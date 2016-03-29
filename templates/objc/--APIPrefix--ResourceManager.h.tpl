@@ -11,19 +11,15 @@
 - (instancetype)initWithBaseURL:(NSString *)baseURL;
 
 - (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath
-                                params:(NSDictionary *)params
-                         modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance;
+                                params:(NSDictionary *)params;
 
 - (AnyPromise *)postResourceWithURLPath:(NSString *)urlPath
-                                 params:(NSDictionary *)params
-                          modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance;
+                                 params:(NSDictionary *)params;
 
 - (AnyPromise *)putResourceWithURLPath:(NSString *)urlPath
-                                params:(NSDictionary *)params
-                         modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance;
+                                params:(NSDictionary *)params;
 
 - (AnyPromise *)deleteResourceWithURLPath:(NSString *)urlPath
-                                   params:(NSDictionary *)params
-                            modelInstance:(id<{{.Config.APIPrefix}}SerializableModel> (^)())modelInstance;
+                                   params:(NSDictionary *)params;
 
 @end

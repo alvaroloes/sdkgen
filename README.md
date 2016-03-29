@@ -9,11 +9,29 @@ Still in an early stage of development. Be patient ;-)
 - [x] Allow property tuning with a key=value after the colon. Something like: `"prop1: name=desiredName, type=desiredType"`
 - [x] Right now, when a property value is a map, it is generated as a class. Allow it to be generated just as a map/dictionary (related with property tuning)
 - [x] Allow model tuning in the same way than property tuning (taking into account the models whose name is taken from the resource endpoint)
-- [ ] Token based authentication
-- [ ] Use the request type to generate de method parameter, don't rely only on HTTP Methods
-- [ ] Allow endpoint tuning (HTTP method -> crud method name override, resource -> model name part of service method override)
 - [ ] Allow specifying map and  rawMap/rawArray (maybe only needed "raw") type in properties and model tuning.
+
+Create a class ResponseParsingData which contains
+the kind of response set (array, map, instance or raw)
+and the method to get the instance (as the block now)
+
+NOPE
+
+The parsing should occur in the service layer, so we exactly know which kind of response the server will send back
+Create a helper class with the methods
+- (NSArray *)           parseResponse:(id)response asArrayOf:(Class class)//Ensure instances are serializable models
+- (NSDictionary *)      parseResponse:(id)response asDictionaryOfStringKeysAndValuesOf:(Class class) //Ensure instances are serializable models
+- (SerializableModel *) parseResponse:(id)response asModel:(Class class)
+- (void)                parseResponse:(id)response updatingModel:(SerializableModel *)model
+If "raw" is used -> no need to parse
+
+- [ ] Allow endpoint tuning (HTTP method -> crud method name override, resource -> model name part of service method override)
 - [ ] Allow specifying Time type in properties (What format?).
+- [ ] Token based authentication (think of a smart way to accomplish this. Maybe nothing is needed or simple a way to specify the headers that must be set in a general way)
+
+- [ ] Update the readme
+
+- [ ] Use 'RequestKind' (not relay on HTTP method) in the same way as 'ResponseKind': this will allow to send different things (like an array of models to bulk update or a map)
 - [ ] Support for format specifiers at the end of the endpoint (.json)? (by simply ignore them for now)
 - [ ] How to detect enum values from the API spec?
 - [ ] Allow flagging some query parameters as method parameters (so they'll be treated similarly as segment parameters)
