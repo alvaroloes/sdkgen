@@ -18,7 +18,7 @@ Still in an early stage of development. Be patient ;-)
 
 - [ ] Update the readme
 
-- [ ] Use 'RequestKind' (not relay on HTTP method) in the same way as 'ResponseKind': this will allow to send different things (like an array of models to bulk update or a map)
+- [ ] Use 'RequestKind' (not relay on HTTP method, like "NeedsModelParam") in the same way as 'ResponseKind': this will allow to send different things (like an array of models to bulk update or a map)
 - [ ] Support for format specifiers at the end of the endpoint (.json)? (by simply ignore them for now)
 - [ ] How to detect enum values from the API spec?
 - [ ] Allow flagging some query parameters as method parameters (so they'll be treated similarly as segment parameters)

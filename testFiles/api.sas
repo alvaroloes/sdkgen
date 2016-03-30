@@ -60,7 +60,7 @@ GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
 ]
 
 GET https://www.alvaroloes.com/posts/:id?a=1&b=Pepe&c
-<- map {
+<- map; raw {
 	"id":"1234",
 	"author":{
 		"name":"John",

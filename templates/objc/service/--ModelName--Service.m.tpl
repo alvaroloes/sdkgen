@@ -52,12 +52,14 @@
             return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asArrayOfModel:[{{.ResponseModel.Name}} class]];
         {{else if .IsMapResponse -}}
             return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asDictionaryOfStringKeysAndValuesOfModel:[{{.ResponseModel.Name}} class]];
-        {{else if .IsObjectResponse -}}
+        {{else if .IsModelResponse -}}
             {{if eq .Method.String "PUT" | and .NeedsModelParam | and (eq .RequestModel.Name .ResponseModel.Name) -}}
                 return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response updatingModel:{{.RequestModel.OriginalName | lowerFirst}}];
             {{- else -}}
                 return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.ResponseModel.Name}} class]];
             {{- end}}
+        {{else if .IsRawArrayResponse | or .IsRawMapResponse -}}
+            return response;
         {{- end}}
     });
     {{- else}};{{end}}

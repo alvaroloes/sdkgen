@@ -15,9 +15,12 @@ import (
 type ResponseKind int
 
 const (
-	ObjectResponse ResponseKind = iota
+	RawResponse ResponseKind = iota
+	ModelResponse
 	MapResponse
+	RawMapResponse
 	ArrayResponse
+	RawArrayResponse
 	EmptyResponse
 )
 
@@ -30,6 +33,7 @@ const (
 	attrKeyName = "name"
 	attrKeyType = "type"
 	attrKeyMap  = "map"
+	attrKeyRaw  = "raw"
 )
 
 var crudNamePerMethod = map[parser.HTTPMethod]string{
@@ -120,6 +124,7 @@ type propertyAttributes struct {
 	nameLabel  string
 	forcedType string
 	forceAsMap bool
+	raw bool
 }
 
 func newPropertyAttributes(propertySpec string) (res propertyAttributes) {
@@ -142,6 +147,8 @@ func newPropertyAttributes(propertySpec string) (res propertyAttributes) {
 			res.forcedType = strings.TrimSpace(val)
 		case attrKeyMap:
 			res.forceAsMap = true
+		case attrKeyRaw:
+			res.raw = true
 		}
 	}
 	return
@@ -174,16 +181,24 @@ func (epi *endpointInfo) NeedsModelParam() bool {
 	}
 }
 
-func (epi *endpointInfo) IsObjectResponse() bool {
-	return epi.ResponseKind == ObjectResponse
+func (epi *endpointInfo) IsModelResponse() bool {
+	return epi.ResponseKind == ModelResponse
 }
 
 func (epi *endpointInfo) IsArrayResponse() bool {
 	return epi.ResponseKind == ArrayResponse
 }
 
+func (epi *endpointInfo) IsRawArrayResponse() bool {
+	return epi.ResponseKind == RawArrayResponse
+}
+
 func (epi *endpointInfo) IsMapResponse() bool {
 	return epi.ResponseKind == MapResponse
+}
+
+func (epi *endpointInfo) IsRawMapResponse() bool {
+	return epi.ResponseKind == RawMapResponse
 }
 
 func (epi *endpointInfo) HasResponse() bool {

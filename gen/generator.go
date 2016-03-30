@@ -307,7 +307,7 @@ func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, respo
 		URLQueryParams: endpoint.URL.Query(),
 		SegmentParams:  extractSegmentParamsRenamingDups(endpoint.Resources),
 		// TODO: Future: add RequestKind
-		ResponseKind: getResponseKind(endpoint.ResponseBody, responseModelAttrs.forceAsMap),
+		ResponseKind: getResponseKind(endpoint.ResponseBody, responseModelAttrs.forceAsMap, responseModelAttrs.raw),
 	}
 
 	// Add the dependencies
@@ -331,21 +331,28 @@ func (g *Generator) getModelOrCreate(modelName string) *modelInfo {
 	return mInfo
 }
 
-func getResponseKind(body interface{}, forceAsMap bool) ResponseKind {
+func getResponseKind(body interface{}, forceAsMap, raw bool) ResponseKind {
 	if body == nil {
 		return EmptyResponse
 	}
-	if forceAsMap {
+
+	if forceAsMap && !raw {
 		return MapResponse
 	}
 
 	switch reflect.TypeOf(body).Kind() {
 	case reflect.Map:
-		return ObjectResponse
+		if raw {
+			return RawMapResponse
+		}
+		return ModelResponse
 	case reflect.Array, reflect.Slice:
+		if raw {
+			return RawArrayResponse
+		}
 		return ArrayResponse
 	default:
-		return EmptyResponse
+		return RawResponse
 	}
 }
 
@@ -361,6 +368,7 @@ func extractSegmentParamsRenamingDups(resources []parser.Resource) []string {
 type modelAttributes struct {
 	modelType  string
 	forceAsMap bool
+	raw bool
 }
 
 func modelAttributesFromSpec(modelSpec string) (res modelAttributes) {
@@ -376,6 +384,8 @@ func modelAttributesFromSpec(modelSpec string) (res modelAttributes) {
 			res.modelType = strings.TrimSpace(val)
 		case attrKeyMap:
 			res.forceAsMap = true
+		case attrKeyRaw:
+			res.raw = true
 		}
 	}
 	return
