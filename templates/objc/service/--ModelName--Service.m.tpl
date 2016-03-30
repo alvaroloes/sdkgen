@@ -58,7 +58,7 @@
             {{- else -}}
                 return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.ResponseModel.Name}} class]];
             {{- end}}
-        {{else if .IsRawArrayResponse | or .IsRawMapResponse -}}
+        {{else if .IsRawResponse | or .IsRawArrayResponse | or .IsRawMapResponse -}}
             return response;
         {{- end}}
     });

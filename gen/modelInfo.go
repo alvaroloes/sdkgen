@@ -181,6 +181,10 @@ func (epi *endpointInfo) NeedsModelParam() bool {
 	}
 }
 
+func (epi *endpointInfo) IsRawResponse() bool {
+	return epi.ResponseKind == RawResponse
+}
+
 func (epi *endpointInfo) IsModelResponse() bool {
 	return epi.ResponseKind == ModelResponse
 }
