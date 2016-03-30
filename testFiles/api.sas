@@ -19,7 +19,7 @@ GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
 <- type = SuperPost [
 	{
 		"id":"1234",
-		"author:type = person; name = authorazo":{
+		"author:type = person; name = authorazo; map":{
 			"isAdmin":false,
 			"name":"John",
 			"age":20
@@ -60,7 +60,7 @@ GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c
 ]
 
 GET https://www.alvaroloes.com/posts/:id?a=1&b=Pepe&c
-<- {
+<- map {
 	"id":"1234",
 	"author":{
 		"name":"John",

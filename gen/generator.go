@@ -375,7 +375,7 @@ func modelAttributesFromSpec(modelSpec string) (res modelAttributes) {
 		case attrKeyType:
 			res.modelType = strings.TrimSpace(val)
 		case attrKeyMap:
-			//TODO: res.forceAsMap = true
+			res.forceAsMap = true
 		}
 	}
 	return

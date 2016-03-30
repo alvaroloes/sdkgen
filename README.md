@@ -11,19 +11,6 @@ Still in an early stage of development. Be patient ;-)
 - [x] Allow model tuning in the same way than property tuning (taking into account the models whose name is taken from the resource endpoint)
 - [ ] Allow specifying map and  rawMap/rawArray (maybe only needed "raw") type in properties and model tuning.
 
-Create a class ResponseParsingData which contains
-the kind of response set (array, map, instance or raw)
-and the method to get the instance (as the block now)
-
-NOPE
-
-The parsing should occur in the service layer, so we exactly know which kind of response the server will send back
-Create a helper class with the methods
-- (NSArray *)           parseResponse:(id)response asArrayOf:(Class class)//Ensure instances are serializable models
-- (NSDictionary *)      parseResponse:(id)response asDictionaryOfStringKeysAndValuesOf:(Class class) //Ensure instances are serializable models
-- (SerializableModel *) parseResponse:(id)response asModel:(Class class)
-- (void)                parseResponse:(id)response updatingModel:(SerializableModel *)model
-If "raw" is used -> no need to parse
 
 - [ ] Allow endpoint tuning (HTTP method -> crud method name override, resource -> model name part of service method override)
 - [ ] Allow specifying Time type in properties (What format?).
