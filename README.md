@@ -9,7 +9,8 @@ Still in an early stage of development. Be patient ;-)
 - [x] Allow property tuning with a key=value after the colon. Something like: `"prop1: name=desiredName, type=desiredType"`
 - [x] Right now, when a property value is a map, it is generated as a class. Allow it to be generated just as a map/dictionary (related with property tuning)
 - [x] Allow model tuning in the same way than property tuning (taking into account the models whose name is taken from the resource endpoint)
-- [ ] Allow specifying map and  rawMap/rawArray (maybe only needed "raw") type in properties and model tuning.
+- [x] Raw responses (map, array and id)
+- [ ] Raw properties (map, array and id)
 
 
 - [ ] Allow endpoint tuning (HTTP method -> crud method name override, resource -> model name part of service method override)
@@ -18,7 +19,7 @@ Still in an early stage of development. Be patient ;-)
 
 - [ ] Update the readme
 
-- [ ] Use 'RequestKind' (not relay on HTTP method, like "NeedsModelParam") in the same way as 'ResponseKind': this will allow to send different things (like an array of models to bulk update or a map)
+- [ ] Use 'RequestKind' (not relay on HTTP method, like "NeedsModelParam") in the same way as 'ResponseKind': this will allow to send different things (like an array of models to bulk update or a map or raw things)
 - [ ] Support for format specifiers at the end of the endpoint (.json)? (by simply ignore them for now)
 - [ ] How to detect enum values from the API spec?
 - [ ] Allow flagging some query parameters as method parameters (so they'll be treated similarly as segment parameters)
