@@ -158,6 +158,7 @@ type endpointInfo struct {
 	ResourceModel  *modelInfo
 	RequestModel   *modelInfo
 	ResponseModel  *modelInfo
+	Authenticates  bool
 	Method         parser.HTTPMethod
 	URLPath        string
 	URLQueryParams url.Values

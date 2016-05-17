@@ -7,7 +7,7 @@ AUTH POST https://www.alvaroloes.com/oauth/token
     "grant_type": "password"
 }
 
-<- {
+<- type = access {
     "accessToken": "token",
     "tokenType": "Bearer",
     "refreshToken": "refreshToken",

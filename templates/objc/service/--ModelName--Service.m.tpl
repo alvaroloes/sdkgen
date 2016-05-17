@@ -41,6 +41,7 @@
     urlPath = [urlPath stringByAppendingString:[{{$.Config.APIPrefix}}URLHelper encodeQueryStringFromDictionary:query]];
     {{- end}}
 
+    {{if .Authenticates}}typeof(self) __weak weakSelf = self;{{end}}
     return [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
                                                  params:{{if .NeedsModelParam -}}
                                                             [{{.RequestModel.OriginalName | lowerFirst}} toDictionary]
@@ -48,17 +49,21 @@
                                                             {{if .URLQueryParams }}query{{else}}nil{{end}}
                                                         {{- end}}]{{if .HasResponse}}
     .then(^(id response) {
-        {{if .IsArrayResponse -}}
+        {{if .Authenticates -}}
+            {{.ResponseModel.Name}} *{{.ResponseModel.OriginalName | lowerFirst}} = [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.ResponseModel.Name}} class]]
+        [weakSelf.resourceManager set{{.ResponseModel.OriginalName | upperFirst}}:{{.ResponseModel.OriginalName | lowerFirst}}];
+        return {{.ResponseModel.OriginalName | lowerFirst}}
+        {{- else if .IsArrayResponse -}}
             return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asArrayOfModel:[{{.ResponseModel.Name}} class]];
-        {{else if .IsMapResponse -}}
+        {{- else if .IsMapResponse -}}
             return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asDictionaryOfStringKeysAndValuesOfModel:[{{.ResponseModel.Name}} class]];
-        {{else if .IsModelResponse -}}
+        {{- else if .IsModelResponse -}}
             {{if eq .Method.String "PUT" | and .NeedsModelParam | and (eq .RequestModel.Name .ResponseModel.Name) -}}
                 return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response updatingModel:{{.RequestModel.OriginalName | lowerFirst}}];
             {{- else -}}
                 return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.ResponseModel.Name}} class]];
             {{- end}}
-        {{else if .IsRawResponse | or .IsRawArrayResponse | or .IsRawMapResponse -}}
+        {{- else if .IsRawResponse | or .IsRawArrayResponse | or .IsRawMapResponse -}}
             return response;
         {{- end}}
     });

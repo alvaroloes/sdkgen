@@ -302,6 +302,7 @@ func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, respo
 		ResourceModel:  resourceModelInfo,
 		RequestModel:   requestModelInfo,
 		ResponseModel:  responseModelInfo,
+		Authenticates:  endpoint.Authenticates,
 		Method:         endpoint.Method,
 		URLPath:        g.getURLPathForModels(endpoint.URL),
 		URLQueryParams: endpoint.URL.Query(),

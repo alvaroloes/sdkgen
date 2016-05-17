@@ -164,6 +164,8 @@ func NewAPI(spec []byte) (*API, error) {
 		if err := endpoint.extractBodies(spec[match[endpointFullIndex+1]:endpointDataFinalIndex]); err != nil {
 			return nil, errors.Annotate(err, "while extracting bodies of "+endpoint.URL.String())
 		}
+
+		// TODO: Check here if we understand the token response if authenticates
 		api.Endpoints = append(api.Endpoints, endpoint)
 	}
 
