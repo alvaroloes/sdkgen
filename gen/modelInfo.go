@@ -124,7 +124,7 @@ type propertyAttributes struct {
 	nameLabel  string
 	forcedType string
 	forceAsMap bool
-	raw bool
+	raw        bool
 }
 
 func newPropertyAttributes(propertySpec string) (res propertyAttributes) {

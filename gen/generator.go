@@ -368,7 +368,7 @@ func extractSegmentParamsRenamingDups(resources []parser.Resource) []string {
 type modelAttributes struct {
 	modelType  string
 	forceAsMap bool
-	raw bool
+	raw        bool
 }
 
 func modelAttributesFromSpec(modelSpec string) (res modelAttributes) {

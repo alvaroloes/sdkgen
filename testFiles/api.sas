@@ -1,4 +1,4 @@
-OAUTH POST https://www.alvaroloes.com/oauth/token
+AUTH POST https://www.alvaroloes.com/oauth/token
 -> {
     "username":"testUser",
     "password": "demo",
@@ -8,11 +8,11 @@ OAUTH POST https://www.alvaroloes.com/oauth/token
 }
 
 <- {
-    "accessToken:token": "token",
-    "tokenType:tokenType": "Bearer",
-    "refreshToken:refreshToken": "refreshToken",
-    "expiresIn:expiresIn": "3600",
-    "createdAt:createdAt": "1457299698278"
+    "accessToken": "token",
+    "tokenType": "Bearer",
+    "refreshToken": "refreshToken",
+    "expiresIn": "3600",
+    "createdAt": "1457299698278"
 }
 
 GET https://www.alvaroloes.com/api/v1/posts?a=1&b=Pepe&c

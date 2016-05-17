@@ -26,12 +26,15 @@ const (
 	DELETE
 )
 
+const authToken = "AUTH"
+
 var supportedMethods = GET.String() + "|" + POST.String() + "|" + PUT.String() + "|" + DELETE.String()
 
-var endpointRegexp = regexp.MustCompile(`(?m)^\s*(` + supportedMethods + `)\s*(.*)$`)
+var endpointRegexp = regexp.MustCompile(`(?m)^\s*(` + authToken + `)?\s*?(` + supportedMethods + `)\s*(.*)$`)
 
 const (
 	endpointFullIndex = 2 * iota
+	authIndex
 	methodIndex
 	urlIndex
 )
@@ -68,13 +71,14 @@ func (api *API) extractBaseURL() error {
 }
 
 type Endpoint struct {
-	Method       HTTPMethod
-	URL          *url.URL
-	Resources    []Resource
-	RequestSpec  string
-	RequestBody  interface{}
-	ResponseSpec string
-	ResponseBody interface{}
+	Authenticates bool
+	Method        HTTPMethod
+	URL           *url.URL
+	Resources     []Resource
+	RequestSpec   string
+	RequestBody   interface{}
+	ResponseSpec  string
+	ResponseBody  interface{}
 }
 
 func (ep *Endpoint) extractResources() error {
@@ -129,20 +133,22 @@ func NewAPI(spec []byte) (*API, error) {
 	var api API
 	endpointMatches := endpointRegexp.FindAllSubmatchIndex(spec, -1)
 	for i, match := range endpointMatches {
+		endpoint := Endpoint{}
+
 		urlString := string(spec[match[urlIndex]:match[urlIndex+1]])
 		parsedURL, err := url.Parse(urlString)
 		if err != nil {
 			return nil, errors.Annotate(err, "while parsing the URL "+urlString)
 		}
+		endpoint.URL = parsedURL
 
-		endpoint := Endpoint{
-			URL: parsedURL,
-		}
 		httpMethod, err := HTTPMethodString(string(spec[match[methodIndex]:match[methodIndex+1]]))
 		if err != nil {
 			return nil, errors.Annotate(err, "while extracting the HTTP method of "+endpoint.URL.String())
 		}
 		endpoint.Method = httpMethod
+
+		endpoint.Authenticates = match[authIndex] >= 0
 
 		if err := endpoint.extractResources(); err != nil {
 			return nil, errors.Annotate(err, "while extracting resources of "+endpoint.URL.String())
