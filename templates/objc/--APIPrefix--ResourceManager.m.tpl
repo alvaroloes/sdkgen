@@ -20,7 +20,12 @@
     }
     return self;
 }
-
+{{if .AuthEndpoint}}
+- (void)set{{.AuthEndpoint.ResponseModel.OriginalName | upperFirst}}:({{.AuthEndpoint.ResponseModel.Name}} *){{.AuthEndpoint.ResponseModel.OriginalName | lowerFirst}}
+{
+    //TODO: Check how to get the accessToken and so on. The .AuthEndpoint has the response kind, the only supported are Model and RawMap
+}
+{{end}}
 - (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath
                                 params:(NSDictionary *)params
 {

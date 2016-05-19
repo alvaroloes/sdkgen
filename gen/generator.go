@@ -20,6 +20,7 @@ import (
 
 var (
 	ErrLangNotSupported = errors.New("language not supported")
+	ErrMultipleAuthEndpoints = errors.New("more than one authentication endpoint is not supported")
 )
 
 type Language int
@@ -58,6 +59,7 @@ type templateData struct {
 	API              *parser.API
 	CurrentModelInfo *modelInfo
 	AllModelsInfo    map[string]*modelInfo
+	AuthEndpoint     *endpointInfo
 	CurrentTime      time.Time
 }
 
@@ -68,16 +70,20 @@ type languageSpecificGenerator interface {
 
 // Generator contains all the information needed to generate the SDK in a specific language
 type Generator struct {
-	gen        languageSpecificGenerator
-	api        *parser.API
-	modelsInfo map[string]*modelInfo // Contains processed information to generate the models
-	config     Config
-	tplDir     string
+	gen          languageSpecificGenerator
+	api          *parser.API
+	modelsInfo   map[string]*modelInfo // Contains processed information to generate the models
+	authEndpoint *endpointInfo
+	config       Config
+	tplDir       string
 }
 
 func (g *Generator) Generate() error {
 	// Extract the models info
-	g.extractModelsInfo()
+	err := g.extractModelsInfo()
+	if err != nil {
+		return errors.Trace(err)
+	}
 	// Adapt them to the specific language
 	g.gen.adaptModelsInfo(g.modelsInfo, g.api, g.config)
 
@@ -162,6 +168,7 @@ func (g *Generator) generateGeneralFiles(templateFileNames []string, generalTpls
 			API:           g.api,
 			AllModelsInfo: g.modelsInfo,
 			CurrentTime:   time.Now(),
+			AuthEndpoint: g.authEndpoint,
 		})
 		if err != nil {
 			return errors.Annotatef(err, "when generating API file %q", fileName)
@@ -191,6 +198,7 @@ func (g *Generator) generatePerModelFiles(templateFileNames []string, modelTpls 
 				API:              g.api,
 				CurrentModelInfo: modelInfo,
 				AllModelsInfo:    g.modelsInfo,
+				AuthEndpoint:g.authEndpoint,
 				CurrentTime:      time.Now(),
 			})
 			if err != nil {
@@ -210,7 +218,7 @@ func generateFile(filePath string, tpl *template.Template, data templateData) er
 	return errors.Trace(tpl.Execute(file, data))
 }
 
-func (g *Generator) extractModelsInfo() {
+func (g *Generator) extractModelsInfo() error {
 	g.modelsInfo = map[string]*modelInfo{}
 	for _, endpoint := range g.api.Endpoints {
 		// Extract the resource whose information is contained in this endpoint
@@ -229,13 +237,17 @@ func (g *Generator) extractModelsInfo() {
 		}
 
 		// Extract the endpoint info and set it to the corresponding model
-		g.setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs, endpoint)
+		err := g.setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs, endpoint)
+		if err != nil {
+			return errors.Trace(err)
+		}
 
 		// Merge the properties form the request and response bodies into
 		// the corresponding model
 		g.mergeModelProperties(requestModelAttrs.modelType, endpoint.RequestBody)
 		g.mergeModelProperties(responseModelAttrs.modelType, endpoint.ResponseBody)
 	}
+	return nil
 }
 
 func (g *Generator) getURLPathForModels(url *url.URL) string {
@@ -291,7 +303,7 @@ func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVa
 	}
 }
 
-func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs modelAttributes, endpoint parser.Endpoint) {
+func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs modelAttributes, endpoint parser.Endpoint) error {
 	// Get/Create the needed models
 	resourceModelInfo := g.getModelOrCreate(resourceModelAttrs.modelType)
 	requestModelInfo := g.getModelOrCreate(requestModelAttrs.modelType)
@@ -319,7 +331,15 @@ func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, respo
 		resourceModelInfo.EndpointsDependencies[responseModelInfo] = struct{}{}
 	}
 
+	if epi.Authenticates {
+		if g.authEndpoint != nil {
+			return errors.Annotate(ErrMultipleAuthEndpoints, `this one: "` + g.authEndpoint.URLPath + `" and this one: "` + epi.URLPath )
+		}
+		g.authEndpoint = &epi
+	}
+
 	resourceModelInfo.EndpointsInfo = append(resourceModelInfo.EndpointsInfo, epi)
+	return nil
 }
 
 func (g *Generator) getModelOrCreate(modelName string) *modelInfo {
