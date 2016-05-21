@@ -19,13 +19,14 @@ import (
 //go:generate go-bindata -debug=$DEBUG -o=templates_bindata.go -pkg=$GOPACKAGE ../templates/...
 
 var (
-	ErrLangNotSupported = errors.New("language not supported")
+	ErrLangNotSupported      = errors.New("language not supported")
 	ErrMultipleAuthEndpoints = errors.New("more than one authentication endpoint is not supported")
+	ErrInvalidAuthResponse   = errors.New("invalid response for the authentication endpoint. Only raw map and model are supported")
 )
 
-type Language int
+//go:generate enumer -type=Language
 
-//go:generate stringer -type=Language
+type Language int
 
 const (
 	Android Language = iota
@@ -168,7 +169,7 @@ func (g *Generator) generateGeneralFiles(templateFileNames []string, generalTpls
 			API:           g.api,
 			AllModelsInfo: g.modelsInfo,
 			CurrentTime:   time.Now(),
-			AuthEndpoint: g.authEndpoint,
+			AuthEndpoint:  g.authEndpoint,
 		})
 		if err != nil {
 			return errors.Annotatef(err, "when generating API file %q", fileName)
@@ -198,7 +199,7 @@ func (g *Generator) generatePerModelFiles(templateFileNames []string, modelTpls 
 				API:              g.api,
 				CurrentModelInfo: modelInfo,
 				AllModelsInfo:    g.modelsInfo,
-				AuthEndpoint:g.authEndpoint,
+				AuthEndpoint:     g.authEndpoint,
 				CurrentTime:      time.Now(),
 			})
 			if err != nil {
@@ -333,7 +334,10 @@ func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, respo
 
 	if epi.Authenticates {
 		if g.authEndpoint != nil {
-			return errors.Annotate(ErrMultipleAuthEndpoints, `this one: "` + g.authEndpoint.URLPath + `" and this one: "` + epi.URLPath )
+			return errors.Annotate(ErrMultipleAuthEndpoints, `this one: "`+g.authEndpoint.URLPath+`" and this one: "`+epi.URLPath)
+		}
+		if epi.ResponseKind != ModelResponse && epi.ResponseKind != RawMapResponse {
+			return errors.Annotate(ErrInvalidAuthResponse, "")
 		}
 		g.authEndpoint = &epi
 	}

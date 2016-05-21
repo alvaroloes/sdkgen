@@ -3,7 +3,6 @@
 package parser
 
 import "fmt"
-import "encoding/json"
 
 const _HTTPMethod_name = "UNKNOWN_HTTP_METHODGETPOSTPUTDELETE"
 
@@ -29,19 +28,4 @@ func HTTPMethodString(s string) (HTTPMethod, error) {
 		return val, nil
 	}
 	return 0, fmt.Errorf("%s does not belong to HTTPMethod values", s)
-}
-
-func (i HTTPMethod) MarshalJSON() ([]byte, error) {
-	return json.Marshal(i.String())
-}
-
-func (i *HTTPMethod) UnmarshalJSON(data []byte) error {
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return fmt.Errorf("HTTPMethod should be a string, got %s", data)
-	}
-
-	var err error
-	*i, err = HTTPMethodString(s)
-	return err
 }

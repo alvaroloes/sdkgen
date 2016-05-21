@@ -12,6 +12,8 @@ import (
 	"github.com/juju/errors"
 )
 
+//go:generate enumer -type=ResponseKind
+
 type ResponseKind int
 
 const (
