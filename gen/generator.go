@@ -21,7 +21,7 @@ import (
 var (
 	ErrLangNotSupported      = errors.New("language not supported")
 	ErrMultipleAuthEndpoints = errors.New("more than one authentication endpoint is not supported")
-	ErrInvalidAuthResponse   = errors.New("invalid response for the authentication endpoint. Only raw map and model are supported")
+	ErrInvalidAuthResponse   = errors.Errorf("invalid response for the authentication endpoint. Only %s and %s are supported", RawMapResponse, ModelResponse)
 )
 
 //go:generate enumer -type=Language
@@ -337,7 +337,7 @@ func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, respo
 			return errors.Annotate(ErrMultipleAuthEndpoints, `this one: "`+g.authEndpoint.URLPath+`" and this one: "`+epi.URLPath)
 		}
 		if epi.ResponseKind != ModelResponse && epi.ResponseKind != RawMapResponse {
-			return errors.Annotate(ErrInvalidAuthResponse, "")
+			return errors.Annotate(ErrInvalidAuthResponse, epi.URLPath + " endpoint returns " + epi.ResponseKind.String())
 		}
 		g.authEndpoint = &epi
 	}
