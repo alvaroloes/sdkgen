@@ -168,14 +168,14 @@ type endpointInfo struct {
 	ResponseKind   ResponseKind
 }
 
-func (epi *endpointInfo) CRUDMethodName() (string, error) {
+func (epi endpointInfo) CRUDMethodName() (string, error) {
 	if epi.Method == parser.UNKNOWN_HTTP_METHOD {
 		return "", errors.Errorf("Unknown http method for endopint %s", epi.URLPath)
 	}
 	return crudNamePerMethod[epi.Method], nil
 }
 
-func (epi *endpointInfo) NeedsModelParam() bool {
+func (epi endpointInfo) NeedsModelParam() bool {
 	switch epi.Method {
 	case parser.POST, parser.PUT:
 		return true
@@ -184,30 +184,30 @@ func (epi *endpointInfo) NeedsModelParam() bool {
 	}
 }
 
-func (epi *endpointInfo) IsRawResponse() bool {
+func (epi endpointInfo) IsRawResponse() bool {
 	return epi.ResponseKind == RawResponse
 }
 
-func (epi *endpointInfo) IsModelResponse() bool {
+func (epi endpointInfo) IsModelResponse() bool {
 	return epi.ResponseKind == ModelResponse
 }
 
-func (epi *endpointInfo) IsArrayResponse() bool {
+func (epi endpointInfo) IsArrayResponse() bool {
 	return epi.ResponseKind == ArrayResponse
 }
 
-func (epi *endpointInfo) IsRawArrayResponse() bool {
+func (epi endpointInfo) IsRawArrayResponse() bool {
 	return epi.ResponseKind == RawArrayResponse
 }
 
-func (epi *endpointInfo) IsMapResponse() bool {
+func (epi endpointInfo) IsMapResponse() bool {
 	return epi.ResponseKind == MapResponse
 }
 
-func (epi *endpointInfo) IsRawMapResponse() bool {
+func (epi endpointInfo) IsRawMapResponse() bool {
 	return epi.ResponseKind == RawMapResponse
 }
 
-func (epi *endpointInfo) HasResponse() bool {
+func (epi endpointInfo) HasResponse() bool {
 	return epi.ResponseKind != EmptyResponse
 }

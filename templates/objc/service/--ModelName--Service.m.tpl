@@ -47,27 +47,14 @@
                                                             [{{.RequestModel.OriginalName | lowerFirst}} toDictionary]
                                                         {{- else -}}
                                                             {{if .URLQueryParams }}query{{else}}nil{{end}}
-                                                        {{- end}}]{{if .HasResponse}}
+                                                        {{- end}}]
+    {{- if .HasResponse}}
     .then(^(id response) {
-        {{if .Authenticates -}}
-            {{.ResponseModel.Name}} *{{.ResponseModel.OriginalName | lowerFirst}} = [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.ResponseModel.Name}} class]]
-        [weakSelf.resourceManager set{{.ResponseModel.OriginalName | upperFirst}}:{{.ResponseModel.OriginalName | lowerFirst}}];
-        return {{.ResponseModel.OriginalName | lowerFirst}}
-        {{- else if .IsArrayResponse -}}
-            return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asArrayOfModel:[{{.ResponseModel.Name}} class]];
-        {{- else if .IsMapResponse -}}
-            return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asDictionaryOfStringKeysAndValuesOfModel:[{{.ResponseModel.Name}} class]];
-        {{- else if .IsModelResponse -}}
-            {{if eq .Method.String "PUT" | and .NeedsModelParam | and (eq .RequestModel.Name .ResponseModel.Name) -}}
-                return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response updatingModel:{{.RequestModel.OriginalName | lowerFirst}}];
-            {{- else -}}
-                return [{{$.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.ResponseModel.Name}} class]];
-            {{- end}}
-        {{- else if .IsRawResponse | or .IsRawArrayResponse | or .IsRawMapResponse -}}
-            return response;
-        {{- end}}
+        {{template "serviceParseResponse" dict "Endpoint" . "Config" $.Config}}
     });
-    {{- else}};{{end}}
+    {{- else -}}
+    ;
+    {{- end}}
 }
 {{end}}
 @end

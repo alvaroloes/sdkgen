@@ -24,3 +24,25 @@
     :(NSDictionary *)query
 {{- end}}
 {{- end}}
+
+{{define "serviceParseResponse" -}}
+
+{{if .Endpoint.Authenticates -}}
+    {{.Endpoint.ResponseModel.Name}} *{{.Endpoint.ResponseModel.OriginalName | lowerFirst}} = [{{.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.Endpoint.ResponseModel.Name}} class]];
+        [weakSelf.resourceManager set{{.Endpoint.ResponseModel.OriginalName | upperFirst}}:{{.Endpoint.ResponseModel.OriginalName | lowerFirst}}];
+        return {{.Endpoint.ResponseModel.OriginalName | lowerFirst}};
+{{- else if .Endpoint.IsArrayResponse -}}
+    return [{{.Config.APIPrefix}}SerializableModelUtils parseResponse:response asArrayOfModel:[{{.Endpoint.ResponseModel.Name}} class]];
+{{- else if .Endpoint.IsMapResponse -}}
+    return [{{.Config.APIPrefix}}SerializableModelUtils parseResponse:response asDictionaryOfStringKeysAndValuesOfModel:[{{.Endpoint.ResponseModel.Name}} class]];
+{{- else if .Endpoint.IsModelResponse -}}
+    {{if eq .Endpoint.Method.String "PUT" | and .Endpoint.NeedsModelParam | and (eq .Endpoint.RequestModel.Name .Endpoint.ResponseModel.Name) -}}
+        return [{{.Config.APIPrefix}}SerializableModelUtils parseResponse:response updatingModel:{{.Endpoint.RequestModel.OriginalName | lowerFirst}}];
+    {{- else -}}
+        return [{{.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.Endpoint.ResponseModel.Name}} class]];
+    {{- end}}
+{{- else if .Endpoint.IsRawResponse | or .Endpoint.IsRawArrayResponse | or .Endpoint.IsRawMapResponse -}}
+    return response;
+{{- end}}
+
+{{- end}}
