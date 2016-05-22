@@ -2,9 +2,11 @@
 
 #import "{{.Config.APIPrefix}}ResourceManager.h"
 #import <AFNetworking/AFNetworking.h>
+#import <AFOAuthCredential>
 
 @interface {{.Config.APIPrefix}}ResourceManager()
 @property (nonatomic, strong) AFHTTPSessionManager *sessionManager;
+@property (nonatomic, strong) AFOAuthCredential *credential;
 @end
 
 @implementation {{.Config.APIPrefix}}ResourceManager
@@ -20,10 +22,16 @@
     }
     return self;
 }
-{{if .AuthEndpoint}}
-- (void)set{{.AuthEndpoint.ResponseModel.OriginalName | upperFirst}}:({{.AuthEndpoint.ResponseModel.Name}} *){{.AuthEndpoint.ResponseModel.OriginalName | lowerFirst}}
+{{if .AuthInfo}}
+{{$modelVar := .AuthInfo.Endpoint.ResponseModel.OriginalName | lowerFirst}}
+- (void)set{{.AuthInfo.Endpoint.ResponseModel.OriginalName | upperFirst}}:({{.AuthInfo.Endpoint.ResponseModel.Name}} *){{$modelVar}}
 {
-    //TODO: Check how to get the accessToken and so on. The .AuthEndpoint has the response kind, the only supported are Model and RawMap
+    self.credential = [AFOAuthCredential credentialWithOAuthToken:{{$modelVar}}.{{.AuthInfo.AccessTokenProp}}
+                                                        tokenType:{{$modelVar}}.{{.AuthInfo.TokenTypeProp}}];
+    {{if .AuthInfo.RefreshTokenProp -}}
+    [self.credential setRefreshToken:{{$modelVar}}.{{.AuthInfo.RefreshTokenProp}}];
+    {{- end}}
+    // TODO
 }
 {{end}}
 - (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath

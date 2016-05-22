@@ -45,6 +45,23 @@ var crudNamePerMethod = map[parser.HTTPMethod]string{
 	parser.DELETE: "delete",
 }
 
+type authInfo struct {
+	Endpoint         *endpointInfo
+	AccessTokenProp  string
+	TokenTypeProp    string
+	RefreshTokenProp string
+}
+
+func newAuthInfo(epi *endpointInfo) *authInfo {
+	// TODO: calculate property names properly. Force to have access token and type. Refresh token optional. Errors?
+	return &authInfo{
+		Endpoint:         epi,
+		AccessTokenProp:  "access_token",
+		TokenTypeProp:    "token_type",
+		RefreshTokenProp: "refresh_token",
+	}
+}
+
 type modelInfo struct {
 	Name                  string
 	OriginalName          string

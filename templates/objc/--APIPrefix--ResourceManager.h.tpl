@@ -9,8 +9,8 @@
 @property (nonatomic, copy) NSString *baseURL;
 
 - (instancetype)initWithBaseURL:(NSString *)baseURL;
-{{if .AuthEndpoint}}
-- (void)set{{.AuthEndpoint.ResponseModel.OriginalName | upperFirst}}:({{.AuthEndpoint.ResponseModel.Name}} *){{.AuthEndpoint.ResponseModel.OriginalName | lowerFirst}};
+{{if .AuthInfo}}
+- (void)set{{.AuthInfo.Endpoint.ResponseModel.OriginalName | upperFirst}}:({{.AuthInfo.Endpoint.ResponseModel.Name}} *){{.AuthInfo.Endpoint.ResponseModel.OriginalName | lowerFirst}};
 {{end}}
 - (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath
                                 params:(NSDictionary *)params;

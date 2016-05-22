@@ -60,7 +60,7 @@ type templateData struct {
 	API              *parser.API
 	CurrentModelInfo *modelInfo
 	AllModelsInfo    map[string]*modelInfo
-	AuthEndpoint     *endpointInfo
+	AuthInfo         *authInfo
 	CurrentTime      time.Time
 }
 
@@ -71,12 +71,12 @@ type languageSpecificGenerator interface {
 
 // Generator contains all the information needed to generate the SDK in a specific language
 type Generator struct {
-	gen          languageSpecificGenerator
-	api          *parser.API
-	modelsInfo   map[string]*modelInfo // Contains processed information to generate the models
-	authEndpoint *endpointInfo
-	config       Config
-	tplDir       string
+	gen        languageSpecificGenerator
+	api        *parser.API
+	modelsInfo map[string]*modelInfo // Contains processed information to generate the models
+	authInfo   *authInfo
+	config     Config
+	tplDir     string
 }
 
 func (g *Generator) Generate() error {
@@ -169,7 +169,7 @@ func (g *Generator) generateGeneralFiles(templateFileNames []string, generalTpls
 			API:           g.api,
 			AllModelsInfo: g.modelsInfo,
 			CurrentTime:   time.Now(),
-			AuthEndpoint:  g.authEndpoint,
+			AuthInfo:      g.authInfo,
 		})
 		if err != nil {
 			return errors.Annotatef(err, "when generating API file %q", fileName)
@@ -199,7 +199,7 @@ func (g *Generator) generatePerModelFiles(templateFileNames []string, modelTpls 
 				API:              g.api,
 				CurrentModelInfo: modelInfo,
 				AllModelsInfo:    g.modelsInfo,
-				AuthEndpoint:     g.authEndpoint,
+				AuthInfo:         g.authInfo,
 				CurrentTime:      time.Now(),
 			})
 			if err != nil {
@@ -333,13 +333,13 @@ func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, respo
 	}
 
 	if epi.Authenticates {
-		if g.authEndpoint != nil {
-			return errors.Annotate(ErrMultipleAuthEndpoints, `this one: "`+g.authEndpoint.URLPath+`" and this one: "`+epi.URLPath)
+		if g.authInfo != nil {
+			return errors.Annotate(ErrMultipleAuthEndpoints, `this one: "`+g.authInfo.Endpoint.URLPath+`" and this one: "`+epi.URLPath)
 		}
 		if epi.ResponseKind != ModelResponse {
 			return errors.Annotate(ErrInvalidAuthResponse, epi.URLPath+" endpoint returns "+epi.ResponseKind.String())
 		}
-		g.authEndpoint = &epi
+		g.authInfo = newAuthInfo(&epi)
 	}
 
 	resourceModelInfo.EndpointsInfo = append(resourceModelInfo.EndpointsInfo, epi)
