@@ -11,13 +11,14 @@ Still in an early stage of development. Be patient ;-)
 - [x] Allow model tuning in the same way than property tuning (taking into account the models whose name is taken from the resource endpoint)
 - [x] Raw responses (map, array and id)
 - [ ] Raw properties (map, array and id)
+- [ ] Token based authentication (think of a smart way to accomplish this. Maybe nothing is needed or simple a way to specify the headers that must be set in a general way)
+- [ ] Update the readme
 
-
+- [ ] Allow specifying error responses
+- [ ] [ObjC]Generate code to log responses
 - [ ] Allow endpoint tuning (HTTP method -> crud method name override, resource -> model name part of service method override)
 - [ ] Allow specifying Time type in properties (What format?).
-- [ ] Token based authentication (think of a smart way to accomplish this. Maybe nothing is needed or simple a way to specify the headers that must be set in a general way)
 
-- [ ] Update the readme
 
 - [ ] Use 'RequestKind' (not relay on HTTP method, like "NeedsModelParam") in the same way as 'ResponseKind': this will allow to send different things (like an array of models to bulk update or a map or raw things)
 - [ ] Support for format specifiers at the end of the endpoint (.json)? (by simply ignore them for now)
