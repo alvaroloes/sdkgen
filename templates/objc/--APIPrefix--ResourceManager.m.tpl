@@ -62,10 +62,12 @@ static NSString *const kOAUTHCredentialIdentifier = @"{{.Config.APIPrefix}}OAUTH
                                        progress:nil
                                      {{- end}}
                                         success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                                            resolver(responseObject);
+                                            NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.response;
+                                            resolver(PMKManifold(responseObject, @(response.statusCode)));
                                         }
                                         failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                                            resolver(error);
+                                            NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.response;
+                                            resolver(PMKManifold(error, @(response.statusCode)));
                                         }];
                  return requestPromise;
              }];
@@ -94,16 +96,33 @@ static NSString *const kOAUTHCredentialIdentifier = @"{{.Config.APIPrefix}}OAUTH
 
 - (AnyPromise *)doRequest:(AnyPromise *(^)())requestBlock
 {
-    {{/* typeof (self) __weak weakSelf = self; */}}
+    {{- if .AuthInfo}}
+    typeof (self) __weak weakSelf = self;
+    {{- end}}
     return requestBlock()
     .then(^(id response) {
-        // TODO: Log response
+        // TODO: Add logging
         return response;
     })
-    .catch(^(NSError *error) {
-        // TODO: Check unauthorized, use refresh token, retry, parse custom error.
-        return error;
+    .catch(^(NSError *error, NSNumber *statusCode) {
+        // TODO: Add logging
+        {{- if .AuthInfo}}
+        if (statusCode.integerValue != 401)
+        {
+            return error;
+        }
+        return [weakSelf doRefreshTokenRequest].then(^{
+            // Retry the request
+            return requestBlock();
+        });
+        {{- end}}
     });
 }
+{{if .AuthInfo}}
+- (AnyPromise *)doRefreshTokenRequest
+{
+ // TODO
+}
+{{end}}
 
 @end

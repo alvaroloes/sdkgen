@@ -15,7 +15,7 @@ Still in an early stage of development. Be patient ;-)
 - [ ] Update the readme
 
 - [ ] Allow specifying error responses
-- [ ] [ObjC]Generate code to log responses
+- [ ] [ObjC]Generate code to log request/responses
 - [ ] Allow endpoint tuning (HTTP method -> crud method name override, resource -> model name part of service method override)
 - [ ] Allow specifying Time type in properties (What format?).
 
