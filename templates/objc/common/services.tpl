@@ -29,7 +29,7 @@
 
 {{if .Endpoint.Authenticates -}}
     {{.Endpoint.ResponseModel.Name}} *{{.Endpoint.ResponseModel.OriginalName | lowerFirst}} = [{{.Config.APIPrefix}}SerializableModelUtils parseResponse:response asModel:[{{.Endpoint.ResponseModel.Name}} class]];
-        [weakSelf.resourceManager set{{.Endpoint.ResponseModel.OriginalName | upperFirst}}:{{.Endpoint.ResponseModel.OriginalName | lowerFirst}}];
+        [weakSelf.resourceManager update{{.Endpoint.ResponseModel.OriginalName | upperFirst}}:{{.Endpoint.ResponseModel.OriginalName | lowerFirst}}];
         return {{.Endpoint.ResponseModel.OriginalName | lowerFirst}};
 {{- else if .Endpoint.IsArrayResponse -}}
     return [{{.Config.APIPrefix}}SerializableModelUtils parseResponse:response asArrayOfModel:[{{.Endpoint.ResponseModel.Name}} class]];

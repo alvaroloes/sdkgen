@@ -2,8 +2,11 @@
 
 #import "{{.Config.APIPrefix}}ResourceManager.h"
 #import <AFNetworking/AFNetworking.h>
+{{if .AuthInfo -}}
 #import <AFOAuthCredential>
 
+static NSString *const kOAUTHCredentialIdentifier = @"{{.Config.APIPrefix}}OAUTHCredentialIdentifier";
+{{end}}
 @interface {{.Config.APIPrefix}}ResourceManager()
 @property (nonatomic, strong) AFHTTPSessionManager *sessionManager;
 @property (nonatomic, strong) AFOAuthCredential *credential;
@@ -19,19 +22,29 @@
         _sessionManager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:baseURL]];
         _sessionManager.responseSerializer = [AFJSONResponseSerializer serializer];
         _sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
+        {{if .AuthInfo -}}
+        _credential = [AFOAuthCredential retrieveCredentialWithIdentifier:kOAUTHCredentialIdentifier];
+        if (_credential != nil)
+        {
+            [self.sessionManager.requestSerializer setValue:[NSString stringWithFormat:@"%@ %@", _credential.tokenType, _credential.accessToken]
+                                         forHTTPHeaderField:@"Authorization"];
+        }
+        {{- end}}
     }
     return self;
 }
 {{if .AuthInfo}}
 {{$modelVar := .AuthInfo.Endpoint.ResponseModel.OriginalName | lowerFirst}}
-- (void)set{{.AuthInfo.Endpoint.ResponseModel.OriginalName | upperFirst}}:({{.AuthInfo.Endpoint.ResponseModel.Name}} *){{$modelVar}}
+- (void)update{{.AuthInfo.Endpoint.ResponseModel.OriginalName | upperFirst}}:({{.AuthInfo.Endpoint.ResponseModel.Name}} *){{$modelVar}}
 {
     self.credential = [AFOAuthCredential credentialWithOAuthToken:{{$modelVar}}.{{.AuthInfo.AccessTokenProp}}
                                                         tokenType:{{$modelVar}}.{{.AuthInfo.TokenTypeProp}}];
     {{if .AuthInfo.RefreshTokenProp -}}
     [self.credential setRefreshToken:{{$modelVar}}.{{.AuthInfo.RefreshTokenProp}}];
-    {{- end}}
-    // TODO
+    {{end -}}
+    [self.sessionManager.requestSerializer setValue:[NSString stringWithFormat:@"%@ %@", self.credential.tokenType, self.credential.accessToken]
+                                 forHTTPHeaderField:@"Authorization"];
+    [AFOAuthCredential storeCredential:self.credential withIdentifier:kOAUTHCredentialIdentifier];
 }
 {{end}}
 - (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath

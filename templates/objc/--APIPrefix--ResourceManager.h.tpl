@@ -10,7 +10,7 @@
 
 - (instancetype)initWithBaseURL:(NSString *)baseURL;
 {{if .AuthInfo}}
-- (void)set{{.AuthInfo.Endpoint.ResponseModel.OriginalName | upperFirst}}:({{.AuthInfo.Endpoint.ResponseModel.Name}} *){{.AuthInfo.Endpoint.ResponseModel.OriginalName | lowerFirst}};
+- (void)update{{.AuthInfo.Endpoint.ResponseModel.OriginalName | upperFirst}}:({{.AuthInfo.Endpoint.ResponseModel.Name}} *){{.AuthInfo.Endpoint.ResponseModel.OriginalName | lowerFirst}};
 {{end}}
 - (AnyPromise *)getResourceWithURLPath:(NSString *)urlPath
                                 params:(NSDictionary *)params;
