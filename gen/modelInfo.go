@@ -26,12 +26,12 @@ const (
 	EmptyResponse
 )
 
+// Property and model specification
 const (
 	propertySpecSeparator = ":"
 	attrSeparator         = ";"
 	attrKeyValueSeparator = "="
-)
-const (
+
 	attrKeyName = "name"
 	attrKeyType = "type"
 	attrKeyMap  = "map"
@@ -45,6 +45,12 @@ var crudNamePerMethod = map[parser.HTTPMethod]string{
 	parser.DELETE: "delete",
 }
 
+const (
+	accessTokenPropName  = "accessToken"
+	tokenTypePropName    = "tokenType"
+	refreshTokenPropName = "refreshToken"
+)
+
 type authInfo struct {
 	Endpoint         *endpointInfo
 	AccessTokenProp  string
@@ -52,14 +58,27 @@ type authInfo struct {
 	RefreshTokenProp string
 }
 
-func newAuthInfo(epi *endpointInfo) *authInfo {
-	// TODO: calculate property names properly. Force to have access token and type. Refresh token optional. Errors?
-	return &authInfo{
-		Endpoint:         epi,
-		AccessTokenProp:  "access_token",
-		TokenTypeProp:    "token_type",
-		RefreshTokenProp: "refresh_token",
+func newAuthInfo(epi *endpointInfo) (*authInfo, error) {
+	ai := &authInfo{
+		Endpoint: epi,
 	}
+
+	for _, prop := range epi.ResponseModel.Properties {
+		if prop.NameLabel == accessTokenPropName {
+			ai.AccessTokenProp = accessTokenPropName
+		}
+		if prop.NameLabel == tokenTypePropName {
+			ai.TokenTypeProp = tokenTypePropName
+		}
+		if prop.NameLabel == refreshTokenPropName {
+			ai.RefreshTokenProp = refreshTokenPropName
+		}
+	}
+
+	if ai.AccessTokenProp == "" || ai.TokenTypeProp == "" {
+		return nil, errors.Errorf("The auth endpoint response needs to have at least '%s' and '%s' among its propertie names", accessTokenPropName, tokenTypePropName)
+	}
+	return ai, nil
 }
 
 type modelInfo struct {
@@ -69,9 +88,6 @@ type modelInfo struct {
 	EndpointsInfo         []endpointInfo
 	ModelDependencies     map[*modelInfo]struct{}
 	EndpointsDependencies map[*modelInfo]struct{}
-
-	// These are responsibility of language specific generators
-	LangSpecificData map[string]interface{}
 }
 
 func (mi *modelInfo) DependsOnModel(modelName string) bool {

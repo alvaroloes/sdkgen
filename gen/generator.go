@@ -238,15 +238,29 @@ func (g *Generator) extractModelsInfo() error {
 		}
 
 		// Extract the endpoint info and set it to the corresponding model
-		err := g.setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs, endpoint)
-		if err != nil {
-			return errors.Trace(err)
-		}
+		epi := g.setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs, endpoint)
 
 		// Merge the properties form the request and response bodies into
 		// the corresponding model
 		g.mergeModelProperties(requestModelAttrs.modelType, endpoint.RequestBody)
 		g.mergeModelProperties(responseModelAttrs.modelType, endpoint.ResponseBody)
+
+		// Set the auth endpoint
+		if epi.Authenticates {
+			if g.authInfo != nil {
+				return errors.Annotate(ErrMultipleAuthEndpoints, `this one: "`+g.authInfo.Endpoint.URLPath+`" and this one: "`+epi.URLPath)
+			}
+			if epi.ResponseKind != ModelResponse {
+				return errors.Annotate(ErrInvalidAuthResponse, epi.URLPath+" endpoint returns "+epi.ResponseKind.String())
+			}
+
+			authInfo, err := newAuthInfo(&epi)
+			if err != nil {
+				return errors.Trace(err)
+			}
+
+			g.authInfo = authInfo
+		}
 	}
 	return nil
 }
@@ -304,14 +318,14 @@ func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVa
 	}
 }
 
-func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs modelAttributes, endpoint parser.Endpoint) error {
+func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs modelAttributes, endpoint parser.Endpoint) (createdEndpointInfo endpointInfo) {
 	// Get/Create the needed models
 	resourceModelInfo := g.getModelOrCreate(resourceModelAttrs.modelType)
 	requestModelInfo := g.getModelOrCreate(requestModelAttrs.modelType)
 	responseModelInfo := g.getModelOrCreate(responseModelAttrs.modelType)
 
 	// Build the endpoint
-	epi := endpointInfo{
+	createdEndpointInfo = endpointInfo{
 		ResourceModel:  resourceModelInfo,
 		RequestModel:   requestModelInfo,
 		ResponseModel:  responseModelInfo,
@@ -325,25 +339,15 @@ func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, respo
 	}
 
 	// Add the dependencies
-	if epi.NeedsModelParam() {
+	if createdEndpointInfo.NeedsModelParam() {
 		resourceModelInfo.EndpointsDependencies[requestModelInfo] = struct{}{}
 	}
-	if epi.HasResponse() /*TODO: && !epi.IsRawMapResponse()*/ {
+	if createdEndpointInfo.HasResponse() /*TODO: && !epi.IsRawMapResponse()*/ {
 		resourceModelInfo.EndpointsDependencies[responseModelInfo] = struct{}{}
 	}
 
-	if epi.Authenticates {
-		if g.authInfo != nil {
-			return errors.Annotate(ErrMultipleAuthEndpoints, `this one: "`+g.authInfo.Endpoint.URLPath+`" and this one: "`+epi.URLPath)
-		}
-		if epi.ResponseKind != ModelResponse {
-			return errors.Annotate(ErrInvalidAuthResponse, epi.URLPath+" endpoint returns "+epi.ResponseKind.String())
-		}
-		g.authInfo = newAuthInfo(&epi)
-	}
-
-	resourceModelInfo.EndpointsInfo = append(resourceModelInfo.EndpointsInfo, epi)
-	return nil
+	resourceModelInfo.EndpointsInfo = append(resourceModelInfo.EndpointsInfo, createdEndpointInfo)
+	return
 }
 
 func (g *Generator) getModelOrCreate(modelName string) *modelInfo {
