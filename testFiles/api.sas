@@ -1,5 +1,5 @@
-AUTH POST https://www.alvaroloes.com/oauth/token
--> {
+AUTH_TOKEN POST https://www.alvaroloes.com/oauth/token
+-> type = authRequest {
     "username":"testUser",
     "password": "demo",
     "first_name": "Test",
@@ -7,7 +7,7 @@ AUTH POST https://www.alvaroloes.com/oauth/token
     "grant_type": "password"
 }
 
-<- type = access {
+<- {
     "accessToken": "token",
     "tokenType": "Bearer",
     "refreshToken": "refreshToken",

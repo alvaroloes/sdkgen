@@ -26,7 +26,7 @@ const (
 	DELETE
 )
 
-const authToken = "AUTH"
+const authToken = "AUTH_TOKEN"
 
 var supportedMethods = GET.String() + "|" + POST.String() + "|" + PUT.String() + "|" + DELETE.String()
 
@@ -34,7 +34,7 @@ var endpointRegexp = regexp.MustCompile(`(?m)^\s*(` + authToken + `)?\s*?(` + su
 
 const (
 	endpointFullIndex = 2 * iota
-	authIndex
+	authTokenIndex
 	methodIndex
 	urlIndex
 )
@@ -148,7 +148,7 @@ func NewAPI(spec []byte) (*API, error) {
 		}
 		endpoint.Method = httpMethod
 
-		endpoint.Authenticates = match[authIndex] >= 0
+		endpoint.Authenticates = match[authTokenIndex] >= 0
 
 		if err := endpoint.extractResources(); err != nil {
 			return nil, errors.Annotate(err, "while extracting resources of "+endpoint.URL.String())
@@ -165,7 +165,6 @@ func NewAPI(spec []byte) (*API, error) {
 			return nil, errors.Annotate(err, "while extracting bodies of "+endpoint.URL.String())
 		}
 
-		// TODO: Check here if we understand the token response if authenticates
 		api.Endpoints = append(api.Endpoints, endpoint)
 	}
 
