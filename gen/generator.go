@@ -22,6 +22,7 @@ var (
 	ErrLangNotSupported      = errors.New("language not supported")
 	ErrMultipleAuthEndpoints = errors.New("more than one authentication endpoint is not supported")
 	ErrInvalidAuthResponse   = errors.Errorf("invalid response for the authentication endpoint. Only %s is supported", ModelResponse)
+	ErrNullPropertyValue     = errors.New("null property values are not allowed")
 )
 
 //go:generate enumer -type=Language
@@ -242,8 +243,15 @@ func (g *Generator) extractModelsInfo() error {
 
 		// Merge the properties form the request and response bodies into
 		// the corresponding model
-		g.mergeModelProperties(requestModelAttrs.modelType, endpoint.RequestBody)
-		g.mergeModelProperties(responseModelAttrs.modelType, endpoint.ResponseBody)
+		err := g.mergeModelProperties(requestModelAttrs.modelType, endpoint.RequestBody)
+		if err != nil {
+			return err
+		}
+
+		err = g.mergeModelProperties(responseModelAttrs.modelType, endpoint.ResponseBody)
+		if err != nil {
+			return err
+		}
 
 		// Set the auth endpoint
 		if epi.Authenticates {
@@ -270,9 +278,9 @@ func (g *Generator) getURLPathForModels(url *url.URL) string {
 	return url.Path
 }
 
-func (g *Generator) mergeModelProperties(modelName string, body interface{}) {
+func (g *Generator) mergeModelProperties(modelName string, body interface{}) error {
 	if body == nil {
-		return
+		return nil
 	}
 
 	mInfo := g.getModelOrCreate(modelName)
@@ -281,22 +289,27 @@ func (g *Generator) mergeModelProperties(modelName string, body interface{}) {
 	case reflect.Map:
 		props := body.(map[string]interface{})
 		for propSpec, val := range props {
-			g.mergeModelProperty(mInfo, propSpec, val)
+			if val == nil {
+				return errors.Annotatef(ErrNullPropertyValue, "while parsing %q", propSpec)
+			}
+			if err := g.mergeModelProperty(mInfo, propSpec, val); err != nil {
+				return err
+			}
 		}
 	case reflect.Array, reflect.Slice:
 		// Get the first object of the array and start again
 		arrayVal := reflect.ValueOf(body)
 		if arrayVal.Len() == 0 {
-			return
+			return nil
 		}
-		g.mergeModelProperties(modelName, arrayVal.Index(0).Interface())
-	default:
-		// This means either an empty response or a non resource response. Ignore it
-		return
+		return g.mergeModelProperties(modelName, arrayVal.Index(0).Interface())
 	}
+
+	// This means either an empty response or a non resource response. Ignore it
+	return nil
 }
 
-func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVal interface{}) {
+func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVal interface{}) error {
 	prop := newProperty(propSpec, propVal)
 
 	_, found := mInfo.Properties[prop.Name]
@@ -314,8 +327,9 @@ func (g *Generator) mergeModelProperty(mInfo *modelInfo, propSpec string, propVa
 		//TODO: if !prop.IsRawMap {
 		mInfo.ModelDependencies[g.getModelOrCreate(prop.Type)] = struct{}{}
 		//TODO: }
-		g.mergeModelProperties(prop.Type, propVal)
+		return g.mergeModelProperties(prop.Type, propVal)
 	}
+	return nil
 }
 
 func (g *Generator) setEndpointInfo(resourceModelAttrs, requestModelAttrs, responseModelAttrs modelAttributes, endpoint parser.Endpoint) (createdEndpointInfo endpointInfo) {
