@@ -9,7 +9,12 @@ static NSString *const kOAUTHCredentialIdentifier = @"{{.Config.APIPrefix}}OAUTH
 {{end}}
 @interface {{.Config.APIPrefix}}ResourceManager()
 @property (nonatomic, strong) AFHTTPSessionManager *sessionManager;
+{{- if .AuthInfo}}
 @property (nonatomic, strong) AFOAuthCredential *credential;
+{{- if .AuthInfo.RefreshTokenProp}}
+@property (nonatomic, strong) AnyPromise *refreshTokenPromise;
+{{- end}}
+{{- end}}
 @end
 
 @implementation {{.Config.APIPrefix}}ResourceManager
@@ -106,7 +111,7 @@ static NSString *const kOAUTHCredentialIdentifier = @"{{.Config.APIPrefix}}OAUTH
     })
     .catch(^(NSError *error, NSNumber *statusCode) {
         // TODO: Add logging
-        {{- if .AuthInfo}}
+        {{- if .AuthInfo}}{{if .AuthInfo.RefreshTokenProp}}
         if (statusCode.integerValue != 401)
         {
             return error;
@@ -115,14 +120,19 @@ static NSString *const kOAUTHCredentialIdentifier = @"{{.Config.APIPrefix}}OAUTH
             // Retry the request
             return requestBlock();
         });
-        {{- end}}
+        {{- end}}{{end}}
     });
 }
-{{if .AuthInfo}}
+{{if .AuthInfo}}{{if .AuthInfo.RefreshTokenProp}}
 - (AnyPromise *)doRefreshTokenRequest
 {
- // TODO
-}
-{{end}}
+    if (self.refreshTokenPromise.resolved && self.credential.refreshToken)
+    {
+        //TODO: Do the refresh token request
+        self.refreshTokenPromise = [AnyPromise promiseWithValue:nil];
+    }
 
+    return self.refreshTokenPromise;
+}
+{{end}}{{end}}
 @end
