@@ -3,7 +3,7 @@
 #import "{{.Config.APIPrefix}}ResourceManager.h"
 #import <AFNetworking/AFNetworking.h>
 {{if .AuthInfo -}}
-#import <AFOAuthCredential>
+#import <AFOAuth2Manager/AFOAuthCredential.h>
 
 static NSString *const kOAUTHCredentialIdentifier = @"{{.Config.APIPrefix}}OAUTHCredentialIdentifier";
 {{end}}
@@ -27,11 +27,13 @@ static NSString *const kOAUTHCredentialIdentifier = @"{{.Config.APIPrefix}}OAUTH
         _sessionManager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:baseURL]];
         _sessionManager.responseSerializer = [AFJSONResponseSerializer serializer];
         _sessionManager.requestSerializer = [AFJSONRequestSerializer serializer];
+        [_sessionManager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+        [_sessionManager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         {{if .AuthInfo -}}
         _credential = [AFOAuthCredential retrieveCredentialWithIdentifier:kOAUTHCredentialIdentifier];
         if (_credential != nil)
         {
-            [self.sessionManager.requestSerializer setValue:[NSString stringWithFormat:@"%@ %@", _credential.tokenType, _credential.accessToken]
+            [_sessionManager.requestSerializer setValue:[NSString stringWithFormat:@"%@ %@", _credential.tokenType, _credential.accessToken]
                                          forHTTPHeaderField:@"Authorization"];
         }
         {{- end}}
@@ -114,7 +116,7 @@ static NSString *const kOAUTHCredentialIdentifier = @"{{.Config.APIPrefix}}OAUTH
         {{- if .AuthInfo}}{{if .AuthInfo.RefreshTokenProp}}
         if (statusCode.integerValue != 401)
         {
-            return error;
+            return [AnyPromise promiseWithValue:error];
         }
         return [weakSelf doRefreshTokenRequest].then(^{
             // Retry the request

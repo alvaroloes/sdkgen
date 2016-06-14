@@ -3,6 +3,9 @@
 #import <Foundation/Foundation.h>
 #import <PromiseKit/PromiseKit.h>
 #import "{{.Config.APIPrefix}}SerializableModelProtocol.h"
+{{if .AuthInfo -}}
+#import "{{.AuthInfo.Endpoint.ResponseModel.Name}}.h"
+{{- end}}
 
 @interface {{.Config.APIPrefix}}ResourceManager : NSObject
 
