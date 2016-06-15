@@ -41,7 +41,7 @@
     urlPath = [urlPath stringByAppendingString:[{{$.Config.APIPrefix}}URLHelper encodeQueryStringFromDictionary:query]];
     {{- end}}
 
-    {{if .Authenticates}}typeof(self) __weak weakSelf = self;{{end}}
+    {{if .Authenticates}}{{$.Config.APIPrefix}}ResourceManager *resourceManager = self.resourceManager;{{end}}
     return [self.resourceManager {{.Method.String | lower}}ResourceWithURLPath:urlPath
                                                  params:{{if .NeedsModelParam -}}
                                                             [{{.RequestModel.OriginalName | lowerFirst}} toDictionary]
